@@ -1,5 +1,6 @@
 from flask import Flask, session, request, redirect, url_for, render_template_string, render_template, flash, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect, CSRFError, generate_csrf
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from functools import wraps
@@ -18,6 +19,20 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-replace-in-prod')
 
 # ----------------------------------------------------------------------
+# CSRF protection — every POST form is protected. Tokens are auto-injected
+# into forms by the after_request hook below, so no template needs editing.
+# ----------------------------------------------------------------------
+app.config['WTF_CSRF_TIME_LIMIT'] = None      # token valid for the whole session
+csrf = CSRFProtect(app)
+
+@app.errorhandler(CSRFError)
+def _handle_csrf_error(e):
+    # A stale/expired token (e.g. left a tab open a long time). Bounce them back
+    # with a friendly message rather than a raw 400.
+    flash('Your session expired for security — please try that again.', 'error')
+    return redirect(request.referrer or url_for('index')), 303
+
+# ----------------------------------------------------------------------
 # Config — pricing, VAT, margins, supplier, admin
 # ----------------------------------------------------------------------
 VAT_RATE = 0.21              # 21% included in retail prices
@@ -30,6 +45,23 @@ SUPPLIER_NAME  = os.environ.get('SUPPLIER_NAME',  'PepHub Supplier')
 FROM_EMAIL     = os.environ.get('FROM_EMAIL',     'orders@pephub.example')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'changeme-pephub')
+
+# ----------------------------------------------------------------------
+# Legal / company identity — used across the Terms, Privacy, Cookie,
+# Refund, Shipping and Imprint pages.  >>> EDIT THESE with your real
+# registered details (or set them as env vars on Render). <<<
+# ----------------------------------------------------------------------
+LEGAL = {
+    'entity':   os.environ.get('LEGAL_ENTITY',  'PepHub'),                       # registered trading / company name
+    'address':  os.environ.get('LEGAL_ADDRESS', '[Registered business address — please edit]'),
+    'reg_no':   os.environ.get('LEGAL_REG_NO',  '[Company / chamber-of-commerce number — please edit]'),
+    'vat_no':   os.environ.get('LEGAL_VAT_NO',  '[VAT number — please edit]'),
+    'email':    os.environ.get('LEGAL_EMAIL',   'support@pep-hub.eu'),           # customer + privacy contact
+    'privacy_email': os.environ.get('LEGAL_PRIVACY_EMAIL', 'privacy@pep-hub.eu'),
+    'country':  os.environ.get('LEGAL_COUNTRY', '[your country of registration]'),  # governing law
+    'site':     'pep-hub.eu',
+    'updated':  '8 July 2026',                                                    # bump when you change the text
+}
 
 # ----------------------------------------------------------------------
 # Database
@@ -47,21 +79,84 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Preview/test-store banner — shown site-wide while PREVIEW_MODE is truthy.
 PREVIEW_MODE = os.environ.get('PREVIEW_MODE', '').lower() not in ('', '0', 'false', 'no')
 
+_PREVIEW_BANNER = ('<div id="ph-preview-banner" style="position:sticky;top:0;z-index:11000;'
+                   'background:#B45309;color:#fff;text-align:center;font-size:.8rem;font-weight:700;'
+                   'padding:.4rem 1rem;letter-spacing:.02em;">⚠ PREVIEW STORE — test mode. '
+                   'Orders and subscriptions are not charged or fulfilled yet.</div>')
+
+_LEGAL_FOOTER = (
+    '<div id="ph-legal-footer" style="background:#0b0b0b;border-top:1px solid #222;'
+    'padding:1.1rem 1rem;text-align:center;font-size:.75rem;line-height:1.9;color:#9a9a9a;">'
+    '<div style="max-width:900px;margin:0 auto;">'
+    '<a href="/legal/terms" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Terms &amp; Conditions</a>·'
+    '<a href="/legal/privacy" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Privacy Policy</a>·'
+    '<a href="/legal/cookies" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Cookie Policy</a>·'
+    '<a href="/legal/refunds" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Refunds &amp; Returns</a>·'
+    '<a href="/legal/shipping" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Shipping</a>·'
+    '<a href="/legal/imprint" style="color:#c9c9c9;text-decoration:none;margin:0 .55rem;">Imprint</a>'
+    '<div style="margin-top:.5rem;color:#6b6b6b;">Products are sold for laboratory research purposes only — '
+    'not for human or veterinary use, food, or cosmetic application.</div>'
+    '</div></div>')
+
+_COOKIE_BANNER = (
+    '<div id="ph-cookie" style="position:fixed;left:1rem;right:1rem;bottom:1rem;z-index:12000;max-width:760px;'
+    'margin:0 auto;background:#1c1c1c;border:1px solid #333;border-radius:12px;padding:1rem 1.1rem;'
+    'box-shadow:0 10px 40px rgba(0,0,0,.5);font-size:.82rem;color:#e6e6e6;display:flex;gap:1rem;'
+    'align-items:center;flex-wrap:wrap;">'
+    '<div style="flex:1;min-width:240px;line-height:1.5;">We use only <strong>essential cookies</strong> needed '
+    'to run the store (your cart, login and security). We do not use tracking or advertising cookies. '
+    'See our <a href="/legal/cookies" style="color:#FF9000;">Cookie Policy</a>.</div>'
+    '<button onclick="phCookieOk()" style="background:#FF9000;color:#000;border:0;border-radius:8px;'
+    'padding:.55rem 1.2rem;font-weight:800;cursor:pointer;white-space:nowrap;">Got it</button></div>'
+    '<script>function phCookieOk(){document.cookie="ph_consent=1;path=/;max-age=31536000;samesite=Lax";'
+    'var b=document.getElementById("ph-cookie");if(b)b.remove();}</script>')
+
+
+def _inject_csrf_tokens(html, token):
+    """Insert a hidden csrf_token field immediately after every POST <form> tag."""
+    field = '<input type="hidden" name="csrf_token" value="%s">' % token
+
+    def _repl(m):
+        tag = m.group(0)
+        if re.search(r'method\s*=\s*["\']?\s*post', tag, re.I):
+            return tag + field
+        return tag
+    return re.sub(r'<form\b[^>]*>', _repl, html, flags=re.I)
+
+
 @app.after_request
-def _inject_preview_banner(resp):
-    if not PREVIEW_MODE:
-        return resp
+def _inject_site_chrome(resp):
+    """Site-wide HTML post-processing: CSRF tokens, preview banner, cookie
+    consent and the legal footer. Mirrors the original preview-banner approach."""
     ctype = resp.content_type or ''
     if not ctype.startswith('text/html') or resp.direct_passthrough:
         return resp
     try:
         html = resp.get_data(as_text=True)
-        if '<body' in html and 'ph-preview-banner' not in html:
-            banner = ('<div id="ph-preview-banner" style="position:sticky;top:0;z-index:11000;'
-                      'background:#B45309;color:#fff;text-align:center;font-size:.8rem;font-weight:700;'
-                      'padding:.4rem 1rem;letter-spacing:.02em;">⚠ PREVIEW STORE — test mode. '
-                      'Orders and subscriptions are not charged or fulfilled yet.</div>')
-            html = re.sub(r'(<body[^>]*>)', r'\1' + banner, html, count=1)
+        changed = False
+
+        # 1. CSRF token into every POST form (skip if none / already present)
+        if '<form' in html and 'name="csrf_token"' not in html:
+            html = _inject_csrf_tokens(html, generate_csrf())
+            changed = True
+
+        # 2. Preview banner (right after <body>)
+        if PREVIEW_MODE and '<body' in html and 'ph-preview-banner' not in html:
+            html = re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + _PREVIEW_BANNER, html, count=1)
+            changed = True
+
+        # 3. Legal footer + cookie banner (right before </body>)
+        if '</body>' in html:
+            tail = ''
+            if 'ph-legal-footer' not in html:
+                tail += _LEGAL_FOOTER
+            if 'ph-cookie' not in html and not request.cookies.get('ph_consent'):
+                tail += _COOKIE_BANNER
+            if tail:
+                html = html.replace('</body>', tail + '</body>', 1)
+                changed = True
+
+        if changed:
             resp.set_data(html)
     except Exception:
         pass
@@ -3116,6 +3211,269 @@ ACCOUNT_HTML = """
 <div class="footer-note"><div class="container">© Pep Hub — for research purposes only.</div></div>
 </body></html>
 """
+
+# ======================================================================
+# Legal / policy pages  —  /legal/<page>
+# ======================================================================
+LEGAL_HTML = """
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} | Pep Hub</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+ :root{--gold:#FF9000;--ph-border:#2D2D2D;--muted:#9a9a9a;}
+ body{background:#141414;color:#EDEDED;font-family:'Inter',system-ui,sans-serif;margin:0;}
+ .navbar{background:#000;border-bottom:1px solid var(--ph-border);padding:.85rem 0;}
+ .navbar-brand{font-weight:800;color:#fff!important;font-size:1.5rem;text-decoration:none;}
+ .navbar-brand .h{background:var(--gold);color:#000;border-radius:6px;padding:.05em .3em;font-weight:900;}
+ .ph-menu{display:flex;gap:1.5rem;align-items:center;}
+ .ph-menu a{color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.9rem;white-space:nowrap;}
+ .ph-menu a:hover{color:var(--gold);}
+ .wrap{max-width:820px;margin:0 auto;padding:2.5rem 1.25rem 4rem;}
+ h1{font-size:2rem;font-weight:800;margin-bottom:.4rem;}
+ .updated{color:var(--muted);font-size:.85rem;margin-bottom:2rem;}
+ h2{font-size:1.15rem;font-weight:800;color:#fff;margin:2rem 0 .6rem;}
+ p,li{color:#d0d0d0;line-height:1.7;font-size:.95rem;}
+ a{color:var(--gold);}
+ ul{padding-left:1.2rem;}
+ .box{background:#1d1d1d;border:1px solid var(--ph-border);border-radius:10px;padding:1rem 1.2rem;margin:1.2rem 0;}
+ .toc{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem;}
+ .toc a{background:#1d1d1d;border:1px solid var(--ph-border);border-radius:999px;padding:.3rem .8rem;font-size:.8rem;text-decoration:none;color:#cfcfcf;}
+ .toc a.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+</style></head><body>
+<nav class="navbar"><div class="container-fluid px-4 d-flex align-items-center">
+  <a class="navbar-brand" href="/">Pep<span class="h">Hub</span></a>
+  <div class="ph-menu mx-auto d-none d-lg-flex">
+    <a href="/">Home</a><a href="/#products">Shop</a><a href="/deals">Bulk Deals</a>
+    <a href="/science">Science Hub</a><a href="/coa">COA Reports</a><a href="/account">Account</a>
+  </div>
+</div></nav>
+<div class="wrap">
+  <div class="toc">
+    <a href="/legal/terms" class="{{ 'active' if current=='terms' }}">Terms</a>
+    <a href="/legal/privacy" class="{{ 'active' if current=='privacy' }}">Privacy</a>
+    <a href="/legal/cookies" class="{{ 'active' if current=='cookies' }}">Cookies</a>
+    <a href="/legal/refunds" class="{{ 'active' if current=='refunds' }}">Refunds</a>
+    <a href="/legal/shipping" class="{{ 'active' if current=='shipping' }}">Shipping</a>
+    <a href="/legal/imprint" class="{{ 'active' if current=='imprint' }}">Imprint</a>
+  </div>
+  <h1>{{ title }}</h1>
+  <div class="updated">Last updated: {{ legal.updated }}</div>
+  {{ body|safe }}
+</div>
+</body></html>
+"""
+
+# Each body is a Jinja fragment rendered with the LEGAL config, so company
+# details stay in one place. Written for an EU research-chemical storefront.
+LEGAL_PAGES = {
+ 'terms': {'title': 'Terms & Conditions', 'body': """
+<p>These Terms &amp; Conditions govern your use of {{ legal.site }} (the “Site”), operated by
+{{ legal.entity }} (“we”, “us”, “our”). By placing an order or using the Site you agree to these terms.</p>
+
+<div class="box"><strong>Research use only.</strong> All products sold on this Site are supplied strictly as
+<em>laboratory research materials</em>. They are <strong>not</strong> medicines, dietary supplements, food,
+cosmetics, or products for human or veterinary consumption, and must not be administered to humans or animals.
+By ordering you confirm you are a qualified purchaser using the products for lawful in-vitro research only, and
+that you are at least 18 years old.</p></div>
+
+<h2>1. Eligibility</h2>
+<p>You must be at least 18 and legally permitted to purchase research chemicals in your jurisdiction. You are
+solely responsible for ensuring the products you order are legal to import and possess where you live.</p>
+
+<h2>2. Orders &amp; acceptance</h2>
+<p>An order is an offer to buy. A contract forms only when we confirm dispatch. We may decline or cancel any
+order — for example where a product is unavailable, pricing was clearly erroneous, or we cannot verify the order —
+and will refund any amount already paid.</p>
+
+<h2>3. Prices &amp; payment</h2>
+<p>Prices are shown in euros and include VAT where applicable. We may change prices at any time, but changes do
+not affect confirmed orders. Payment is taken through our payment processor; we do not store full card details.</p>
+
+<h2>4. Subscriptions</h2>
+<p>Subscription plans renew automatically and carry a <strong>minimum term of 3 months</strong>. You may cancel
+at any time after the minimum term via your account; cancellation stops future renewals and takes effect at the
+end of the current paid period. See also our <a href="/legal/refunds">Refunds &amp; Returns</a> policy.</p>
+
+<h2>5. Delivery</h2>
+<p>Delivery terms and timescales are set out in our <a href="/legal/shipping">Shipping Policy</a>. Risk in the
+goods passes to you on delivery.</p>
+
+<h2>6. Acceptable use &amp; liability</h2>
+<p>You must not misuse the Site or use any product unlawfully or in any way that endangers health or safety. To
+the fullest extent permitted by law, our total liability arising from any order is limited to the amount you paid
+for that order. Nothing in these terms limits liability that cannot be limited by law.</p>
+
+<h2>7. Intellectual property</h2>
+<p>All content on the Site — including Science Hub articles, images and branding — is owned by or licensed to
+{{ legal.entity }} and may not be reproduced without permission.</p>
+
+<h2>8. Governing law</h2>
+<p>These terms are governed by the laws of {{ legal.country }}, and disputes are subject to its courts, without
+affecting mandatory consumer-protection rights you may have.</p>
+
+<h2>9. Contact</h2>
+<p>{{ legal.entity }} · {{ legal.address }} · <a href="mailto:{{ legal.email }}">{{ legal.email }}</a></p>
+"""},
+
+ 'privacy': {'title': 'Privacy Policy', 'body': """
+<p>This Privacy Policy explains how {{ legal.entity }} (“we”) collects and uses your personal data when you use
+{{ legal.site }}, in accordance with the EU General Data Protection Regulation (GDPR). The data controller is
+{{ legal.entity }}, {{ legal.address }}.</p>
+
+<h2>1. What we collect</h2>
+<ul>
+ <li><strong>Account &amp; order data</strong> — name, email, phone, delivery/billing address, order history.</li>
+ <li><strong>Payment data</strong> — processed by our payment provider; we receive only a confirmation and the
+     last digits/brand of the card, never the full card number.</li>
+ <li><strong>Account credentials</strong> — your password is stored only as a salted hash.</li>
+ <li><strong>Technical data</strong> — essential session cookie, and server logs (IP, timestamp) kept for
+     security and fraud prevention.</li>
+</ul>
+
+<h2>2. Why we use it &amp; legal basis</h2>
+<ul>
+ <li>To process orders, subscriptions and deliveries — <em>performance of a contract</em>.</li>
+ <li>To operate accounts, the affiliate programme and customer support — <em>contract / legitimate interests</em>.</li>
+ <li>To meet tax, accounting and legal obligations — <em>legal obligation</em>.</li>
+ <li>To keep the Site secure and prevent fraud — <em>legitimate interests</em>.</li>
+</ul>
+<p>We do <strong>not</strong> sell your data or use advertising/tracking cookies.</p>
+
+<h2>3. Who we share it with</h2>
+<p>Only with processors who help us run the store, under data-processing agreements: our hosting provider, our
+payment processor, and our shipping/fulfilment partner. Some may process data outside the EEA under appropriate
+safeguards (e.g. EU Standard Contractual Clauses).</p>
+
+<h2>4. How long we keep it</h2>
+<p>Order and invoice records are retained as long as required by law (typically up to 7 years). Account data is
+kept while your account is active and deleted on request where no legal obligation requires retention.</p>
+
+<div class="box"><h2 style="margin-top:0">5. Your GDPR rights</h2>
+<p>You have the right to <strong>access</strong>, <strong>rectify</strong>, <strong>erase</strong> (“right to be
+forgotten”), <strong>restrict</strong> or <strong>object to</strong> processing, and to <strong>data
+portability</strong>. You may withdraw consent at any time and lodge a complaint with your national data-protection
+authority. To exercise any right, email <a href="mailto:{{ legal.privacy_email }}">{{ legal.privacy_email }}</a>;
+we respond within one month.</p></div>
+
+<h2>6. Cookies</h2>
+<p>We use only essential cookies. See our <a href="/legal/cookies">Cookie Policy</a>.</p>
+
+<h2>7. Contact</h2>
+<p>Privacy enquiries: <a href="mailto:{{ legal.privacy_email }}">{{ legal.privacy_email }}</a> ·
+{{ legal.entity }}, {{ legal.address }}.</p>
+"""},
+
+ 'cookies': {'title': 'Cookie Policy', 'body': """
+<p>This policy explains how {{ legal.site }} uses cookies and similar technologies.</p>
+
+<h2>What we use</h2>
+<p>We use <strong>strictly necessary cookies only</strong> — these are required for the Site to function and do
+not need consent under the GDPR/ePrivacy rules. We do <strong>not</strong> use analytics, advertising or
+cross-site tracking cookies.</p>
+
+<h2>Cookies we set</h2>
+<ul>
+ <li><strong>session</strong> — keeps you signed in and remembers your shopping cart. Expires when you close your
+     browser (or shortly after). Essential.</li>
+ <li><strong>csrf</strong> — a security token that protects forms against cross-site request forgery. Essential.</li>
+ <li><strong>ph_consent</strong> — remembers that you have seen the cookie notice so we don't show it again.
+     Lasts up to 12 months.</li>
+</ul>
+
+<h2>Managing cookies</h2>
+<p>You can block or delete cookies in your browser settings, but the store may not work correctly without the
+essential ones (for example, you may be unable to stay logged in or check out).</p>
+
+<h2>Contact</h2>
+<p><a href="mailto:{{ legal.privacy_email }}">{{ legal.privacy_email }}</a></p>
+"""},
+
+ 'refunds': {'title': 'Refunds & Returns', 'body': """
+<p>We want you to be satisfied with your order. This policy sits alongside your statutory rights.</p>
+
+<h2>Right of withdrawal (EU consumers)</h2>
+<p>Where the law grants a 14-day right of withdrawal, you may cancel within 14 days of receiving your order.
+<strong>Exception:</strong> for health-protection and hygiene reasons, sealed goods that have been unsealed after
+delivery cannot be returned once opened. Research materials that have been opened, used or tampered with are not
+eligible for return.</p>
+
+<h2>Faulty, damaged or incorrect items</h2>
+<p>If an item arrives damaged, faulty or not as described, contact us within 7 days of delivery at
+<a href="mailto:{{ legal.email }}">{{ legal.email }}</a> with your order number and photos. We will arrange a
+replacement or full refund at no cost to you.</p>
+
+<h2>How refunds are issued</h2>
+<p>Approved refunds are made to your original payment method within 14 days of us receiving the returned item or
+agreeing the refund. Original shipping costs are refunded only where the return is due to our error.</p>
+
+<h2>Subscriptions</h2>
+<p>Subscription plans have a <strong>3-month minimum term</strong>. You can cancel from your account after the
+minimum term; already-billed periods are non-refundable, and cancellation stops future renewals.</p>
+
+<h2>How to start a return</h2>
+<p>Email <a href="mailto:{{ legal.email }}">{{ legal.email }}</a> with your order number before sending anything
+back, and we'll give you return instructions.</p>
+"""},
+
+ 'shipping': {'title': 'Shipping Policy', 'body': """
+<p>How and where we ship orders from {{ legal.site }}.</p>
+
+<h2>Processing time</h2>
+<p>Orders are typically processed within 1–2 business days. You'll receive a confirmation when your order ships.</p>
+
+<h2>Delivery estimates</h2>
+<ul>
+ <li>Domestic: usually 1–3 business days after dispatch.</li>
+ <li>Within the EU: usually 2–7 business days after dispatch.</li>
+</ul>
+<p>These are estimates, not guarantees; carrier and customs delays can occur.</p>
+
+<h2>Shipping costs</h2>
+<p>Shipping is calculated at checkout. Orders over the free-shipping threshold shown at checkout qualify for free
+standard delivery. All shipments are packaged discreetly.</p>
+
+<h2>Customs &amp; import</h2>
+<p>You are the importer of record and responsible for ensuring the products are legal to import and possess in
+your country, and for any customs duties or taxes charged on arrival.</p>
+
+<h2>Lost or delayed parcels</h2>
+<p>If your order hasn't arrived within the estimated window, contact <a href="mailto:{{ legal.email }}">{{ legal.email }}</a>
+and we'll investigate with the carrier.</p>
+"""},
+
+ 'imprint': {'title': 'Imprint / Legal Notice', 'body': """
+<p>Information in accordance with applicable EU e-commerce disclosure requirements.</p>
+<div class="box">
+<p><strong>{{ legal.entity }}</strong><br>
+{{ legal.address }}<br>
+Company/registration no.: {{ legal.reg_no }}<br>
+VAT no.: {{ legal.vat_no }}<br>
+Email: <a href="mailto:{{ legal.email }}">{{ legal.email }}</a><br>
+Website: {{ legal.site }}</p>
+</div>
+<p>Responsible for content and the operator of this Site is {{ legal.entity }}. For consumer dispute resolution,
+the European Commission provides an online platform at
+<a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.</p>
+"""},
+}
+
+
+@app.route('/legal')
+def legal_index():
+    return redirect(url_for('legal_page', page='terms'))
+
+
+@app.route('/legal/<page>')
+def legal_page(page):
+    pg = LEGAL_PAGES.get(page)
+    if not pg:
+        abort(404)
+    body = render_template_string(pg['body'], legal=LEGAL)
+    return render_template_string(LEGAL_HTML, title=pg['title'], body=body,
+                                  legal=LEGAL, current=page)
+
 
 _start_scheduler()
 
