@@ -11,6 +11,8 @@ services:
     startCommand: gunicorn app:app --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT
     healthCheckPath: /
     envVars:
+      - key: PYTHON_VERSION       # pin to a version with prebuilt wheels (3.14 breaks psycopg2)
+        value: "3.11.9"
       - key: SECRET_KEY
         generateValue: true       # Render generates a strong random secret
       - key: DATABASE_URL          # auto-filled from the Postgres instance below
