@@ -1319,7 +1319,7 @@ HTML_INDEX = """
         <a href="/" class="navbar-brand">🔬 Pep Hub</a>
         <div class="ph-menu mx-auto d-none d-lg-flex">
             <a href="/" class="active">Home</a>
-            <a href="/#products">Shop</a>
+            <a href="/shop">Shop</a>
             <a href="/deals">Bulk Deals</a>
             <a href="/science">Science Hub</a>
             <a href="/coa">COA Reports</a>
@@ -1741,7 +1741,7 @@ CART_HTML = """
         <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
         <div class="ph-menu mx-auto d-none d-lg-flex">
             <a href="/">Home</a>
-            <a href="/#products">Shop</a>
+            <a href="/shop">Shop</a>
             <a href="/deals">Bulk Deals</a>
             <a href="/science">Science Hub</a>
             <a href="/coa">COA Reports</a>
@@ -1916,7 +1916,7 @@ CHECKOUT_HTML = """
         <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
         <div class="ph-menu d-none d-lg-flex" style="gap:1.6rem;align-items:center;">
             <a href="/" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">Home</a>
-            <a href="/#products" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">Shop</a>
+            <a href="/shop" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">Shop</a>
             <a href="/deals" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">Bulk Deals</a>
             <a href="/science" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">Science Hub</a>
             <a href="/coa" style="color:#cfcfcf;text-decoration:none;font-weight:600;font-size:.92rem;">COA Reports</a>
@@ -2086,7 +2086,7 @@ SUCCESS_HTML = """
     <a class="navbar-brand" href="/">Pep<span class="brand-hub">Hub</span></a>
     <div class="ph-menu d-none d-lg-flex">
         <a href="/">Home</a>
-        <a href="/#products">Shop</a>
+        <a href="/shop">Shop</a>
             <a href="/deals">Bulk Deals</a>
         <a href="/science">Science Hub</a>
         <a href="/coa">COA Reports</a>
@@ -2752,6 +2752,43 @@ def product_detail(pid):
         return "Product not found", 404
     detail = product_details.get(pid, {})
     return render_template('product_detail.html', product=p, detail=detail)
+
+@app.route('/shop')
+def shop():
+    """Dedicated browse page — every product, generated from the catalog so it
+    always stays in sync. Cards link through to each product's detail page."""
+    STACK_IDS = {9, 21, 22}
+    ESSENTIAL_IDS = {20}
+    rows = []
+    for p in products:
+        vs = variants_for(p['id'])
+        if not vs:
+            continue
+        base = vs[0]['retail_eur']
+        d = product_details.get(p['id'], {})
+        if p['id'] in ESSENTIAL_IDS:
+            cat = 'essential'
+        elif p['id'] in STACK_IDS:
+            cat = 'stack'
+        else:
+            cat = 'peptide'
+        rows.append({
+            'id': p['id'],
+            'name': p['name'],
+            'eyebrow': d.get('eyebrow', ''),
+            'tagline': d.get('tagline', ''),
+            'from_label': vs[0]['label'],
+            'price': base,
+            'multi': len(vs) > 1,
+            'chips': [c[0] for c in d.get('chips', [])][:3],
+            'coa_slug': d.get('coa_slug'),
+            'sub_ok': subscription_allowed(p['id']),
+            'sub_price': subscription_unit_price(base) if subscription_allowed(p['id']) else None,
+            'cat': cat,
+        })
+    return render_template('shop.html', rows=rows,
+                           sub_pct=int(SUBSCRIPTION_DISCOUNT * 100))
+
 
 @app.route('/deals')
 def deals():
@@ -3506,7 +3543,7 @@ ACCOUNT_HTML = """
 </style></head><body>
 <nav class="navbar"><div class="container d-flex justify-content-between align-items-center">
   <a href="/" class="navbar-brand">Pep<span class="h">Hub</span></a>
-  <div class="navlinks"><a href="/">Shop</a><a href="/cart">Cart</a><a href="/account/logout">Sign out</a></div>
+  <div class="navlinks"><a href="/shop">Shop</a><a href="/cart">Cart</a><a href="/account/logout">Sign out</a></div>
 </div></nav>
 <div class="container py-4" style="max-width:900px;">
   <h1 class="mb-1">My Account</h1>
@@ -3602,7 +3639,7 @@ LEGAL_HTML = """
 <nav class="navbar"><div class="container-fluid px-4 d-flex align-items-center">
   <a class="navbar-brand" href="/">Pep<span class="h">Hub</span></a>
   <div class="ph-menu mx-auto d-none d-lg-flex">
-    <a href="/">Home</a><a href="/#products">Shop</a><a href="/deals">Bulk Deals</a>
+    <a href="/">Home</a><a href="/shop">Shop</a><a href="/deals">Bulk Deals</a>
     <a href="/science">Science Hub</a><a href="/coa">COA Reports</a><a href="/account">Account</a>
   </div>
 </div></nav>
