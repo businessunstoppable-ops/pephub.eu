@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | Pep Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --ph-orange: #FF9000; --ph-orange-dark: #E07800; --ph-orange-dim: rgba(255,144,0,0.15);
+            --ph-black: #141414; --ph-surface: #1E1E1E; --ph-card: #242424; --ph-border: #2D2D2D;
+            --text-light: #F5F5F5; --text-muted: #999;
+            /* legacy aliases */
+            --gold: #FF9000; --gold-dark: #E07800; --gold-light: #2D1A00;
+            --charcoal: #141414; --off-white: #141414;
+        }
+        body { background: var(--ph-black); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: var(--text-light); line-height: 1.6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--ph-orange); border-radius: 3px; }
+
+        /* ── Navbar ── */
+        .navbar { background: #000 !important; border-bottom: 1px solid var(--ph-border) !important; padding: 0.85rem 0; }
+        .navbar-brand { font-weight: 800; color: #fff !important; font-size: 1.55rem; text-decoration: none; letter-spacing: -0.5px; }
+        .navbar-brand .brand-hub { background: var(--ph-orange); color: #000; border-radius: 6px; padding: 0.05em 0.3em; margin-left: 2px; font-weight: 900; }
+        .btn-outline-gold { border: 1px solid var(--ph-orange); color: var(--ph-orange); border-radius: 6px; padding: 0.4rem 1.2rem; background: transparent; font-weight: 600; font-size:0.85rem; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-outline-gold:hover { background: var(--ph-orange); color: #000; }
+        .cart-badge { background: var(--ph-orange); color: #000; border-radius: 30px; font-size: 0.7rem; padding: 0.2rem 0.5rem; margin-left: 6px; font-weight: 700; }
+
+        /* ── Product hero ── */
+        .product-hero { background: linear-gradient(160deg, #0D0D0D 0%, #1A0D00 100%); padding: 3rem 0 2.5rem; border-bottom:1px solid var(--ph-border); }
+        .product-hero .eyebrow { display: inline-block; background: var(--ph-orange-dim); color: var(--ph-orange); border: 1px solid rgba(255,144,0,0.4); border-radius: 6px; padding: 0.25rem 0.9rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.85rem; }
+        .product-hero h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; color: white; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
+        .product-hero .subtitle { color: rgba(255,255,255,0.55); font-size: 0.9rem; margin-bottom: 1rem; }
+        .product-hero .tagline { color: rgba(255,255,255,0.75); font-size: 1rem; max-width: 600px; font-style: italic; }
+        .hero-icon { width: 56px; height: 56px; background: var(--ph-orange-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+        .hero-icon i { font-size: 1.6rem; color: var(--ph-orange); }
+
+        /* ── PepHub Vial Mockup (hero) ── */
+        .hero-vial-wrap { display:flex; justify-content:center; align-items:flex-end; min-height:220px; padding:1rem 0; }
+        .vial { position:relative; width:110px; height:210px; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.7)) drop-shadow(0 0 24px rgba(255,144,0,0.2)); }
+        .vial-cap { width:64px; height:22px; margin:0 auto; background:linear-gradient(180deg,#D8D8D8 0%,#A8A8A8 30%,#7A7A7A 55%,#A0A0A0 80%,#888 100%); border-radius:6px 6px 2px 2px; position:relative; z-index:3; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.3); }
+        .vial-cap::before { content:''; position:absolute; top:3px; left:50%; transform:translateX(-50%); width:42px; height:7px; background:radial-gradient(ellipse,#3A1F12 0%,#1F0F08 100%); border-radius:50%; box-shadow: inset 0 1px 1px rgba(0,0,0,0.6); }
+        .vial-cap::after { content:''; position:absolute; left:-1px; right:-1px; bottom:-2px; height:4px; background:linear-gradient(180deg,#666,#3a3a3a); border-radius:0 0 2px 2px; }
+        .vial-neck { width:46px; height:12px; margin:0 auto; background:linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.05) 100%); border-left:1px solid rgba(255,255,255,0.18); border-right:1px solid rgba(255,255,255,0.18); position:relative; z-index:2; }
+        .vial-body { width:96px; height:160px; margin:0 auto; position:relative; border:1px solid rgba(255,255,255,0.18); border-radius:7px 7px 18px 18px; background:linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.14) 60%, rgba(255,255,255,0.02) 100%); overflow:hidden; box-shadow: inset 0 2px 6px rgba(255,255,255,0.15), inset 0 -8px 16px rgba(0,0,0,0.4); }
+        .vial-body::before { content:''; position:absolute; bottom:8px; left:6px; right:6px; height:46px; background:linear-gradient(180deg, #F8F5EA 0%, #ECE5D2 50%, #D8CFB6 100%); border-radius:3px 3px 16px 16px; box-shadow: inset 0 2px 3px rgba(0,0,0,0.08), inset 0 -3px 5px rgba(0,0,0,0.15); }
+        .vial-body::after { content:''; position:absolute; top:6px; left:10px; width:9px; height:130px; background:linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.05) 100%); border-radius:4px; }
+        .vial-label { position:absolute; top:48px; left:50%; transform:translateX(-50%); width:108px; background:#0A0A0A; border-top:1.5px solid #FF9000; border-bottom:1.5px solid #FF9000; padding:7px 4px 6px; text-align:center; z-index:2; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .vial-label .ph-brand { font-size:0.62rem; font-weight:900; color:#fff; letter-spacing:-0.3px; line-height:1; margin-bottom:4px; }
+        .vial-label .ph-brand .hub-tag { background:#FF9000; color:#000; padding:0 2.5px; border-radius:1.5px; margin-left:1px; }
+        .vial-label .peptide-name { font-size:0.72rem; font-weight:800; color:#FF9000; letter-spacing:0.4px; line-height:1.05; text-transform:uppercase; }
+        .vial-label .peptide-name.dual { font-size:0.64rem; }
+        .vial-label .lot { font-size:0.45rem; color:#666; font-family:'Courier New',monospace; margin-top:2px; letter-spacing:0.3px; }
+        .vial-shadow { position:absolute; left:50%; bottom:-10px; transform:translateX(-50%); width:80%; height:8px; background:radial-gradient(ellipse, rgba(255,144,0,0.4) 0%, transparent 70%); border-radius:50%; filter:blur(4px); }
+        .vial-ghk .vial-body::before { background:linear-gradient(180deg, #7AC4B5 0%, #4A9A8C 60%, #2E7062 100%); }
+        .vial-ghk .vial-shadow { background:radial-gradient(ellipse, rgba(74,154,140,0.45) 0%, transparent 70%); }
+
+        /* ── Chips ── */
+        .chip { background: #2D2D2D; color: #ccc; border-radius: 6px; padding: 0.2rem 0.7rem; font-size: 0.75rem; font-weight: 600; display: inline-block; margin: 0.2rem 0.15rem; }
+        .chip.highlight { background: var(--ph-orange-dim); color: var(--ph-orange); border: 1px solid rgba(255,144,0,0.3); }
+
+        /* ── Section cards ── */
+        .detail-card { background: var(--ph-card); border: 1px solid var(--ph-border); border-radius: 1rem; padding: 2rem; margin-bottom: 1.5rem; }
+        .detail-card h2 { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--ph-border); display: flex; align-items: center; gap: 0.5rem; }
+        .detail-card h2 i { color: var(--ph-orange); }
+        .detail-card p { font-size: 0.9rem; color: #BFBFBF; line-height: 1.8; margin-bottom: 1rem; }
+        .detail-card p:last-child { margin-bottom: 0; }
+        .detail-card p strong { color: #fff; }
+
+        /* ── Spec grid ── */
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        @media (max-width: 576px) { .spec-grid { grid-template-columns: 1fr; } }
+        .spec-item { background: #1A1A1A; border: 1px solid var(--ph-border); border-radius: 0.6rem; padding: 0.85rem 1rem; }
+        .spec-item label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--ph-orange); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+        .spec-item span { font-size: 0.85rem; color: #E0E0E0; font-weight: 500; line-height: 1.5; }
+
+        /* ── Research notes ── */
+        .note-item { display: flex; gap: 1rem; padding: 0.9rem 0; border-bottom: 1px solid var(--ph-border); }
+        .note-item:last-child { border-bottom: none; }
+        .note-label { font-weight: 800; font-size: 0.82rem; color: var(--ph-orange); min-width: 130px; flex-shrink: 0; padding-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .note-text { font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; }
+
+        /* ── Bulk discount table ── */
+        .discount-table { width: 100%; border-collapse: collapse; }
+        .discount-table thead th { background: #1A1A1A; padding: 0.6rem 0.85rem; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ph-orange); border-bottom: 2px solid var(--ph-border); }
+        .discount-table tbody td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--ph-border); font-size: 0.875rem; color:#E0E0E0; }
+        .discount-table tbody tr:last-child td { border-bottom: none; }
+        .discount-table .saving { font-weight: 700; color: var(--ph-orange); }
+
+        /* ── Add to cart ── */
+        .order-card { background: var(--ph-card); border: 1px solid var(--ph-border); border-radius: 1rem; padding: 1.4rem 1rem 1.5rem 1.4rem; position: sticky; top: 84px; align-self: flex-start; max-height: calc(100vh - 100px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,144,0,0.5) transparent; }
+        .order-card::-webkit-scrollbar { width: 9px; }
+        .order-card::-webkit-scrollbar-track { background: transparent; }
+        .order-card::-webkit-scrollbar-thumb { background: rgba(255,144,0,0.45); border-radius: 5px; border: 2px solid var(--ph-card); }
+        .order-card::-webkit-scrollbar-thumb:hover { background: rgba(255,144,0,0.75); }
+        @media (max-width: 991px) { .order-card { position: static; max-height: none; overflow: visible; } }
+        .price-main { font-size: 2.05rem; font-weight: 900; color: var(--ph-orange); line-height: 1; margin-bottom: 0.15rem; }
+        .price-sub { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.15rem; }
+        .qty-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.85rem; }
+        .qty-row label { font-weight: 600; font-size: 0.9rem; white-space: nowrap; color: #ccc; }
+        .qty-input { width: 76px; background:#1A1A1A; border: 1px solid var(--ph-border); border-radius: 6px; padding: 0.45rem 0.75rem; font-size: 0.95rem; text-align: center; color:#fff; }
+        .btn-addcart { width: 100%; background: var(--ph-orange); color: #000; border: none; border-radius: 6px; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.02em; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
+        .btn-addcart:hover { background: #fff; color: #000; }
+        .coa-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; margin-top: 1rem; margin-bottom: 0.9rem; }
+        .coa-link:hover { color: var(--ph-orange); }
+        .coa-link i { color: var(--ph-orange); }
+        /* Trust + disclaimer, inside the scrollable panel */
+        .trust-list { font-size: 0.8rem; color: var(--text-muted); line-height: 1.7; padding-top: 0.9rem; border-top: 1px solid var(--ph-border); }
+        .trust-list div { margin-bottom: 0.4rem; }
+        .trust-list div:last-child { margin-bottom: 0; }
+        .trust-list i { color: var(--ph-orange); margin-right: 0.4rem; }
+        .rfu-note { font-size: 0.75rem; color: var(--text-muted); line-height: 1.65; margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--ph-border); }
+        .rfu-note strong { color: #ccc; }
+        .purity-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--ph-orange-dim); color: var(--ph-orange); border: 1px solid rgba(255,144,0,0.4); border-radius: 6px; padding: 0.28rem 0.75rem; font-size: 0.76rem; font-weight: 800; margin-bottom: 0.85rem; }
+
+        /* ── Back link ── */
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 2rem; transition: color 0.2s; }
+        .back-link:hover { color: var(--ph-orange); }
+
+        /* ── Footer ── */
+        .footer-note { border-top: 1px solid var(--ph-border); font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 2rem 0; margin-top: 3rem; background:#0D0D0D; }
+    </style>
+</head>
+<body>
+
+<!-- Promo Marquee -->
+<style>
+    .ph-marquee { background:#FF9000; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; letter-spacing:0.01em; position:relative; }
+    .ph-marquee::before, .ph-marquee::after { content:''; position:absolute; top:0; bottom:0; width:48px; z-index:2; pointer-events:none; }
+    .ph-marquee::before { left:0; background:linear-gradient(90deg, #FF9000, transparent); }
+    .ph-marquee::after  { right:0; background:linear-gradient(270deg, #FF9000, transparent); }
+    .ph-marquee-track { display:flex; gap:2.25rem; width:max-content; animation:marqueeScroll 55s linear infinite; will-change: transform; }
+    .ph-marquee:hover .ph-marquee-track { animation-play-state: paused; }
+    .ph-promo { white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; }
+    .ph-promo code { background:#000; color:#FF9000; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; letter-spacing:0.05em; margin-left:0.2rem; }
+    .ph-divider { color:rgba(0,0,0,0.35); font-weight:900; }
+    @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+<div class="ph-marquee">
+    <div class="ph-marquee-track">
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+    </div>
+</div>
+
+
+<!-- Page loader -->
+<div id="page-loader">
+    <span style="font-size:3rem;">🔬</span>
+    <span>Pep Hub</span>
+</div>
+<style>
+    #page-loader { position:fixed; inset:0; background:var(--charcoal); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.45s ease; }
+    #page-loader i { font-size:3rem; color:var(--gold); animation:loaderPulse 1.3s ease-in-out infinite; }
+    #page-loader span { color:rgba(255,255,255,0.75); font-size:0.95rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; margin-top:0.9rem; }
+    @keyframes loaderPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+</style>
+
+<style>
+    .ph-menu { display:flex; gap:1.6rem; align-items:center; }
+    .ph-menu a { color:#cfcfcf; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
+    .ph-menu a:hover { color:var(--ph-orange); }
+</style>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
+        <div class="ph-menu mx-auto d-none d-lg-flex">
+            <a href="/">Home</a>
+            <a href="/#products">Shop</a>
+            <a href="/deals">Bulk Deals</a>
+            <a href="/science">Science Hub</a>
+            <a href="/coa">COA Reports</a>
+            <a href="{{ '/account' if current_member else '/account/login' }}">{{ 'Account' if current_member else 'Login' }}</a>
+        </div>
+        <a href="/cart" class="btn-outline-gold">
+            🛒 Cart
+            {% if session.cart %}
+            <span class="cart-badge">{{ session.cart|length }}</span>
+            {% endif %}
+        </a>
+    </div>
+</nav>
+
+<!-- Product hero -->
+<div class="product-hero">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-md-8">
+                <div class="eyebrow">{{ detail.eyebrow }}</div>
+                <h1>{{ product.name }}</h1>
+                <div class="subtitle">{{ detail.subtitle }}</div>
+                <div class="tagline">{{ detail.tagline }}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="hero-vial-wrap">
+                    <div class="vial{% if product.id == 3 %} vial-ghk{% endif %}">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            {% if product.id == 9 %}
+                              <div class="peptide-name dual">BPC-157<br>TB-500</div>
+                              <div class="lot">LOT · PH-BT091</div>
+                            {% elif product.id == 5 %}
+                              <div class="peptide-name">RETATRUTIDE</div>
+                              <div class="lot">LOT · PH-RT087</div>
+                            {% elif product.id == 3 %}
+                              <div class="peptide-name">GHK-Cu</div>
+                              <div class="lot">LOT · PH-GK094</div>
+                            {% else %}
+                              <div class="peptide-name">{{ product.name|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Back to all products</a>
+
+    <div class="row g-4">
+
+        <!-- Left: content -->
+        <div class="col-lg-8">
+
+            <!-- Benefit chips -->
+            <div class="mb-3">
+                {% for label, is_highlight in detail.chips %}
+                <span class="chip {% if is_highlight %}highlight{% endif %}">{{ label }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Description -->
+            <div class="detail-card">
+                <h2><i class="bi bi-journal-text"></i> About This Compound</h2>
+                {{ detail.description|safe }}
+            </div>
+
+            <!-- Specs -->
+            <div class="detail-card">
+                <h2><i class="bi bi-dna"></i> Technical Specifications</h2>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <label>Half-Life</label>
+                        <span>{{ detail.half_life }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <label>Research Dose Range</label>
+                        <span>{{ detail.dose_range }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <label>Physical Form</label>
+                        <span>{{ detail.form }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <label>Storage Conditions</label>
+                        <span>{{ detail.storage }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <label>Amino Acid Composition</label>
+                        <span>{{ detail.aa_count }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <label>CAS Number</label>
+                        <span style="font-family:monospace;font-size:0.82rem;">{{ detail.cas }}</span>
+                    </div>
+                    <div class="spec-item" style="grid-column: span 2;">
+                        <label>Purity (HPLC)</label>
+                        <span>{{ detail.purity }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research notes -->
+            <div class="detail-card">
+                <h2><span style="font-size:3rem;">🔬</span> Research &amp; Mechanism Notes</h2>
+                {% for label, text in detail.research_notes %}
+                <div class="note-item">
+                    <div class="note-label">{{ label }}</div>
+                    <div class="note-text">{{ text }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Bulk pack deals -->
+            <div class="detail-card">
+                <h2><i class="bi bi-tags"></i> Bulk Deals</h2>
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Buy more vials, pay for fewer. Deals apply automatically per compound in your cart — the more you stock up, the less you pay per vial.</p>
+                <table class="discount-table">
+                    <thead>
+                        <tr><th>Pack</th><th>You Pay</th><th>Per Vial</th><th>You Save</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1 vial</td>
+                            <td>€{{ "%.2f"|format(product.base_price) }}</td>
+                            <td>€{{ "%.2f"|format(product.base_price) }}</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>5 vials <span style="color:var(--text-muted);">(pay for 4)</span></td>
+                            <td>€{{ "%.2f"|format(product.base_price * 4) }}</td>
+                            <td>€{{ "%.2f"|format(product.base_price * 4 / 5) }}</td>
+                            <td class="saving">20% off</td>
+                        </tr>
+                        <tr>
+                            <td>10 vials <span style="color:var(--text-muted);">(pay for 7)</span></td>
+                            <td>€{{ "%.2f"|format(product.base_price * 7) }}</td>
+                            <td>€{{ "%.2f"|format(product.base_price * 7 / 10) }}</td>
+                            <td class="saving">30% off</td>
+                        </tr>
+                        {% if subscription_allowed(product.id) %}
+                        <tr>
+                            <td>{{ SUBSCRIPTION_INTERVAL }} subscription <span style="color:var(--text-muted);">(per vial)</span></td>
+                            <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}/mo</td>
+                            <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}</td>
+                            <td class="saving">{{ (SUBSCRIPTION_DISCOUNT * 100)|int }}% off</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Right: order card -->
+        <div class="col-lg-4">
+            <style>
+                .variant-row { display:grid; grid-template-columns: 1fr auto; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:#0F0F0F; border:1px solid #2D2D2D; border-radius:6px; margin-bottom:0.35rem; cursor:pointer; transition:all 0.15s; }
+                .variant-row:hover { border-color:rgba(255,144,0,0.5); }
+                .variant-row.selected { border-color:#FF9000; background:rgba(255,144,0,0.07); }
+                .variant-row input[type=radio] { display:none; }
+                .variant-row .v-label { font-size:0.85rem; font-weight:700; color:#fff; }
+                .variant-row .v-sku { font-size:0.68rem; font-weight:600; color:#777; margin-left:0.35rem; }
+                .variant-row .v-price { font-size:0.92rem; font-weight:800; color:#FF9000; }
+                .vat-tag { font-size:0.66rem; color:#888; margin-top:0.3rem; }
+                .sec-label { margin:0.85rem 0 0.4rem; font-size:0.68rem; font-weight:800; color:#FF9000; text-transform:uppercase; letter-spacing:0.06em; }
+                /* Purchase-mode toggle */
+                .mode-toggle { display:flex; gap:0.4rem; margin:0.85rem 0 0.65rem; }
+                .mode-toggle .mode-btn { flex:1; text-align:center; padding:0.45rem 0.4rem; background:#0F0F0F; border:1px solid #2D2D2D; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+                .mode-toggle .mode-btn:hover { border-color:rgba(255,144,0,0.5); }
+                .mode-toggle .mode-btn.active { border-color:#FF9000; background:rgba(255,144,0,0.07); }
+                .mode-toggle .mode-btn .mt-title { font-size:0.82rem; font-weight:800; color:#fff; }
+                .mode-toggle .mode-btn .mt-sub { font-size:0.66rem; color:#888; margin-top:0.1rem; }
+                .mode-toggle .mode-btn.active .mt-sub { color:var(--ph-orange); }
+                /* Pack quick-picks */
+                .pack-row { display:grid; grid-template-columns: 1fr auto; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:#0F0F0F; border:1px solid #2D2D2D; border-radius:6px; margin-bottom:0.35rem; cursor:pointer; transition:all 0.15s; }
+                .pack-row:hover { border-color:rgba(255,144,0,0.5); }
+                .pack-row.selected { border-color:#FF9000; background:rgba(255,144,0,0.07); }
+                .pack-row .p-label { font-size:0.85rem; font-weight:700; color:#fff; }
+                .pack-badge { display:inline-block; background:var(--ph-orange-dim); color:var(--ph-orange); border:1px solid rgba(255,144,0,0.4); border-radius:4px; padding:0 0.35rem; font-size:0.62rem; font-weight:800; margin-left:0.35rem; vertical-align:middle; }
+                .pack-row .p-sub { font-size:0.68rem; color:#888; margin-top:0.1rem; }
+                .pack-row .p-total { font-size:0.95rem; font-weight:800; color:#FF9000; text-align:right; }
+                .pack-row .p-was { font-size:0.68rem; color:#777; text-decoration:line-through; text-align:right; }
+                .custom-qty { font-size:0.72rem; color:var(--text-muted); margin:0.2rem 0 0.6rem; }
+                .custom-qty a { color:var(--ph-orange); text-decoration:none; font-weight:700; }
+            </style>
+            <div class="order-card">
+                <div class="purity-pill"><i class="bi bi-shield-fill-check"></i> {{ detail.purity.split('(')[0].strip() }}</div>
+                <div class="price-main" id="price-display">€{{ "%.2f"|format(product.base_price) }}</div>
+                <div class="price-sub" id="price-sub">Per vial · bulk deals up to 30% off</div>
+                <div class="vat-tag">VAT (21%) included</div>
+
+                {% set subbable = subscription_allowed(product.id) %}
+                <form method="POST" action="/add-to-cart/{{ product.id }}" id="addToCartForm"
+                      data-subbable="{{ 1 if subbable else 0 }}" data-subdisc="{{ SUBSCRIPTION_DISCOUNT }}">
+                    <input type="hidden" name="mode" id="modeInput" value="once">
+
+                    {% set vlist = variants_for(product.id) %}
+                    {% if vlist %}
+                    <div class="sec-label">Select Variant</div>
+                    {% for v in vlist %}
+                    <label class="variant-row{% if loop.first %} selected{% endif %}" data-price="{{ v.retail_eur }}">
+                        <input type="radio" name="variant_sku" value="{{ v.sku }}"{% if loop.first %} checked{% endif %}>
+                        <div class="v-label">{{ v.label }} <span class="v-sku">{{ v.sku }}</span></div>
+                        <div class="v-price">€{{ "%.2f"|format(v.retail_eur) }}</div>
+                    </label>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if subbable %}
+                    <div class="mode-toggle">
+                        <div class="mode-btn active" data-mode="once">
+                            <div class="mt-title">One-time</div>
+                            <div class="mt-sub">Buy 1 · 5 · 10</div>
+                        </div>
+                        <div class="mode-btn" data-mode="sub">
+                            <div class="mt-title">Subscribe</div>
+                            <div class="mt-sub">{{ SUBSCRIPTION_INTERVAL }} · {{ (SUBSCRIPTION_DISCOUNT * 100)|int }}% off</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- One-time pack quick-picks -->
+                    <div id="packPicker">
+                        <div class="sec-label">Choose Your Pack</div>
+                        <div class="pack-row selected" data-units="1" data-pay="1">
+                            <div><div class="p-label">Single vial</div><div class="p-sub">1 vial</div></div>
+                            <div><div class="p-total" data-total>—</div></div>
+                        </div>
+                        <div class="pack-row" data-units="5" data-pay="4">
+                            <div><div class="p-label">5-Pack <span class="pack-badge">PAY FOR 4</span></div><div class="p-sub">5 vials · save 20%</div></div>
+                            <div><div class="p-was" data-was>—</div><div class="p-total" data-total>—</div></div>
+                        </div>
+                        <div class="pack-row" data-units="10" data-pay="7">
+                            <div><div class="p-label">10-Pack <span class="pack-badge">PAY FOR 7</span></div><div class="p-sub">10 vials · save 30%</div></div>
+                            <div><div class="p-was" data-was>—</div><div class="p-total" data-total>—</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription detail (hidden unless subscribing) -->
+                    {% if subbable %}
+                    <div id="subPanel" style="display:none;">
+                        <div class="sec-label">{{ SUBSCRIPTION_INTERVAL }} Subscription</div>
+                        <div class="pack-row selected" style="cursor:default;">
+                            <div><div class="p-label">{{ SUBSCRIPTION_INTERVAL }} auto-refill</div><div class="p-sub">vials per delivery · {{ (SUBSCRIPTION_DISCOUNT * 100)|int }}% off · cancel anytime</div></div>
+                            <div><div class="p-was" data-sub-was>—</div><div class="p-total" data-sub-total>—</div></div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="qty-row" style="margin-top:0.9rem;">
+                        <label for="qty-{{ product.id }}" id="qtyLabel">Quantity</label>
+                        <input id="qty-{{ product.id }}" type="number" name="quantity" value="1" min="1" max="99" class="qty-input">
+                    </div>
+                    <button type="submit" class="btn-addcart" id="addBtn">Add to Cart →</button>
+                </form>
+
+                <script>
+                (function(){
+                    const form    = document.getElementById('addToCartForm');
+                    const priceEl = document.getElementById('price-display');
+                    const subEl   = document.getElementById('price-sub');
+                    const qtyEl   = document.getElementById('qty-{{ product.id }}');
+                    const modeIn  = document.getElementById('modeInput');
+                    const packPicker = document.getElementById('packPicker');
+                    const subPanel   = document.getElementById('subPanel');
+                    const addBtn  = document.getElementById('addBtn');
+                    const qtyLabel = document.getElementById('qtyLabel');
+                    if (!form || !priceEl) return;
+
+                    const subDisc = parseFloat(form.dataset.subdisc) || 0;
+                    let mode = 'once';
+
+                    function base(){
+                        const sel = form.querySelector('.variant-row.selected');
+                        return sel ? parseFloat(sel.dataset.price) : {{ product.base_price }};
+                    }
+                    // Mirror server-side bulk_paid_units: 10s first, then 5s, then singles.
+                    function paidUnits(q){
+                        q = Math.max(0, Math.floor(q));
+                        const tens = Math.floor(q/10), rem = q%10;
+                        const fives = Math.floor(rem/5), ones = rem%5;
+                        return tens*7 + fives*4 + ones;
+                    }
+                    const money = n => '€' + n.toFixed(2);
+
+                    function refresh(){
+                        const b = base();
+                        const q = Math.max(1, parseInt(qtyEl.value) || 1);
+
+                        // Update one-time pack tiles
+                        packPicker.querySelectorAll('.pack-row').forEach(row => {
+                            const units = parseInt(row.dataset.units);
+                            const pay   = parseInt(row.dataset.pay);
+                            const total = b * pay;
+                            row.querySelector('[data-total]').textContent = money(total);
+                            const was = row.querySelector('[data-was]');
+                            if (was) was.textContent = units > pay ? money(b * units) : '';
+                        });
+
+                        if (mode === 'sub') {
+                            const unit = b * (1 - subDisc);
+                            const total = unit * q;
+                            priceEl.textContent = money(total);
+                            subEl.textContent = q + ' vial' + (q>1?'s':'') + '/mo · ' + money(unit) + '/vial';
+                            if (subPanel){
+                                subPanel.querySelector('[data-sub-total]').textContent = money(total) + '/mo';
+                                subPanel.querySelector('[data-sub-was]').textContent = money(b * q);
+                            }
+                        } else {
+                            const total = b * paidUnits(q);
+                            const perVial = total / q;
+                            priceEl.textContent = money(total);
+                            subEl.textContent = q + ' vial' + (q>1?'s':'') + ' · ' + money(perVial) + '/vial';
+                        }
+                    }
+
+                    // Variant selection
+                    form.querySelectorAll('.variant-row').forEach(row => {
+                        row.addEventListener('click', () => {
+                            form.querySelectorAll('.variant-row').forEach(r => r.classList.remove('selected'));
+                            row.classList.add('selected');
+                            row.querySelector('input[type=radio]').checked = true;
+                            refresh();
+                        });
+                    });
+
+                    // One-time pack quick-picks → set quantity
+                    packPicker.querySelectorAll('.pack-row').forEach(row => {
+                        row.addEventListener('click', () => {
+                            packPicker.querySelectorAll('.pack-row').forEach(r => r.classList.remove('selected'));
+                            row.classList.add('selected');
+                            qtyEl.value = row.dataset.units;
+                            refresh();
+                        });
+                    });
+
+                    // Manual quantity edit → highlight matching pack (one-time only)
+                    qtyEl.addEventListener('input', () => {
+                        if (mode === 'once') {
+                            packPicker.querySelectorAll('.pack-row').forEach(r =>
+                                r.classList.toggle('selected', r.dataset.units === String(parseInt(qtyEl.value))));
+                        }
+                        refresh();
+                    });
+
+                    // Mode toggle
+                    form.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            form.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            mode = btn.dataset.mode;
+                            modeIn.value = mode;
+                            const sub = (mode === 'sub');
+                            if (subPanel) subPanel.style.display = sub ? 'block' : 'none';
+                            packPicker.style.display = sub ? 'none' : 'block';
+                            qtyLabel.textContent = sub ? 'Vials per delivery' : 'Quantity';
+                            addBtn.textContent = sub ? 'Subscribe →' : 'Add to Cart →';
+                            if (sub) qtyEl.value = Math.max(1, parseInt(qtyEl.value) || 1);
+                            refresh();
+                        });
+                    });
+
+                    refresh();
+                })();
+                </script>
+
+                {% if detail.coa_slug %}
+                <a href="/coa/{{ detail.coa_slug }}" class="coa-link">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                    View Certificate of Analysis (COA)
+                </a>
+                {% endif %}
+                <div class="trust-list">
+                    <div><i class="bi bi-thermometer-snow"></i> Freeze-dried · ISO Class 5 vacuum filled</div>
+                    <div><i class="bi bi-robot"></i> Robotically hermetic-sealed</div>
+                    <div><i class="bi bi-lightbulb"></i> 100% UV-A contamination inspected</div>
+                    <div><i class="bi bi-truck"></i> Fast, discreet EU delivery</div>
+                </div>
+                <div class="rfu-note">
+                    <strong>For research use only.</strong> Not intended for human or veterinary therapeutic use. Not evaluated by the FDA or EMA.
+                </div>
+            </div><!-- /.order-card (self-contained scrollable panel) -->
+        </div>
+
+    </div>
+</div>
+
+<div class="footer-note">
+    <div class="container">
+        <p>© 2025 Pep Hub - Bio-Stimulators — Research-grade peptide science.<br>
+        <small>For laboratory and preclinical research purposes only. Not approved for human therapeutic use.</small></p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    window.addEventListener('load', () => {
+        const l = document.getElementById('page-loader');
+        if (l) { l.style.opacity='0'; setTimeout(()=>l.style.display='none',450); }
+    });
+</script>
+</body>
+</html>

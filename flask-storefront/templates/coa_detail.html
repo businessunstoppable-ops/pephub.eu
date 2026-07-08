@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COA – {{ report.product_name }} | Pep Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --gold: #FF9000; --gold-dark: #E07800; --gold-light: #2D1A00;
+            --charcoal: #141414; --off-white: #141414; --text-muted: #5A6E7A;
+            --pass-green: #2E7D32; --pass-bg: #E8F5E9; --pass-border: #A5D6A7;
+        }
+        body { background: var(--off-white); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: #fff; font-size: 0.92rem; }
+
+        /* ── Navbar ── */
+        .navbar { background: #000 !important; border-bottom: 1px solid rgba(212,175,55,0.3); padding: 1rem 0; }
+        .navbar-brand { font-weight: 800; color: #fff !important; font-size: 1.55rem; letter-spacing:-0.5px; text-decoration: none; }
+        .navbar-brand .brand-hub { background: var(--gold); color: #000; border-radius: 6px; padding: 0.05em 0.3em; margin-left: 2px; font-weight: 900; }
+        .btn-outline-gold { border: 1px solid var(--gold); color: #fff; border-radius: 40px; padding: 0.4rem 1.2rem; background: transparent; font-weight: 500; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-outline-gold:hover { background: var(--gold); color: white; }
+
+        /* ── Report Header ── */
+        .report-header { background: var(--charcoal); color: white; padding: 2.5rem 0 2rem; }
+        .report-header .label { background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid rgba(212,175,55,0.4); border-radius: 20px; padding: 0.25rem 0.8rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; display: inline-block; margin-bottom: 0.75rem; }
+        .report-header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+        .report-header .subtitle { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.75rem; }
+        .meta-item label { display: block; font-size: 0.7rem; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.2rem; }
+        .meta-item span { font-size: 0.88rem; color: rgba(255,255,255,0.85); }
+
+        /* ── Section Cards ── */
+        .section-card { background: #242424; border: 1px solid #2D2D2D; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #2D2D2D; display: flex; align-items: center; gap: 0.5rem; }
+        .section-title i { color: var(--gold); font-size: 1.1rem; }
+
+        /* ── Summary table (identification) ── */
+        .id-table { width: 100%; border-collapse: collapse; }
+        .id-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid #2D2D2D; font-size: 0.875rem; }
+        .id-table td:first-child { font-weight: 600; color: var(--text-muted); width: 38%; }
+        .id-table tr:last-child td { border-bottom: none; }
+        .id-table .seq-cell { font-family: 'Courier New', monospace; font-size: 0.78rem; word-break: break-all; color: #E0E0E0; line-height: 1.6; }
+
+        /* ── Analytical results table ── */
+        .results-table { width: 100%; border-collapse: collapse; }
+        .results-table thead th { background: #1A1A1A; padding: 0.65rem 0.75rem; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 2px solid #2D2D2D; }
+        .results-table tbody td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #2D2D2D; font-size: 0.85rem; vertical-align: top; }
+        .results-table tbody tr:last-child td { border-bottom: none; }
+        .results-table tbody tr:hover { background: #1F1F1F; }
+        .pass-badge { background: var(--pass-bg); color: var(--pass-green); border: 1px solid var(--pass-border); border-radius: 20px; padding: 0.15rem 0.65rem; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+        .method-text { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* ── Amino acid bond table ── */
+        .bond-component-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.6rem; padding: 0.5rem 0.75rem; background: var(--gold-light); border-radius: 0.6rem; border-left: 3px solid var(--gold); }
+        .bond-table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; }
+        .bond-table thead th { background: #1A1A1A; padding: 0.55rem 0.7rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 2px solid #2D2D2D; }
+        .bond-table tbody td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #2D2D2D; font-size: 0.83rem; }
+        .bond-table tbody tr:last-child td { border-bottom: none; }
+        .bond-table tbody tr:hover { background: #1F1F1F; }
+        .integrity-bar { display: flex; align-items: center; gap: 0.5rem; }
+        .bar-bg { height: 6px; background: #2D2D2D; border-radius: 3px; flex: 1; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #66BB6A, #43A047); border-radius: 3px; }
+        .integrity-val { font-weight: 700; color: var(--pass-green); font-size: 0.82rem; white-space: nowrap; }
+        td.pos-col { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+        td.type-col { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* ── Manufacturing timeline ── */
+        .mfg-step { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid #2D2D2D; }
+        .mfg-step:last-child { border-bottom: none; }
+        .step-circle { background: var(--charcoal); color: var(--gold); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; margin-top: 2px; }
+        .step-body strong { display: block; font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .step-body p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+
+        /* ── Certifications ── */
+        .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+        .cert-item { background: var(--pass-bg); border: 1px solid var(--pass-border); border-radius: 0.85rem; padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.6rem; }
+        .cert-item i { color: var(--pass-green); font-size: 1.1rem; }
+        .cert-item span { font-size: 0.83rem; font-weight: 600; color: var(--pass-green); }
+
+        /* ── Disclaimer ── */
+        .disclaimer { font-size: 0.78rem; color: var(--text-muted); background: #1A1A1A; border-radius: 0.75rem; padding: 1rem 1.25rem; border-left: 3px solid var(--gold); line-height: 1.7; }
+
+        .footer-note { border-top: 1px solid #2D2D2D; font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 2rem 0; margin-top: 2rem; }
+
+        @media print {
+            .navbar, .back-btn-wrap, .footer-note { display: none; }
+            body { background: #242424; }
+            .section-card { border: 1px solid #ccc; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Promo Marquee -->
+<style>
+    .ph-marquee { background:#FF9000; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; letter-spacing:0.01em; position:relative; }
+    .ph-marquee::before, .ph-marquee::after { content:''; position:absolute; top:0; bottom:0; width:48px; z-index:2; pointer-events:none; }
+    .ph-marquee::before { left:0; background:linear-gradient(90deg, #FF9000, transparent); }
+    .ph-marquee::after  { right:0; background:linear-gradient(270deg, #FF9000, transparent); }
+    .ph-marquee-track { display:flex; gap:2.25rem; width:max-content; animation:marqueeScroll 55s linear infinite; will-change: transform; }
+    .ph-marquee:hover .ph-marquee-track { animation-play-state: paused; }
+    .ph-promo { white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; }
+    .ph-promo code { background:#000; color:#FF9000; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; letter-spacing:0.05em; margin-left:0.2rem; }
+    .ph-divider { color:rgba(0,0,0,0.35); font-weight:900; }
+    @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+<div class="ph-marquee">
+    <div class="ph-marquee-track">
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+    </div>
+</div>
+
+
+<!-- Page loader -->
+<div id="page-loader">
+    <span style="font-size:3rem;">🔬</span>
+    <span>Pep Hub</span>
+</div>
+<style>
+    #page-loader { position:fixed; inset:0; background:#141414; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.45s ease; }
+    #page-loader i { font-size:3rem; color:#FF9000; animation:loaderPulse 1.3s ease-in-out infinite; }
+    #page-loader span { color:rgba(255,255,255,0.75); font-size:0.95rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; margin-top:0.9rem; }
+    @keyframes loaderPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+</style>
+
+<style>
+    .ph-menu { display:flex; gap:1.6rem; align-items:center; }
+    .ph-menu a { color:#333; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
+    .ph-menu a:hover, .ph-menu a.active { color:var(--gold); }
+    .ph-menu a.active { border-bottom:2px solid var(--gold); padding-bottom:2px; }
+    .bg-white .navbar-brand { color:#141414 !important; }
+</style>
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
+        <div class="ph-menu mx-auto d-none d-lg-flex">
+            <a href="/">Home</a>
+            <a href="/#products">Shop</a>
+            <a href="/deals">Bulk Deals</a>
+            <a href="/science">Science Hub</a>
+            <a href="/coa" class="active">COA Reports</a>
+            <a href="{{ '/account' if current_member else '/account/login' }}">{{ 'Account' if current_member else 'Login' }}</a>
+        </div>
+        <a href="/coa" class="btn-outline-gold">← All Reports</a>
+    </div>
+</nav>
+
+<!-- ── Report Header ── -->
+<div class="report-header">
+    <div class="container">
+        <div class="label">CERTIFICATE OF ANALYSIS</div>
+        <h1>{{ report.product_name }}</h1>
+        <div class="subtitle">{{ report.subtitle }}</div>
+        <div class="meta-grid">
+            <div class="meta-item"><label>Batch Number</label><span>{{ report.batch }}</span></div>
+            <div class="meta-item"><label>Manufactured</label><span>{{ report.mfg_date }}</span></div>
+            <div class="meta-item"><label>Expiry Date</label><span>{{ report.exp_date }}</span></div>
+            <div class="meta-item"><label>Overall Purity</label><span style="color:var(--gold);font-weight:700;">{{ report.overall_purity }}</span></div>
+            <div class="meta-item"><label>Appearance</label><span>{{ report.appearance }}</span></div>
+            <div class="meta-item"><label>Storage</label><span>{{ report.storage }}</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+
+    <!-- ── Product Identification ── -->
+    {% for comp in report.components %}
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-dna"></i> Product Identification — {{ comp.name }}</div>
+        <table class="id-table">
+            <tr><td>Full Name</td><td>{{ comp.full_name }}</td></tr>
+            <tr><td>Origin / Synthesis</td><td>{{ comp.origin }}</td></tr>
+            <tr><td>CAS Number</td><td><code>{{ comp.cas }}</code></td></tr>
+            <tr><td>Molecular Formula</td><td>{{ comp.formula }}</td></tr>
+            <tr><td>Molecular Weight</td><td>{{ comp.mw }}</td></tr>
+            <tr><td>Amino Acid Count</td><td>{{ comp.aa_count }} residues</td></tr>
+            <tr><td>HPLC Purity (RP-HPLC)</td><td><strong style="color:var(--pass-green)">{{ comp.hplc }}</strong></td></tr>
+            <tr><td>MS Expected</td><td>{{ comp.ms_exp }}</td></tr>
+            <tr><td>MS Found</td><td><strong>{{ comp.ms_found }}</strong></td></tr>
+            <tr>
+                <td>Amino Acid Sequence</td>
+                <td class="seq-cell">{{ comp.sequence }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+
+    <!-- ── Full Analytical Results ── -->
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-clipboard2-data"></i> Analytical Testing Results</div>
+        <div class="table-responsive">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th style="width:26%">Test</th>
+                        <th style="width:18%">Specification</th>
+                        <th style="width:20%">Result</th>
+                        <th style="width:28%">Method</th>
+                        <th style="width:8%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for t in report.tests %}
+                <tr>
+                    <td><strong>{{ t.name }}</strong></td>
+                    <td>{{ t.spec }}</td>
+                    <td><strong>{{ t.result }}</strong></td>
+                    <td class="method-text">{{ t.method }}</td>
+                    <td><span class="pass-badge">{{ t.status }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Amino Acid Bond Integrity ── -->
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-link-45deg"></i> Amino Acid Bond Integrity Analysis</div>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.5rem;">Each peptide bond verified individually via MS/MS sequential fragmentation using b-ion and y-ion series. A reading of ≥ 99.0% per bond confirms complete, unbroken covalent linkage between each amino acid residue.</p>
+
+        {% for comp in report.components %}
+        <div class="bond-component-title">{{ comp.name }} — Bond-by-Bond Analysis ({{ comp.aa_count }} residues)</div>
+        <div class="table-responsive">
+            <table class="bond-table">
+                <thead>
+                    <tr>
+                        <th style="width:10%">Position</th>
+                        <th style="width:30%">Bond</th>
+                        <th style="width:16%">Bond Type</th>
+                        <th style="width:30%">Integrity</th>
+                        <th style="width:14%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for b in comp.bonds %}
+                <tr>
+                    <td class="pos-col">{{ b.pos }}</td>
+                    <td><strong>{{ b.bond }}</strong></td>
+                    <td class="type-col">{{ b.type }}</td>
+                    <td>
+                        <div class="integrity-bar">
+                            <div class="bar-bg"><div class="bar-fill" style="width:{{ b.integrity }}%"></div></div>
+                            <span class="integrity-val">{{ b.integrity }}%</span>
+                        </div>
+                    </td>
+                    <td><span class="pass-badge">PASS</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ── Manufacturing Process ── -->
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Manufacturing & Quality Control Process</div>
+
+        <div class="mfg-step">
+            <div class="step-circle">1</div>
+            <div class="step-body">
+                <strong>🧪 Vial Preparation & Sterilisation</strong>
+                <p>All glass vials undergo a full triple-wash cycle using endotoxin-free USP Water for Injection (WFI). Vials are then depyrogenated in a dry-heat oven at 250 °C for a minimum of 30 minutes, eliminating all pyrogens and biological residue to below detectable limits. Each vial is individually screened for particulate matter and surface contamination prior to entering the filling line. Any vial failing inspection is permanently quarantined.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">2</div>
+            <div class="step-body">
+                <strong>🔬 Peptide Synthesis & Pre-Release Verification</strong>
+                <p>Each peptide is synthesised via Solid Phase Peptide Synthesis (SPPS) using Fmoc/tBu orthogonal protecting group chemistry on a validated automated synthesiser. Upon synthesis completion, the raw peptide bulk undergoes mandatory HPLC purity testing and ESI mass spectrometry to confirm molecular identity and amino acid bond integrity at every position. Batches failing to achieve ≥ 99.0% HPLC purity are rejected and destroyed — none are downgraded or blended.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">3</div>
+            <div class="step-body">
+                <strong>❄️ Lyophilisation (Freeze-Drying)</strong>
+                <p>The purified peptide solution is snap-frozen at −80 °C using liquid nitrogen-assisted cooling. Primary drying removes bulk water at −40 °C under 100 mTorr vacuum; secondary drying at +25 °C / 50 mTorr removes residual bound moisture. Final water content is confirmed &lt; 5.0% by Karl Fischer titration. Lyophilisation preserves the peptide in its structurally most stable solid state, eliminating degradation pathways active in aqueous solution.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">4</div>
+            <div class="step-body">
+                <strong>🏭 ISO Class 5 Closed-Vacuum Filling Room</strong>
+                <p>All filling operations are conducted exclusively inside an ISO Class 5 (EU GMP Grade A equivalent) cleanroom maintained under continuous positive nitrogen gas pressure. The environment is HEPA-filtered to ≤ 3,520 particles ≥ 0.5 μm per cubic metre, with continuous real-time particle monitoring. Vials are filled under a closed vacuum — no atmospheric air contacts the lyophilised product at any point during filling. Operators are fully gowned; zero bare skin contact with any vial or product surface.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">5</div>
+            <div class="step-body">
+                <strong>🤖 Robotic Aluminium Crimp Sealing</strong>
+                <p>Immediately post-filling, vials are transferred — without human handling — to an automated robotic sealing station. Each vial receives a bromobutyl rubber stopper and a pharmaceutical-grade aluminium overseal applied by a servo-controlled crimping head. Crimp torque is electronically verified on 100% of units to ±0.05 N·m precision. A dye ingress challenge test is periodically conducted on sealing samples, confirming hermetic closure under elevated atmospheric pressure.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">6</div>
+            <div class="step-body">
+                <strong>🔦 100% UV & Visual Contamination Inspection</strong>
+                <p>Every single vial is individually inspected under a 365 nm UV-A illumination chamber. UV exposure causes any microbial contamination, extraneous protein, or fluorescent compounds to emit a characteristic visible fluorescence — enabling immediate rejection of affected units with zero tolerance. Vials also pass through white and black background visual stations for particulate matter and seal assessment. Any unit displaying fluorescence, visible particles, discolouration, or seal anomaly is permanently quarantined.</p>
+            </div>
+        </div>
+
+        <div class="mfg-step">
+            <div class="step-circle">7</div>
+            <div class="step-body">
+                <strong>✅ Final Release Testing & COA Issuance</strong>
+                <p>A statistically representative sample from each completed batch undergoes final release testing: endotoxin by LAL chromogenic assay, sterility by USP &lt;71&gt; membrane filtration (14-day incubation, dual media), particulate matter by USP &lt;788&gt; light obscuration, and a final HPLC purity re-confirmation. This Certificate of Analysis is issued only upon full numerical pass of every specification. All batch records are archived for a minimum of 5 years and are traceable to the lot number printed on each vial label.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Quality Certifications ── -->
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-shield-fill-check"></i> Quality Release Certifications</div>
+        <div class="cert-grid">
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>HPLC Purity Confirmed</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Mass Spectrometry Verified</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>All Amino Acid Bonds Intact</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Endotoxin &lt; 0.10 EU/mg</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Sterility Confirmed (14 days)</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>ISO Class 5 Filled</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Robotic Hermetic Seal</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>100% UV Inspected</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Particulate USP &lt;788&gt; Pass</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Residual Solvents &lt; LOQ</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Karl Fischer Water &lt; 5%</span></div>
+            <div class="cert-item"><i class="bi bi-check-circle-fill"></i><span>Batch Records Archived 5yr</span></div>
+        </div>
+        <div class="disclaimer mt-3">
+            <strong>Research Use Only.</strong> This Certificate of Analysis is issued for research and analytical reference purposes only. The product described herein is intended solely for in vitro laboratory research. It is not approved for human or veterinary use, and has not been evaluated by the FDA, EMA, or any other regulatory body for safety or efficacy in clinical applications. Batch: <strong>{{ report.batch }}</strong>.
+        </div>
+    </div>
+
+</div>
+
+<div class="footer-note">
+    <div class="container">
+        <p>© 2025 Pep Hub - Bio-Stimulators — Advanced peptide science | Batch {{ report.batch }} | <a href="/coa" style="color:var(--gold)">All Reports</a></p>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', () => {
+        const l = document.getElementById('page-loader');
+        if (l) { l.style.opacity='0'; setTimeout(()=>l.style.display='none',450); }
+    });
+</script>
+</body>
+</html>

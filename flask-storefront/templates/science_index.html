@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Hub | Pep Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root { --ph-orange:#FF9000; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; --text-muted:#999; }
+        body { background: var(--ph-black); font-family: 'Inter','Segoe UI',system-ui,sans-serif; color:#F5F5F5; line-height:1.6; }
+        .navbar { background:#000 !important; border-bottom:1px solid var(--ph-border); padding:.85rem 0; }
+        .navbar-brand { font-weight:800; color:#fff !important; font-size:1.55rem; letter-spacing:-.5px; text-decoration:none; }
+        .navbar-brand .brand-hub { background:var(--ph-orange); color:#000; border-radius:6px; padding:.05em .3em; margin-left:2px; font-weight:900; }
+        .btn-outline-gold { border:1px solid var(--ph-orange); color:var(--ph-orange); border-radius:6px; padding:.4rem 1.2rem; background:transparent; font-weight:600; font-size:.85rem; text-decoration:none; transition:all .2s; }
+        .btn-outline-gold:hover { background:var(--ph-orange); color:#000; }
+        .ph-menu { display:flex; gap:1.6rem; align-items:center; }
+        .ph-menu a { color:#cfcfcf; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
+        .ph-menu a:hover, .ph-menu a.active { color:var(--ph-orange); }
+        .ph-menu a.active { border-bottom:2px solid var(--ph-orange); padding-bottom:2px; }
+        .hub-hero { padding:3rem 0 1rem; }
+        .hub-hero h1 { font-weight:900; letter-spacing:-.03em; font-size:clamp(2rem,5vw,3rem); }
+        .hub-hero h1 .accent { color:var(--ph-orange); }
+        .hub-hero p { color:var(--text-muted); max-width:760px; font-size:1rem; }
+        /* shared banner art (featured + cards) */
+        .banner-art { position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        .banner-art::after { content:''; position:absolute; inset:0; background:radial-gradient(130% 130% at 78% -10%, rgba(255,255,255,.07), transparent 55%); pointer-events:none; }
+        .banner-art .watermark { position:absolute; right:-1.2rem; bottom:-2.2rem; font-size:10rem; line-height:1; opacity:.12; transform:rotate(-10deg); pointer-events:none; user-select:none; }
+        .banner-art .glyph { position:relative; z-index:1; filter:drop-shadow(0 8px 18px rgba(0,0,0,.5)); }
+        .topic-chip { background:rgba(0,0,0,.55); color:var(--ph-orange); border:1px solid rgba(255,144,0,.4); border-radius:30px; padding:.25rem .8rem; font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+
+        .feature-card { display:block; background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; overflow:hidden; text-decoration:none; color:inherit; transition:all .25s; margin-bottom:1.5rem; }
+        .feature-card:hover { border-color:var(--ph-orange); transform:translateY(-4px); box-shadow:0 18px 44px -14px rgba(255,144,0,.2); }
+        .feature-banner { height:230px; }
+        .feature-banner .glyph { font-size:4.6rem; }
+        .feature-banner .topic-chip { position:absolute; top:1rem; left:1rem; z-index:2; }
+        .feature-body { padding:1.6rem 1.75rem 1.75rem; }
+        .feature-body h2 { font-weight:800; font-size:1.55rem; line-height:1.25; }
+        .feature-body p { color:var(--text-muted); margin-bottom:.6rem; }
+        .read-more { color:var(--ph-orange); font-weight:700; font-size:.86rem; display:inline-flex; align-items:center; gap:.3rem; }
+        .feature-card:hover .read-more, .article-card:hover .read-more { gap:.55rem; }
+        .sidebar { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; padding:1.5rem; position:sticky; top:90px; }
+        .sidebar h3 { font-weight:900; letter-spacing:-.02em; border-bottom:2px solid var(--ph-border); padding-bottom:.75rem; margin-bottom:1rem; }
+        .topic-row { display:flex; justify-content:space-between; align-items:center; padding:.7rem .6rem; border-radius:8px; text-decoration:none; color:#ddd; font-weight:600; font-size:.95rem; transition:all .15s; }
+        .topic-row:hover { background:#1a1a1a; color:#fff; }
+        .topic-row.active { background:rgba(255,144,0,.1); color:var(--ph-orange); }
+        .topic-row .count { color:var(--text-muted); font-weight:700; font-size:.85rem; }
+        .article-card { display:flex; flex-direction:column; background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; overflow:hidden; text-decoration:none; color:inherit; height:100%; transition:all .2s; }
+        .article-card:hover { border-color:var(--ph-orange); transform:translateY(-3px); box-shadow:0 14px 34px -14px rgba(255,144,0,.2); }
+        .article-card .banner { height:140px; }
+        .article-card .banner .glyph { font-size:2.8rem; }
+        .article-card .body { padding:1.15rem 1.25rem 1.35rem; display:flex; flex-direction:column; flex:1; }
+        .article-card .chip { color:var(--ph-orange); font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+        .article-card h3 { font-size:1.05rem; font-weight:700; margin:.35rem 0 .4rem; color:#fff; line-height:1.3; }
+        .article-card p { color:var(--text-muted); font-size:.85rem; margin:0 0 .9rem; }
+        .article-card .read-more { margin-top:auto; }
+        .empty { background:var(--ph-card); border:1px dashed var(--ph-border); border-radius:1rem; padding:3rem; text-align:center; color:var(--text-muted); }
+        .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
+        <div class="ph-menu mx-auto d-none d-lg-flex">
+            <a href="/">Home</a>
+            <a href="/#products">Shop</a>
+            <a href="/deals">Bulk Deals</a>
+            <a href="/science" class="active">Science Hub</a>
+            <a href="/coa">COA Reports</a>
+            <a href="{{ '/account' if current_member else '/account/login' }}">{{ 'Account' if current_member else 'Login' }}</a>
+        </div>
+        <a href="/cart" class="btn-outline-gold">🛒 Cart{% if session.cart %} <span style="background:var(--ph-orange);color:#000;border-radius:30px;font-size:.7rem;padding:.1rem .45rem;font-weight:700;">{{ session.cart|length }}</span>{% endif %}</a>
+    </div>
+</nav>
+
+<div class="container hub-hero">
+    <h1>Science <span class="accent">Hub</span></h1>
+    <p>A deep dive into the biochemistry and biology behind peptides, nutrition, bio-hacking, and longevity. Curated from current research and rewritten for the PepHub community — new articles added weekly.</p>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4">
+        <!-- Main column -->
+        <div class="col-lg-8">
+            {% if featured %}
+            <a class="feature-card" href="/science/{{ featured.slug }}">
+                <div class="feature-banner banner-art" style="background:{{ featured.meta.grad }};">
+                    <span class="topic-chip">{{ featured.topic }}</span>
+                    <span class="watermark">{{ featured.meta.emoji }}</span>
+                    <span class="glyph">{{ featured.meta.emoji }}</span>
+                </div>
+                <div class="feature-body">
+                    <h2>{{ featured.title }}</h2>
+                    <p>{{ featured.excerpt }}</p>
+                    <span class="read-more">Read article <i class="bi bi-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <div class="row g-4">
+                {% for a in articles %}
+                <div class="col-sm-6">
+                    <a class="article-card" href="/science/{{ a.slug }}">
+                        <div class="banner banner-art" style="background:{{ a.meta.grad }};">
+                            <span class="watermark">{{ a.meta.emoji }}</span>
+                            <span class="glyph">{{ a.meta.emoji }}</span>
+                        </div>
+                        <div class="body">
+                            <div class="chip">{{ a.topic }}</div>
+                            <h3>{{ a.title }}</h3>
+                            <p>{{ a.excerpt }}</p>
+                            <span class="read-more">Read <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty">
+                <div style="font-size:2.5rem;">🔬</div>
+                <h3 style="color:#fff;font-weight:800;margin-top:.5rem;">No articles published yet</h3>
+                <p>{% if active_topic %}Nothing in <strong>{{ active_topic }}</strong> yet — <a href="/science" style="color:var(--ph-orange);">view all topics</a>.{% else %}Fresh, research-backed articles are added weekly. Check back soon.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sidebar">
+                <h3>Discover themes</h3>
+                <a class="topic-row {% if not active_topic %}active{% endif %}" href="/science">
+                    <span><i class="bi bi-grid"></i> All topics</span>
+                    <span class="count">{{ total }}</span>
+                </a>
+                {% for name, meta in topics.items() %}
+                <a class="topic-row {% if active_topic == name %}active{% endif %}" href="/science?topic={{ name|urlencode }}">
+                    <span>{{ meta.emoji }} {{ name }}</span>
+                    <span class="count">{{ counts.get(name, 0) }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-note">
+    <div class="container">
+        <p>© Pep Hub Science Hub — educational synthesis of public research. Articles cite their sources and are for research/educational purposes only, not medical advice.</p>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

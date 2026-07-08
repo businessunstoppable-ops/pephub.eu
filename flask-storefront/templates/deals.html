@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Deals &amp; Subscriptions | Pep Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root { --gold:#FF9000; --ph-orange:#FF9000; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; --text-muted:#999; }
+        body { background: var(--ph-black); font-family:'Inter','Segoe UI',system-ui,sans-serif; color:#F5F5F5; line-height:1.6; }
+        .navbar { background:#000 !important; border-bottom:1px solid var(--ph-border); padding:.85rem 0; }
+        .navbar-brand { font-weight:800; color:#fff !important; font-size:1.55rem; letter-spacing:-.5px; text-decoration:none; }
+        .navbar-brand .brand-hub { background:var(--ph-orange); color:#000; border-radius:6px; padding:.05em .3em; margin-left:2px; font-weight:900; }
+        .btn-outline-gold { border:1px solid var(--ph-orange); color:var(--ph-orange); border-radius:6px; padding:.4rem 1.2rem; background:transparent; font-weight:600; font-size:.85rem; text-decoration:none; transition:all .2s; }
+        .btn-outline-gold:hover { background:var(--ph-orange); color:#000; }
+        .ph-menu { display:flex; gap:1.6rem; align-items:center; }
+        .ph-menu a { color:#cfcfcf; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
+        .ph-menu a:hover, .ph-menu a.active { color:var(--ph-orange); }
+        .ph-menu a.active { border-bottom:2px solid var(--ph-orange); padding-bottom:2px; }
+
+        .hero { padding:3rem 0 1rem; }
+        .hero h1 { font-weight:900; letter-spacing:-.03em; font-size:clamp(2rem,5vw,3rem); }
+        .hero h1 .accent { color:var(--ph-orange); }
+        .hero p { color:var(--text-muted); max-width:720px; }
+
+        .step-label { font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ph-orange); margin:2rem 0 .6rem; }
+        .step-label .num { display:inline-flex; align-items:center; justify-content:center; width:1.3rem; height:1.3rem; border-radius:50%; background:var(--ph-orange); color:#000; font-size:.72rem; margin-right:.5rem; }
+
+        .deal-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+        @media (max-width:800px){ .deal-cards { grid-template-columns:1fr; } }
+        .deal-card { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; padding:1.6rem; position:relative; overflow:hidden; cursor:pointer; transition:all .18s; }
+        .deal-card:hover { border-color:rgba(255,144,0,.55); transform:translateY(-3px); }
+        .deal-card.selected { border-color:var(--ph-orange); box-shadow:0 0 0 1px var(--ph-orange) inset, 0 14px 36px -16px rgba(255,144,0,.35); }
+        .deal-card.selected::before { content:'✓ Selected'; position:absolute; top:0; left:0; background:var(--ph-orange); color:#000; font-size:.66rem; font-weight:800; letter-spacing:.05em; padding:.18rem .7rem; border-radius:0 0 8px 0; }
+        .deal-card .badge-save { position:absolute; top:1.1rem; right:1.1rem; background:var(--ph-orange); color:#000; font-weight:800; font-size:.72rem; border-radius:30px; padding:.2rem .7rem; }
+        .deal-card .emoji { font-size:2rem; margin-top:.4rem; }
+        .deal-card h3 { font-weight:800; font-size:1.25rem; margin:.6rem 0 .3rem; color:#fff; }
+        .deal-card .tagline { color:var(--ph-orange); font-weight:700; font-size:.9rem; margin-bottom:.5rem; }
+        .deal-card p { color:var(--text-muted); font-size:.88rem; margin:0; }
+
+        .table-wrap { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; overflow:hidden; }
+        table.deals { width:100%; border-collapse:collapse; }
+        table.deals thead th { background:#1A1A1A; color:var(--text-muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; padding:.85rem 1rem; text-align:right; border-bottom:1px solid var(--ph-border); transition:color .15s,background .15s; }
+        table.deals thead th:first-child { text-align:left; }
+        table.deals thead th.col-active { color:var(--ph-orange); background:rgba(255,144,0,.08); }
+        table.deals tbody td { padding:.9rem 1rem; border-bottom:1px solid var(--ph-border); text-align:right; vertical-align:middle; }
+        table.deals tbody td:first-child { text-align:left; }
+        table.deals tbody td.col-active { background:rgba(255,144,0,.06); }
+        table.deals tbody tr:last-child td { border-bottom:none; }
+        .pname { font-weight:700; color:#fff; }
+        .pname a { color:#fff; text-decoration:none; }
+        .pname a:hover { color:var(--ph-orange); }
+        .pfrom { color:#888; font-size:.74rem; }
+        .price { font-weight:800; color:#fff; }
+        .price .each { display:block; color:#888; font-weight:600; font-size:.72rem; }
+        .sub-cell { color:var(--ph-orange); font-weight:800; }
+        .muted { color:#666; }
+
+        /* per-row add control */
+        .add-cell { text-align:right; white-space:nowrap; }
+        .add-form { display:inline-flex; gap:.5rem; align-items:center; justify-content:flex-end; }
+        .v-pick { background:#0F0F0F; border:1px solid var(--ph-border); color:#eee; border-radius:6px; padding:.4rem .55rem; font-size:.8rem; font-weight:600; max-width:200px; }
+        .v-pick:focus { outline:none; border-color:var(--ph-orange); }
+        .add-btn { background:var(--ph-orange); color:#000; border:none; border-radius:6px; padding:.45rem .9rem; font-weight:800; font-size:.8rem; cursor:pointer; white-space:nowrap; transition:all .15s; }
+        .add-btn:hover:not(:disabled) { background:#fff; }
+        .add-btn:disabled { background:#2D2D2D; color:#666; cursor:not-allowed; }
+
+        .note { color:var(--text-muted); font-size:.8rem; margin-top:1rem; }
+        .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
+        @media (max-width:820px){ .hide-sm { display:none; } .add-form { flex-direction:column; align-items:stretch; } .v-pick{max-width:none;} }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
+        <div class="ph-menu mx-auto d-none d-lg-flex">
+            <a href="/">Home</a>
+            <a href="/#products">Shop</a>
+            <a href="/deals" class="active">Bulk Deals</a>
+            <a href="/science">Science Hub</a>
+            <a href="/coa">COA Reports</a>
+            <a href="{{ '/account' if current_member else '/account/login' }}">{{ 'Account' if current_member else 'Login' }}</a>
+        </div>
+        <a href="/cart" class="btn-outline-gold">🛒 Cart{% if session.cart %} <span style="background:var(--ph-orange);color:#000;border-radius:30px;font-size:.7rem;padding:.1rem .45rem;font-weight:700;">{{ session.cart|length }}</span>{% endif %}</a>
+    </div>
+</nav>
+
+<div class="container hero">
+    <h1>Bulk Deals <span class="accent">&amp; Subscriptions</span></h1>
+    <p>Stock up and pay less per vial — deals apply automatically per compound in your cart. Prefer a steady supply? Subscribe and save on every delivery.</p>
+</div>
+
+<div class="container">
+    <div class="step-label"><span class="num">1</span> Choose a deal</div>
+    <div class="deal-cards" id="dealCards">
+        <div class="deal-card" data-deal="five" data-qty="5" data-mode="once" data-col="col-five">
+            <span class="badge-save">SAVE 20%</span>
+            <div class="emoji">📦</div>
+            <h3>5-Pack</h3>
+            <div class="tagline">Buy 5, pay for 4</div>
+            <p>One vial effectively free. Applied automatically when you add 5 of the same compound.</p>
+        </div>
+        <div class="deal-card" data-deal="ten" data-qty="10" data-mode="once" data-col="col-ten">
+            <span class="badge-save">SAVE 30%</span>
+            <div class="emoji">🎁</div>
+            <h3>10-Pack</h3>
+            <div class="tagline">Buy 10, pay for 7</div>
+            <p>Three vials effectively free — our best per-vial value for serious stock-ups.</p>
+        </div>
+        <div class="deal-card" data-deal="sub" data-qty="1" data-mode="sub" data-col="col-sub">
+            <span class="badge-save">SAVE {{ sub_pct }}%</span>
+            <div class="emoji">🔁</div>
+            <h3>{{ sub_interval }} Subscription</h3>
+            <div class="tagline">{{ sub_pct }}% off every delivery</div>
+            <p>Auto-refill at a standing discount. Cancel anytime. Available on all peptides.</p>
+        </div>
+    </div>
+
+    <div class="step-label"><span class="num">2</span> Pick a product &amp; add it</div>
+    <div class="table-wrap">
+        <table class="deals">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="col-single">1 vial</th>
+                    <th class="col-five">5-Pack <span class="hide-sm">(pay for 4)</span></th>
+                    <th class="col-ten">10-Pack <span class="hide-sm">(pay for 7)</span></th>
+                    <th class="col-sub">{{ sub_interval }} sub</th>
+                    <th>Add to cart</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    <td>
+                        <div class="pname"><a href="/product/{{ r.id }}">{{ r.name }}</a></div>
+                        <div class="pfrom">from {{ r.from_label }}</div>
+                    </td>
+                    <td class="col-single"><span class="price">€{{ "%.2f"|format(r.single) }}</span></td>
+                    <td class="col-five"><span class="price">€{{ "%.2f"|format(r.five) }}<span class="each">€{{ "%.2f"|format(r.five_each) }}/vial</span></span></td>
+                    <td class="col-ten"><span class="price">€{{ "%.2f"|format(r.ten) }}<span class="each">€{{ "%.2f"|format(r.ten_each) }}/vial</span></span></td>
+                    <td class="col-sub">
+                        {% if r.sub %}<span class="sub-cell">€{{ "%.2f"|format(r.sub) }}<span class="each" style="color:#b07a2e;">/vial · mo</span></span>
+                        {% else %}<span class="muted">—</span>{% endif %}
+                    </td>
+                    <td class="add-cell">
+                        <form method="POST" action="/add-to-cart/{{ r.id }}" class="add-form" data-sub-ok="{{ 1 if r.sub_ok else 0 }}">
+                            <input type="hidden" name="quantity" value="5" class="q-field">
+                            <input type="hidden" name="mode" value="once" class="m-field">
+                            <select name="variant_sku" class="v-pick">
+                                {% for v in r.variants %}
+                                <option value="{{ v.sku }}">{{ v.label }} — €{{ "%.2f"|format(v.price) }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="add-btn">Add 5-Pack →</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="note">Pack savings apply to any variant — the selected deal is applied to the size you choose. Subscriptions are not available on Bacteriostatic Water.</p>
+</div>
+
+<div class="footer-note">
+    <div class="container"><p>© Pep Hub — research-grade peptide science. For laboratory and preclinical research purposes only.</p></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+    const DEALS = {
+        five: { qty: 5,  mode: 'once', label: 'Add 5-Pack →',  col: 'col-five' },
+        ten:  { qty: 10, mode: 'once', label: 'Add 10-Pack →', col: 'col-ten'  },
+        sub:  { qty: 1,  mode: 'sub',  label: 'Subscribe →',   col: 'col-sub'  },
+    };
+    const cards = document.querySelectorAll('#dealCards .deal-card');
+    const forms = document.querySelectorAll('.add-form');
+
+    function highlightColumn(col){
+        document.querySelectorAll('th.col-active, td.col-active').forEach(el => el.classList.remove('col-active'));
+        document.querySelectorAll('.' + col).forEach(el => el.classList.add('col-active'));
+    }
+
+    function selectDeal(key){
+        const d = DEALS[key];
+        cards.forEach(c => c.classList.toggle('selected', c.dataset.deal === key));
+        forms.forEach(f => {
+            const subOk = f.dataset.subOk === '1';
+            const btn = f.querySelector('.add-btn');
+            if (d.mode === 'sub' && !subOk){
+                f.querySelector('.q-field').value = 1;
+                f.querySelector('.m-field').value = 'sub';
+                btn.disabled = true;
+                btn.textContent = 'No subscription';
+            } else {
+                f.querySelector('.q-field').value = d.qty;
+                f.querySelector('.m-field').value = d.mode;
+                btn.disabled = false;
+                btn.textContent = d.label;
+            }
+        });
+        highlightColumn(d.col);
+    }
+
+    cards.forEach(c => c.addEventListener('click', () => selectDeal(c.dataset.deal)));
+    selectDeal('five');  // default selection
+})();
+</script>
+</body>
+</html>

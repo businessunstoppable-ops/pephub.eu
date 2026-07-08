@@ -1,0 +1,36 @@
+# Render blueprint for PepHub — deploy with "New +" → "Blueprint" pointing at this repo.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: pephub
+    runtime: python
+    plan: starter                 # or "free" to trial; starter avoids cold starts
+    rootDir: flask-storefront     # <-- app lives in this subfolder; remove if you deploy the folder directly
+    buildCommand: pip install -r requirements.txt
+    # 1 worker keeps the in-process weekly Science-Hub scheduler from firing twice.
+    startCommand: gunicorn app:app --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true       # Render generates a strong random secret
+      - key: DATABASE_URL          # auto-filled from the Postgres instance below
+        fromDatabase:
+          name: pephub-db
+          property: connectionString
+      - key: PREVIEW_MODE          # shows the "test/preview store" banner; set to 0 to go fully live
+        value: "1"
+      - key: ADMIN_PASSWORD
+        sync: false                # set in the Render dashboard (do not commit)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+
+databases:
+  - name: pephub-db
+    plan: basic-256mb             # smallest paid Postgres; use "free" to trial (expires after 30 days)
+    databaseName: pephub

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Checkout</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Order Summary</div>
+            <div class="card-body">
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between">
+                    <span>{{ item.name }} x {{ item.quantity }}</span>
+                    <span>${{ "%.2f"|format(item.subtotal) }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total:</span>
+                    <span>${{ "%.2f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Payment</div>
+            <div class="card-body">
+                <form action="{{ url_for('create_checkout_session') }}" method="POST">
+                    <button type="submit" class="btn btn-success w-100">Pay with Stripe</button>
+                </form>
+                <p class="text-muted mt-2 small">Test card: 4242 4242 4242 4242</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

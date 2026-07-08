@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<!-- Pep Hub | index.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pep Hub | Advanced Peptide Science</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --ph-orange: #FF9000;
+            --ph-orange-dark: #E07800;
+            --ph-orange-dim: rgba(255,144,0,0.15);
+            --ph-black: #141414;
+            --ph-surface: #1E1E1E;
+            --ph-card: #242424;
+            --ph-border: #2D2D2D;
+            --text-light: #F5F5F5;
+            --text-muted: #999999;
+            /* legacy aliases so existing refs still work */
+            --gold: #FF9000;
+            --gold-dark: #E07800;
+            --gold-light: #2D1A00;
+            --charcoal: #141414;
+            --off-white: #1B1B1B;
+            --text-dark: #F5F5F5;
+        }
+        body { background: var(--ph-black); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: var(--text-light); line-height: 1.5; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0D0D0D; }
+        ::-webkit-scrollbar-thumb { background: var(--ph-orange); border-radius: 3px; }
+
+        /* ── Navbar ── */
+        .navbar { background: #000 !important; border-bottom: 1px solid var(--ph-border); box-shadow: 0 2px 16px rgba(0,0,0,0.6); padding: 0.85rem 0; }
+        .navbar-brand { font-weight: 800; letter-spacing: -0.5px; color: #fff !important; font-size: 1.55rem; text-decoration: none; }
+        .navbar-brand .brand-hub { background: var(--ph-orange); color: #000; border-radius: 6px; padding: 0.05em 0.3em; margin-left: 2px; font-weight: 900; }
+        .btn-outline-gold { border: 1px solid var(--ph-orange); color: var(--ph-orange); border-radius: 6px; padding: 0.4rem 1.2rem; transition: all 0.2s; background: transparent; font-weight: 600; font-size: 0.85rem; }
+        .btn-outline-gold:hover { background: var(--ph-orange); color: #000; }
+        .cart-badge { background: var(--ph-orange); color: #000; border-radius: 30px; font-size: 0.7rem; padding: 0.2rem 0.5rem; margin-left: 6px; font-weight: 700; }
+
+        /* ── Hero ── */
+        .site-hero { background: linear-gradient(160deg, #0D0D0D 0%, #1A0D00 100%); padding: 4.5rem 0 4rem; text-align: center; border-bottom: 1px solid var(--ph-border); }
+        .site-hero .eyebrow { display: inline-block; background: var(--ph-orange-dim); color: var(--ph-orange); border: 1px solid rgba(255,144,0,0.4); border-radius: 6px; padding: 0.3rem 1rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.25rem; }
+        .site-hero h1 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 900; color: white; letter-spacing: -0.03em; margin-bottom: 0.75rem; line-height: 1.1; }
+        .site-hero h1 em { font-style: normal; color: var(--ph-orange); }
+        .site-hero .tagline { color: rgba(255,255,255,0.55); font-size: 1rem; max-width: 520px; margin: 0 auto 2rem; line-height: 1.65; }
+        .trust-strip { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; }
+        .trust-pill { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); border-radius: 6px; padding: 0.3rem 0.85rem; font-size: 0.78rem; font-weight: 500; }
+
+        /* ── Info panels ── */
+        .info-panel { background: var(--ph-card); border-radius: 1rem; border: 1px solid var(--ph-border); padding: 1.75rem; height: 100%; }
+        .info-panel h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.9rem; color: #fff; letter-spacing: -0.01em; }
+        .info-panel p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 0.9rem; }
+        .bullet-list { list-style: none; padding-left: 0; margin: 0; }
+        .bullet-list li { margin-bottom: 0.55rem; display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.875rem; }
+        .bullet-list li i { color: var(--ph-orange); font-size: 1rem; width: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+        .bullet-list li a { color: var(--text-light); text-decoration: underline; text-decoration-color: var(--ph-orange); }
+
+        /* ── Category accordion ── */
+        .category-item { border-bottom: 1px solid var(--ph-border); padding: 0.75rem 0; cursor: pointer; }
+        .category-item:last-child { border-bottom: none; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; color: #fff; user-select: none; }
+        .category-header .toggle-icon { transition: transform 0.2s; color: var(--ph-orange); }
+        .category-content { padding-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); display: none; line-height: 1.7; }
+        .category-content.show { display: block; }
+
+        /* ── Section heading ── */
+        .section-label { text-align: center; margin-bottom: 2.5rem; }
+        .section-label h2 { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+        .section-label p { color: var(--text-muted); font-size: 0.9rem; max-width: 540px; margin: 0 auto; }
+
+        /* ── Product cards ── */
+        .product-card { background: var(--ph-card); border: 1px solid var(--ph-border); border-radius: 1rem; transition: all 0.25s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .product-card:hover { transform: translateY(-6px); border-color: var(--ph-orange); box-shadow: 0 16px 40px -8px rgba(255,144,0,0.3); }
+        .product-card-top { padding: 1.5rem 1.5rem 1rem; flex: 1; display: flex; flex-direction: column; }
+        .product-card-icon { width: 48px; height: 48px; background: var(--ph-orange-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+        .product-card-icon i { font-size: 1.4rem; color: var(--ph-orange); }
+        .product-card h4 { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+        .product-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1rem; flex: 1; }
+        .benefit-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.85rem; }
+        .chip { background: #2D2D2D; color: #ccc; border-radius: 6px; padding: 0.2rem 0.65rem; font-size: 0.72rem; font-weight: 600; }
+        .chip.highlight { background: var(--ph-orange-dim); color: var(--ph-orange); border: 1px solid rgba(255,144,0,0.3); }
+        .product-meta { display: flex; gap: 1rem; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; }
+        .product-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+        /* ── Card footer ── */
+        .product-card-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--ph-border); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+        .price-display { font-size: 1.3rem; font-weight: 800; color: var(--ph-orange); }
+        .price-note { font-size: 0.7rem; color: var(--text-muted); }
+        .btn-product { background: var(--ph-orange); color: #000; border: none; border-radius: 6px; padding: 0.5rem 1.2rem; font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+        .btn-product:hover { background: #fff; color: #000; }
+
+        /* ── Footer ── */
+        .footer-note { border-top: 1px solid var(--ph-border); font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 2.5rem 0; margin-top: 4rem; background: #0D0D0D; }
+
+        /* ── Promo Marquee ── */
+        .ph-marquee { background:#FF9000; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; letter-spacing:0.01em; position:relative; }
+        .ph-marquee::before, .ph-marquee::after { content:''; position:absolute; top:0; bottom:0; width:48px; z-index:2; pointer-events:none; }
+        .ph-marquee::before { left:0; background:linear-gradient(90deg, #FF9000, transparent); }
+        .ph-marquee::after  { right:0; background:linear-gradient(270deg, #FF9000, transparent); }
+        .ph-marquee-track { display:flex; gap:2.25rem; width:max-content; animation:marqueeScroll 55s linear infinite; will-change: transform; }
+        .ph-marquee:hover .ph-marquee-track { animation-play-state: paused; }
+        .ph-promo { white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; }
+        .ph-promo code { background:#000; color:#FF9000; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; letter-spacing:0.05em; margin-left:0.2rem; }
+        .ph-divider { color:rgba(0,0,0,0.35); font-weight:900; }
+        @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* ── Offers callout panel (home) ── */
+        .offers-panel { background:linear-gradient(135deg, #1A0D00 0%, #241400 100%); border:1px solid rgba(255,144,0,0.3); border-radius:1rem; padding:1.5rem; margin-bottom:2.5rem; }
+        .offers-panel h3 { font-size:1.1rem; font-weight:800; color:#fff; margin-bottom:1rem; letter-spacing:-0.01em; }
+        .offers-panel h3 .live { background:#FF9000; color:#000; font-size:0.65rem; padding:0.15rem 0.5rem; border-radius:4px; margin-left:0.5rem; vertical-align:middle; font-weight:900; letter-spacing:0.06em; animation:livePulse 1.6s ease-in-out infinite; }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+        .offer-tile { background:#0F0F0F; border:1px solid #2D2D2D; border-radius:0.75rem; padding:0.85rem 1rem; transition:all 0.2s; height:100%; cursor:pointer; }
+        .offer-tile:hover { border-color:#FF9000; transform:translateY(-2px); box-shadow:0 10px 22px -8px rgba(255,144,0,0.3); }
+        .offer-tile .offer-code { display:inline-block; background:#FF9000; color:#000; font-family:'Courier New',monospace; font-weight:800; font-size:0.74rem; padding:0.12rem 0.45rem; border-radius:3px; letter-spacing:0.05em; margin-bottom:0.4rem; }
+        .offer-tile .offer-headline { font-weight:800; font-size:0.95rem; color:#fff; line-height:1.2; margin-bottom:0.25rem; }
+        .offer-tile .offer-sub { font-size:0.74rem; color:#999; line-height:1.4; }
+
+        /* ── PepHub Vial Mockup ── */
+        .vial-wrap { display:flex; justify-content:center; align-items:flex-end; padding:1.75rem 0 1rem; background:radial-gradient(ellipse at center bottom, rgba(255,144,0,0.12) 0%, transparent 70%); }
+        .vial { position:relative; width:88px; height:170px; filter: drop-shadow(0 14px 22px rgba(0,0,0,0.7)) drop-shadow(0 0 18px rgba(255,144,0,0.15)); transition: transform 0.35s ease; }
+        .product-card:hover .vial { transform: translateY(-4px) rotate(-2deg); }
+        /* Aluminum crimp cap */
+        .vial-cap { width:52px; height:18px; margin:0 auto; background:linear-gradient(180deg,#D8D8D8 0%,#A8A8A8 30%,#7A7A7A 55%,#A0A0A0 80%,#888 100%); border-radius:5px 5px 2px 2px; position:relative; z-index:3; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.3); }
+        .vial-cap::before { content:''; position:absolute; top:2px; left:50%; transform:translateX(-50%); width:34px; height:6px; background:radial-gradient(ellipse,#3A1F12 0%,#1F0F08 100%); border-radius:50%; box-shadow: inset 0 1px 1px rgba(0,0,0,0.6); }
+        .vial-cap::after { content:''; position:absolute; left:-1px; right:-1px; bottom:-2px; height:3px; background:linear-gradient(180deg,#666,#3a3a3a); border-radius:0 0 2px 2px; }
+        /* Glass neck */
+        .vial-neck { width:38px; height:10px; margin:0 auto; background:linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.05) 100%); border-left:1px solid rgba(255,255,255,0.18); border-right:1px solid rgba(255,255,255,0.18); position:relative; z-index:2; }
+        /* Glass body */
+        .vial-body { width:78px; height:130px; margin:0 auto; position:relative; border:1px solid rgba(255,255,255,0.18); border-radius:6px 6px 16px 16px; background:linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.14) 60%, rgba(255,255,255,0.02) 100%); overflow:hidden; box-shadow: inset 0 2px 6px rgba(255,255,255,0.15), inset 0 -8px 16px rgba(0,0,0,0.4); }
+        /* Lyophilised cake at bottom */
+        .vial-body::before { content:''; position:absolute; bottom:6px; left:5px; right:5px; height:36px; background:linear-gradient(180deg, #F8F5EA 0%, #ECE5D2 50%, #D8CFB6 100%); border-radius:3px 3px 14px 14px; box-shadow: inset 0 2px 3px rgba(0,0,0,0.08), inset 0 -3px 5px rgba(0,0,0,0.15); }
+        /* Glass highlight */
+        .vial-body::after { content:''; position:absolute; top:4px; left:8px; width:7px; height:100px; background:linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.05) 100%); border-radius:4px; }
+        /* PepHub label */
+        .vial-label { position:absolute; top:38px; left:50%; transform:translateX(-50%); width:88px; background:#0A0A0A; border-top:1.5px solid #FF9000; border-bottom:1.5px solid #FF9000; padding:5px 3px 4px; text-align:center; z-index:2; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .vial-label .ph-brand { font-size:0.5rem; font-weight:900; color:#fff; letter-spacing:-0.3px; line-height:1; margin-bottom:3px; }
+        .vial-label .ph-brand .hub-tag { background:#FF9000; color:#000; padding:0 2px; border-radius:1.5px; margin-left:1px; }
+        .vial-label .peptide-name { font-size:0.58rem; font-weight:800; color:#FF9000; letter-spacing:0.4px; line-height:1.05; text-transform:uppercase; }
+        .vial-label .peptide-name.dual { font-size:0.52rem; }
+        .vial-label .lot { font-size:0.38rem; color:#666; font-family:'Courier New',monospace; margin-top:2px; letter-spacing:0.3px; }
+        /* Reflection on table */
+        .vial-shadow { position:absolute; left:50%; bottom:-8px; transform:translateX(-50%); width:80%; height:6px; background:radial-gradient(ellipse, rgba(255,144,0,0.4) 0%, transparent 70%); border-radius:50%; filter:blur(3px); }
+        /* GHK-Cu copper complex — characteristic blue-green powder */
+        .vial-ghk .vial-body::before { background:linear-gradient(180deg, #7AC4B5 0%, #4A9A8C 60%, #2E7062 100%); box-shadow: inset 0 2px 3px rgba(0,0,0,0.15), inset 0 -3px 5px rgba(0,0,0,0.25); }
+        .vial-ghk .vial-shadow { background:radial-gradient(ellipse, rgba(74,154,140,0.45) 0%, transparent 70%); }
+        /* BAC Water — clear liquid (not a lyophilised cake) */
+        .vial-bac .vial-body::before { background:linear-gradient(180deg, rgba(200,225,240,0.4) 0%, rgba(170,205,225,0.55) 30%, rgba(140,185,210,0.6) 100%); height:74px; border-radius:2px 2px 14px 14px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.15); }
+        .vial-bac .vial-body::after { background:linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%); }
+        .vial-bac .vial-shadow { background:radial-gradient(ellipse, rgba(140,185,210,0.4) 0%, transparent 70%); }
+        /* GLOW Stack — characteristic amber/cream blended lyophilisate */
+        .vial-glow .vial-body::before { background:linear-gradient(180deg, #FFE2A8 0%, #E9B968 50%, #C68A3E 100%); box-shadow: inset 0 2px 3px rgba(0,0,0,0.1), inset 0 -3px 5px rgba(0,0,0,0.25); }
+        .vial-glow .vial-shadow { background:radial-gradient(ellipse, rgba(255,144,0,0.55) 0%, transparent 70%); }
+    </style>
+</head>
+<body>
+
+<!-- Promo Marquee -->
+<div class="ph-marquee">
+    <div class="ph-marquee-track">
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER / ACADEMIC · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW CUSTOMER · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+        <!-- duplicate for seamless loop -->
+        <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF EVERYTHING <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">📦 FREE EU SHIPPING ON ORDERS OVER €100</span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">⚡ BULK 5+ UNITS · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🎓 RESEARCHER / ACADEMIC · 10% OFF <code>RESEARCH</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">👋 NEW CUSTOMER · 10% OFF FIRST ORDER <code>WELCOME10</code></span><span class="ph-divider">◆</span>
+        <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · FULL COA</span><span class="ph-divider">◆</span>
+    </div>
+</div>
+
+<!-- Page loader -->
+<div id="page-loader">
+    <div style="font-size:2.5rem;font-weight:900;letter-spacing:-1px;">Pep<span style="background:#FF9000;color:#000;border-radius:6px;padding:0 0.2em;margin-left:3px;">Hub</span></div>
+</div>
+<style>
+    #page-loader { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.45s ease; }
+    #page-loader span { color:rgba(255,255,255,0.75); font-size:0.95rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; margin-top:0.9rem; }
+    @keyframes loaderPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+</style>
+
+<style>
+    .ph-menu { display:flex; gap:1.6rem; align-items:center; }
+    .ph-menu a { color:#cfcfcf; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
+    .ph-menu a:hover, .ph-menu a.active { color:var(--gold); }
+    .ph-menu a.active { border-bottom:2px solid var(--gold); padding-bottom:2px; }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="navbar-brand">Pep<span class="brand-hub">Hub</span></a>
+        <div class="ph-menu mx-auto d-none d-lg-flex">
+            <a href="/" class="active">Home</a>
+            <a href="/#products">Shop</a>
+            <a href="/deals">Bulk Deals</a>
+            <a href="/science">Science Hub</a>
+            <a href="/coa">COA Reports</a>
+            <a href="{{ '/account' if current_member else '/account/login' }}">{{ 'Account' if current_member else 'Login' }}</a>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-gold" data-bs-toggle="modal" data-bs-target="#calculatorModal">
+                <i class="bi bi-calculator-fill"></i> <span class="d-none d-sm-inline">Peptide Tools</span>
+            </button>
+            <a href="/cart" class="btn btn-outline-gold">
+                🛒 Cart
+                {% if session.cart %}
+                <span class="cart-badge">{{ session.cart|length }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="site-hero">
+    <div class="container">
+        <div class="eyebrow">Research-Grade · Batch-Tested · EU Shipped</div>
+        <h1>Pep<em>Hub</em><br>Advanced Peptide Science</h1>
+        <p class="tagline">Pharmaceutical-grade synthetic peptides — each batch independently tested, freeze-dried, and sealed in an ISO Class 5 vacuum environment. Science-backed. Purity-guaranteed.</p>
+        <div class="trust-strip">
+            <span class="trust-pill">✓ ≥ 99% HPLC Purity</span>
+            <span class="trust-pill">✓ Full COA per Batch</span>
+            <span class="trust-pill">✓ ISO Class 5 Filled</span>
+            <span class="trust-pill">✓ Robotic Hermetic Seal</span>
+            <span class="trust-pill">✓ 100% UV Inspected</span>
+            <span class="trust-pill">✓ Fast EU Delivery</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+
+    <!-- Info panels -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="info-panel">
+                <h3>🔬 What Are Peptides — and Why Do They Matter?</h3>
+                <p>Peptides are short chains of amino acids that act as biological messengers — signalling your cells to heal, regenerate, burn fat, or rebalance hormones. Your body produces them naturally, but output declines significantly with age, chronic stress, and injury.</p>
+                <p>In research settings, synthetic peptides replicate and amplify these signals with remarkable specificity. They bind to targeted receptors on cell surfaces, triggering precise downstream responses without the broad side-effect profiles of conventional compounds. This targeted precision makes peptides one of the most exciting frontiers in modern longevity and performance research.</p>
+                <ul class="bullet-list">
+                    <li><i class="bi bi-file-earmark-check"></i> <a href="/coa">Independent COA &amp; Test Results — per batch</a></li>
+                    <li><i class="bi bi-thermometer-snow"></i> Freeze-dried in ISO Class 5 vacuum cleanroom</li>
+                    <li><i class="bi bi-robot"></i> Robotically sealed &amp; UV contamination-inspected</li>
+                    <li><i class="bi bi-shield-fill-check"></i> Endotoxin tested &lt; 0.10 EU/mg — every batch</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="info-panel">
+                <h3>📂 Browse by Research Goal</h3>
+                <p>Our current range covers three of the most well-studied peptide applications in modern preclinical research. Select a category to find the compound that matches your area of focus.</p>
+                <div id="categoryAccordion">
+                    <div class="category-item" onclick="toggleCategory(this)">
+                        <div class="category-header">
+                            <span><i class="bi bi-fire" style="color:var(--gold);margin-right:0.4rem;"></i> Weight &amp; Metabolic Regulation</span>
+                            <i class="bi bi-plus-lg toggle-icon"></i>
+                        </div>
+                        <div class="category-content">
+                            <strong>Retatrutide</strong> — A novel triple agonist activating GLP-1, GIP, and Glucagon receptors simultaneously. Research has demonstrated significant reductions in body weight, visceral adiposity, and fasting glucose — among the most potent metabolic profiles studied in any peptide to date. Also shows emerging cardiovascular and hepatic benefits.
+                        </div>
+                    </div>
+                    <div class="category-item" onclick="toggleCategory(this)">
+                        <div class="category-header">
+                            <span><i class="bi bi-heart-pulse" style="color:var(--gold);margin-right:0.4rem;"></i> Tissue Recovery &amp; Repair</span>
+                            <i class="bi bi-plus-lg toggle-icon"></i>
+                        </div>
+                        <div class="category-content">
+                            <strong>BPC-157 &amp; TB-500</strong> — A synergistic dual-peptide stack providing both local and systemic repair coverage. BPC-157 accelerates healing of tendons, ligaments, and the GI tract at the injury site. TB-500 (Thymosin Beta-4 analogue) works systemically — mobilising stem cells, promoting vascular regeneration, and resolving inflammation across the whole body.
+                        </div>
+                    </div>
+                    <div class="category-item" onclick="toggleCategory(this)">
+                        <div class="category-header">
+                            <span><i class="bi bi-stars" style="color:var(--gold);margin-right:0.4rem;"></i> Skin, Collagen &amp; Regeneration</span>
+                            <i class="bi bi-plus-lg toggle-icon"></i>
+                        </div>
+                        <div class="category-content">
+                            <strong>GHK-Cu</strong> — A naturally occurring copper-peptide complex that upregulates collagen and elastin synthesis, accelerates wound healing, stimulates hair follicle activation, and modulates inflammatory gene expression. One of the most extensively researched anti-ageing peptides in dermatological and regenerative medicine literature.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current offers callout -->
+    <div class="offers-panel">
+        <h3>🔥 Current Offers <span class="live">LIVE</span></h3>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <div class="offer-tile" onclick="copyCode('LAUNCH25')">
+                    <span class="offer-code">LAUNCH25</span>
+                    <div class="offer-headline">25% OFF EVERYTHING</div>
+                    <div class="offer-sub">Launch week — applies to your entire order. Click to copy.</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="offer-tile" onclick="copyCode('STACK15')">
+                    <span class="offer-code">STACK15</span>
+                    <div class="offer-headline">15% OFF — STACK</div>
+                    <div class="offer-sub">Add 2+ different peptides to your cart.</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="offer-tile" onclick="copyCode('BULK20')">
+                    <span class="offer-code">BULK20</span>
+                    <div class="offer-headline">20% OFF — BULK</div>
+                    <div class="offer-sub">5+ total units. Compounds with our tier discounts.</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="offer-tile" onclick="copyCode('WELCOME10')">
+                    <span class="offer-code">WELCOME10</span>
+                    <div class="offer-headline">10% OFF — FIRST ORDER</div>
+                    <div class="offer-sub">Brand new to PepHub? Welcome.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product grid -->
+    <div id="products" style="scroll-margin-top:90px;"></div>
+    <div class="section-label">
+        <h2>Our Current Research Range</h2>
+        <p>Five precision products. Three flagship peptides, one signature blend, and the essential reconstitution solvent — every batch HPLC-tested with a full COA included.</p>
+    </div>
+
+    <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 justify-content-center mb-2">
+
+        <!-- BPC-157 & TB-500 -->
+        <div class="col">
+            <div class="product-card">
+                <div class="vial-wrap">
+                    <div class="vial">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            <div class="peptide-name dual">BPC-157<br>TB-500</div>
+                            <div class="lot">LOT · PH-BT091</div>
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+                <div class="product-card-top">
+                    <h4>BPC-157 &amp; TB-500</h4>
+                    <p class="product-desc">The definitive recovery stack. BPC-157 (Body Protection Compound, 15 amino acids) drives accelerated repair at the injury site — tendons, ligaments, gut lining, and muscle. TB-500, a synthetic Thymosin Beta-4 analogue, operates systemically: mobilising stem cells, reducing inflammation, and promoting new blood vessel formation throughout the body. Together, they offer a complementary coverage that neither peptide achieves alone.</p>
+                    <div class="benefit-chips">
+                        <span class="chip highlight">Tendon &amp; Ligament Repair</span>
+                        <span class="chip">Gut Healing</span>
+                        <span class="chip">Systemic Recovery</span>
+                        <span class="chip">Angiogenesis</span>
+                        <span class="chip">Anti-Inflammatory</span>
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="bi bi-clock"></i> T½: 4–6h (BPC) / 6–7d (TB)</span>
+                        <span><i class="bi bi-droplet"></i> Lyophilised dual-peptide vial</span>
+                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <div>
+                        <div class="price-display">€89.94</div>
+                        <div class="price-note">Multi-unit discounts up to 15%</div>
+                    </div>
+                    <a href="/product/9" class="btn-product">View &amp; Order →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retatrutide -->
+        <div class="col">
+            <div class="product-card">
+                <div class="vial-wrap">
+                    <div class="vial">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            <div class="peptide-name">RETATRUTIDE</div>
+                            <div class="lot">LOT · PH-RT087</div>
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+                <div class="product-card-top">
+                    <h4>Retatrutide</h4>
+                    <p class="product-desc">A next-generation synthetic peptide (39 amino acids, C18 fatty-acid conjugated) that acts as a simultaneous triple agonist at GLP-1, GIP, and Glucagon receptors. Preclinical research has demonstrated significant reductions in body weight and visceral fat mass, improved insulin sensitivity, and enhanced thermogenesis — with a cardiovascular and hepatoprotective profile that distinguishes it from first-generation GLP-1 agonists.</p>
+                    <div class="benefit-chips">
+                        <span class="chip highlight">Metabolic Regulation</span>
+                        <span class="chip">Body Composition</span>
+                        <span class="chip">Glucose Control</span>
+                        <span class="chip">Thermogenesis</span>
+                        <span class="chip">Cardiovascular Support</span>
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="bi bi-clock"></i> T½: ~6 days</span>
+                        <span><i class="bi bi-droplet"></i> 39-AA modified lyophilised peptide</span>
+                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <div>
+                        <div class="price-display">€49.99</div>
+                        <div class="price-note">Multi-unit discounts up to 15%</div>
+                    </div>
+                    <a href="/product/5" class="btn-product">View &amp; Order →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- GHK-Cu -->
+        <div class="col">
+            <div class="product-card">
+                <div class="vial-wrap">
+                    <div class="vial vial-ghk">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            <div class="peptide-name">GHK-Cu</div>
+                            <div class="lot">LOT · PH-GK094</div>
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+                <div class="product-card-top">
+                    <h4>GHK-Cu</h4>
+                    <p class="product-desc">A naturally occurring tripeptide copper complex (Glycyl-L-histidyl-L-lysine · Cu²⁺) with a uniquely broad regenerative profile. GHK-Cu upregulates collagen I and III synthesis, elastin production, and dermal wound healing. It activates hair follicle growth factors, modulates over 4,000 human genes involved in tissue remodelling, and exhibits potent antioxidant and anti-inflammatory activity — making it among the most multifaceted peptides in published dermatological and longevity research.</p>
+                    <div class="benefit-chips">
+                        <span class="chip highlight">Collagen Synthesis</span>
+                        <span class="chip">Skin Rejuvenation</span>
+                        <span class="chip">Hair Follicle Activation</span>
+                        <span class="chip">Wound Healing</span>
+                        <span class="chip">Antioxidant</span>
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="bi bi-clock"></i> T½: 30–60 min</span>
+                        <span><i class="bi bi-droplet"></i> Tripeptide Cu²⁺ complex, lyophilised</span>
+                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <div>
+                        <div class="price-display">€39.99</div>
+                        <div class="price-note">Multi-unit discounts up to 15%</div>
+                    </div>
+                    <a href="/product/3" class="btn-product">View &amp; Order →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- GLOW Stack -->
+        <div class="col">
+            <div class="product-card">
+                <div class="vial-wrap">
+                    <div class="vial vial-glow">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            <div class="peptide-name">GLOW</div>
+                            <div class="lot">LOT · PH-GL022</div>
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+                <div class="product-card-top">
+                    <h4>GLOW Stack <span style="display:inline-block;background:#FF9000;color:#000;font-size:0.6rem;font-weight:900;padding:0.12rem 0.4rem;border-radius:4px;margin-left:0.3rem;letter-spacing:0.05em;vertical-align:middle;">SIGNATURE</span></h4>
+                    <p class="product-desc">The signature PepHub combination — three of the most thoroughly studied regenerative peptides in one lyophilised vial. 10 mg BPC-157 + 50 mg GHK-Cu + 10 mg TB-500 (70 mg total). Local repair (BPC-157), systemic vascular regeneration (TB-500), and extracellular-matrix support (GHK-Cu) — three complementary mechanisms in a single-vial protocol.</p>
+                    <div class="benefit-chips">
+                        <span class="chip highlight">Tissue Repair</span>
+                        <span class="chip">Skin Regeneration</span>
+                        <span class="chip">Angiogenesis</span>
+                        <span class="chip">Collagen Synthesis</span>
+                        <span class="chip">Anti-Inflammatory</span>
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="bi bi-clock"></i> Combined T½: 4h–7d</span>
+                        <span><i class="bi bi-droplet"></i> 70mg tri-peptide blend, lyophilised</span>
+                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <div>
+                        <div class="price-display">€129.99</div>
+                        <div class="price-note">Pre-blended · one-injection protocol</div>
+                    </div>
+                    <a href="/product/21" class="btn-product">View &amp; Order →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bacteriostatic Water -->
+        <div class="col">
+            <div class="product-card">
+                <div class="vial-wrap">
+                    <div class="vial vial-bac">
+                        <div class="vial-cap"></div>
+                        <div class="vial-neck"></div>
+                        <div class="vial-body"></div>
+                        <div class="vial-label">
+                            <div class="ph-brand">PEP<span class="hub-tag">HUB</span></div>
+                            <div class="peptide-name">BAC WATER</div>
+                            <div class="lot">LOT · PH-BW101</div>
+                        </div>
+                        <div class="vial-shadow"></div>
+                    </div>
+                </div>
+                <div class="product-card-top">
+                    <h4>Bacteriostatic Water <span style="display:inline-block;background:#2D2D2D;color:#FF9000;font-size:0.6rem;font-weight:900;padding:0.12rem 0.4rem;border-radius:4px;margin-left:0.3rem;letter-spacing:0.05em;vertical-align:middle;">ESSENTIAL</span></h4>
+                    <p class="product-desc">The essential companion. Sterile USP-grade bacteriostatic water with 0.9% benzyl alcohol preservative — the standard solvent for reconstituting lyophilised peptides. Filtered through a 0.22 µm membrane and endotoxin-tested. Once opened, the multi-use vial keeps your reconstituted peptide solution stable for up to 28 days when refrigerated.</p>
+                    <div class="benefit-chips">
+                        <span class="chip highlight">Peptide Reconstitution</span>
+                        <span class="chip">USP-Grade</span>
+                        <span class="chip">0.9% Benzyl Alcohol</span>
+                        <span class="chip">Sterile-Filtered</span>
+                        <span class="chip">Multi-Use</span>
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="bi bi-thermometer"></i> Room temp · refrigerate after first use</span>
+                        <span><i class="bi bi-droplet"></i> 3ml or 10ml sterile aqueous solution</span>
+                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <div>
+                        <div class="price-display">From €4.99</div>
+                        <div class="price-note">3ml or 10ml available</div>
+                    </div>
+                    <a href="/product/20" class="btn-product">View &amp; Order →</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Peptide Tools Modal -->
+<style>
+    .modal-content { background:#1E1E1E !important; color:#F5F5F5; border:1px solid #2D2D2D; }
+    .modal-header { background:#141414 !important; border-bottom:1px solid #2D2D2D !important; }
+    .modal-footer { background:#141414 !important; border-top:1px solid #2D2D2D !important; }
+    .modal-body { background:#1E1E1E; }
+    .btn-close { filter: invert(1); }
+    .tools-tab { background: none; border: none; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 600; color: #888; border-radius: 6px; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+    .tools-tab.active { background: #FF9000; color: #000; font-weight: 700; }
+    .tools-tab:hover:not(.active) { background: #2D2D2D; color: #fff; }
+    .tab-pane-custom { display: none; } .tab-pane-custom.active { display: block; }
+    .matrix-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    .matrix-table th { background:#141414; color:#FF9000; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; padding:0.45rem 0.6rem; }
+    .matrix-table td { padding:0.4rem 0.6rem; border-bottom:1px solid #2D2D2D; vertical-align:top; font-size:0.78rem; color:#ccc; }
+    .matrix-table tr:last-child td { border-bottom:none; }
+    .status-badge { display:inline-block; border-radius:6px; padding:0.15rem 0.55rem; font-size:0.65rem; font-weight:700; white-space:nowrap; }
+    .status-cat1 { background:rgba(255,144,0,0.15); color:#FF9000; border:1px solid rgba(255,144,0,0.4); }
+    .status-fda { background:rgba(46,160,67,0.15); color:#4CAF50; border:1px solid rgba(76,175,80,0.4); }
+    .status-inv { background:rgba(255,152,0,0.1); color:#FF9800; border:1px solid rgba(255,152,0,0.3); }
+    .deep-item { border:1px solid #2D2D2D; border-radius:0.75rem; margin-bottom:0.6rem; overflow:hidden; }
+    .deep-header { background:#242424; padding:0.65rem 1rem; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700; font-size:0.85rem; color:#fff; }
+    .deep-header:hover { background:#2D2D2D; }
+    .deep-body { display:none; padding:0.9rem 1rem; font-size:0.8rem; line-height:1.7; color:#999; background:#1E1E1E; }
+    .deep-body.open { display:block; }
+    .deep-body strong { color:#F5F5F5; }
+    .mechstep { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.35rem; font-size:0.75rem; }
+    .mechstep .arrow { color:#FF9000; font-weight:700; }
+    .mechbox { background:#2D2D2D; border-radius:6px; padding:0.3rem 0.65rem; font-size:0.74rem; font-weight:600; color:#fff; }
+    .reg-timeline { position:relative; padding-left:1.5rem; }
+    .reg-timeline::before { content:''; position:absolute; left:0.55rem; top:0; bottom:0; width:2px; background:#2D2D2D; }
+    .reg-event { position:relative; margin-bottom:1rem; }
+    .reg-event::before { content:''; position:absolute; left:-1rem; top:0.3rem; width:10px; height:10px; border-radius:50%; background:#FF9000; }
+    .reg-event.red::before { background:#C62828; }
+    .reg-event.green::before { background:#4CAF50; }
+    .reg-date { font-size:0.72rem; font-weight:700; color:#FF9000; text-transform:uppercase; letter-spacing:0.04em; }
+    .reg-text { font-size:0.8rem; color:#999; line-height:1.6; }
+    .cat-pill { display:inline-block; border-radius:6px; padding:0.15rem 0.5rem; font-size:0.7rem; font-weight:700; margin:0.15rem; }
+    .cat-restored { background:rgba(76,175,80,0.12); color:#4CAF50; border:1px solid rgba(76,175,80,0.4); }
+    .protocol-card { background:#242424; border-radius:0.75rem; padding:1rem; margin-bottom:0.75rem; border-left:3px solid #FF9000; }
+    .protocol-card h6 { font-size:0.82rem; font-weight:700; color:#fff; margin-bottom:0.4rem; }
+    .protocol-card p { font-size:0.78rem; color:#999; margin:0; line-height:1.6; }
+    .stack-layer { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 0; border-bottom:1px solid #2D2D2D; }
+    .stack-layer:last-child { border-bottom:none; }
+    .stack-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+    /* form controls dark override */
+    .form-select, .form-control { background:#2D2D2D !important; border-color:#3D3D3D !important; color:#fff !important; }
+    .form-label { color:#ccc; }
+    .alert.bg-light { background:#242424 !important; border-color:#3D3D3D !important; color:#ccc !important; }
+</style>
+<div class="modal fade" id="calculatorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="padding:0.75rem 1.25rem;">
+                <div>
+                    <h5 class="modal-title mb-0" style="font-size:1rem; font-weight:700;">🔬 Peptide Tools &amp; Research Dashboard</h5>
+                    <p class="mb-0" style="font-size:0.72rem; color:var(--text-muted);">For research and educational purposes only.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Tab bar -->
+            <div style="background:#141414; border-bottom:1px solid #2D2D2D; padding:0.5rem 1.25rem; display:flex; gap:0.35rem; flex-wrap:wrap;">
+                <button class="tools-tab active" onclick="switchTab('calc',this)">💉 Dose Calculator</button>
+                <button class="tools-tab" onclick="switchTab('matrix',this)">🧬 Peptidome Matrix</button>
+                <button class="tools-tab" onclick="switchTab('deepdive',this)">🔬 Deep Dives</button>
+                <button class="tools-tab" onclick="switchTab('regulatory',this)">⚖️ Regulatory 2026</button>
+                <button class="tools-tab" onclick="switchTab('protocols',this)">🔗 Protocols</button>
+            </div>
+
+            <div class="modal-body" style="padding:1.25rem;">
+
+                <!-- TAB: Dose Calculator -->
+                <div id="tab-calc" class="tab-pane-custom active">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h6 class="fw-bold mb-3">📊 Calculate Injection Volume</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Select Peptide</label>
+                                <select id="peptideSelect" class="form-select" onchange="updatePeptideInfo()">
+                                    <option value="">— Historical Overview —</option>
+                                    <option value="BPC-157">BPC-157</option>
+                                    <option value="TB-500">TB-500</option>
+                                    <option value="GHK-Cu">GHK-Cu</option>
+                                    <option value="Retatrutide">Retatrutide</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Desired Dose (mcg)</label><input type="number" id="doseMcg" class="form-control" value="250"></div>
+                            <div class="mb-3"><label class="form-label">Vial Strength (mg)</label><input type="number" id="vialMg" class="form-control" value="5"></div>
+                            <div class="mb-3"><label class="form-label">Bacteriostatic Water (ml)</label><input type="number" id="bacterioMl" class="form-control" value="2"></div>
+                            <div class="alert bg-light border-0 text-center" style="border:1px solid #EDE8DC!important;">
+                                <strong>💉 Injection Volume:</strong> <span id="unitsResult" style="font-weight:800;color:var(--gold-dark);">0</span> units (1 ml syringe)
+                            </div>
+                            <small class="text-muted">Formula: (dose_mcg ÷ (vial_mg × 1000)) × bac_water_ml × 100</small>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="fw-bold mb-3">📚 Peptide Reference</h6>
+                            <div id="knowledgePanel" style="font-size:0.85rem;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Peptidome Matrix -->
+                <div id="tab-matrix" class="tab-pane-custom">
+                    <h6 class="fw-bold mb-3">🧬 The Regenerative Peptidome Matrix</h6>
+                    <div class="table-responsive">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr><th>Peptide</th><th>Class</th><th>Target Mechanism</th><th>Clinical Application</th><th>Evidence</th><th>2026 Status</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>BPC-157</strong></td><td>Tissue</td><td>Angiogenesis via Akt-eNOS</td><td>Musculoskeletal &amp; gut repair</td><td>Animal / Pilot</td><td><span class="status-badge status-cat1">CAT 1</span></td></tr>
+                                <tr><td><strong>GHK-Cu</strong></td><td>Skin</td><td>Epigenetic modulation</td><td>Fibroblast stimulation</td><td>In Vitro / Animal</td><td><span class="status-badge status-cat1">CAT 1</span></td></tr>
+                                <tr><td><strong>TB-500</strong></td><td>Tissue</td><td>Actin binding &amp; cell migration</td><td>Muscle / tendon recovery</td><td>Animal</td><td><span class="status-badge status-cat1">CAT 1</span></td></tr>
+                                <tr><td><strong>Tirzepatide</strong></td><td>Metabolic</td><td>Dual GIP / GLP-1 activation</td><td>Weight loss &amp; metabolic health</td><td>Phase 3 RCT</td><td><span class="status-badge status-fda">FDA APPROVED</span></td></tr>
+                                <tr><td><strong>CJC-1295 + Ipamorelin</strong></td><td>Metabolic</td><td>GH stimulation</td><td>Lean muscle &amp; recovery</td><td>Animal / Phase 2</td><td><span class="status-badge status-inv">Investigational</span></td></tr>
+                                <tr><td><strong>Epitalon</strong></td><td>Neuro / Clock</td><td>Telomerase activation</td><td>Circadian regulation</td><td>Eastern Clinical</td><td><span class="status-badge status-cat1">CAT 1</span></td></tr>
+                                <tr><td><strong>Semax</strong></td><td>Neuro / Clock</td><td>BDNF mRNA upregulation</td><td>Cognitive enhancement</td><td>Eastern Clinical</td><td><span class="status-badge status-cat1">CAT 1</span></td></tr>
+                                <tr><td><strong>Retatrutide</strong></td><td>Metabolic</td><td>Triple GLP-1 / GIP / GcgR agonism</td><td>Weight, metabolic &amp; hepatic</td><td>Phase 2</td><td><span class="status-badge status-inv">Investigational</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-3" style="font-size:0.72rem;color:var(--text-muted);">CAT 1 = legally compoundable under April 2026 HHS ruling. For research &amp; educational purposes only.</p>
+                </div>
+
+                <!-- TAB: Deep Dives -->
+                <div id="tab-deepdive" class="tab-pane-custom">
+                    <h6 class="fw-bold mb-3">🔬 Peptide Deep Dives</h6>
+
+                    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;">Tap any compound to expand its mechanism, pathways, and clinical translation.</p>
+
+                    <div class="deep-item">
+                        <div class="deep-header" onclick="toggleDeep(this)">
+                            <span>BPC-157 — The Systemic Healing Catalyst &amp; NO Modulator</span><span>−</span>
+                        </div>
+                        <div class="deep-body open">
+                            <p><strong>Activation Pathway:</strong></p>
+                            <div class="mechstep"><span class="mechbox">15-AA gastric peptide</span><span class="arrow">→</span><span class="mechbox">VEGFR2 Internalization</span><span class="arrow">→</span><span class="mechbox">Akt-eNOS Activation</span><span class="arrow">→</span><span class="mechbox">NO Synthesis</span><span class="arrow">→</span><span class="mechbox">Angiogenesis</span></div>
+                            <div class="row mt-3 g-2">
+                                <div class="col-sm-4"><div class="protocol-card"><h6>NO Homeostat</h6><p>Uniquely balances nitric oxide — raises when low (preventing ischaemia), suppresses when high (preventing oxidative stress).</p></div></div>
+                                <div class="col-sm-4"><div class="protocol-card"><h6>Inflammation Control</h6><p>Lowers TNF-α, IL-6, COX-2, MPO — potent anti-inflammatory profile across multiple pathways.</p></div></div>
+                                <div class="col-sm-4"><div class="protocol-card"><h6>Clinical Translation</h6><p>Accelerated tendon/ligament healing with organised collagen deposition and no unwanted ossicle formation.</p></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="deep-item">
+                        <div class="deep-header" onclick="toggleDeep(this)">
+                            <span>GHK-Cu — The Epigenetic Switchboard for Dermal Regeneration</span><span>+</span>
+                        </div>
+                        <div class="deep-body">
+                            <p><strong>Modulates ~31% of human genes.</strong> Plasma levels decline from ~200 ng/mL at age 20 to ~80 ng/mL at age 60.</p>
+                            <div class="row g-2 mt-1">
+                                <div class="col-sm-6"><div class="protocol-card" style="border-color:#2E7D32;"><h6 style="color:#2E7D32;">↑ Upregulation</h6><p>Collagen I &amp; III · Decorin · Angiogenesis (VEGF/bFGF) · Antioxidant Defense</p></div></div>
+                                <div class="col-sm-6"><div class="protocol-card" style="border-color:#C62828;"><h6 style="color:#C62828;">↓ Downregulation</h6><p>Inflammation (NF-κB, p38 MAPK) · TNF-β · IL-6 · Matrix Metalloproteinases</p></div></div>
+                            </div>
+                            <p class="mt-2"><strong>Clinical Translation:</strong> Essential cofactor for lysyl oxidase. Accelerates wound closure by 30–50%. Injectable form achieves tissue concentrations 10–20× higher than topicals.</p>
+                        </div>
+                    </div>
+
+                    <div class="deep-item">
+                        <div class="deep-header" onclick="toggleDeep(this)">
+                            <span>TB-500 — Cytoskeletal Dynamics &amp; The Migration Engine</span><span>+</span>
+                        </div>
+                        <div class="deep-body">
+                            <p><strong>Molecular definition:</strong> Synthetic 7-amino-acid fragment (Ac-LKKTETQ) of full-length Thymosin Beta-4.</p>
+                            <div class="row g-2 mt-1">
+                                <div class="col-sm-6"><div class="protocol-card" style="border-color:#C62828;"><h6>Before (Injury Site)</h6><p>Impaired actin dynamics — cells clustered, unable to migrate to repair site.</p></div></div>
+                                <div class="col-sm-6"><div class="protocol-card" style="border-color:#2E7D32;"><h6>Post TB-500</h6><p>Actin upregulation &amp; cell migration — rapid movement to injury site, re-epithelialisation and muscle/cardiac tissue repair.</p></div></div>
+                            </div>
+                            <p class="mt-2"><strong>Mechanism:</strong> Binds actin, transforming the cytoskeleton to enable rapid cell migration. Promotes angiogenesis and vascular regeneration systemically.</p>
+                        </div>
+                    </div>
+
+                    <div class="deep-item">
+                        <div class="deep-header" onclick="toggleDeep(this)">
+                            <span>Retatrutide — The Triple-Agonist Metabolic Powerhouse</span><span>+</span>
+                        </div>
+                        <div class="deep-body">
+                            <p><strong>Mechanism:</strong> A single 39-amino-acid analogue that simultaneously activates three receptors — the broadest metabolic signalling of any peptide in development.</p>
+                            <div class="mechstep"><span class="mechbox">GLP-1 receptor</span><span class="arrow">+</span><span class="mechbox">GIP receptor</span><span class="arrow">+</span><span class="mechbox">Glucagon receptor</span><span class="arrow">→</span><span class="mechbox">Appetite ↓ · Glucose control · Thermogenesis ↑</span></div>
+                            <div class="row mt-3 g-2">
+                                <div class="col-sm-4"><div class="protocol-card"><h6>GLP-1 + GIP</h6><p>Suppresses appetite and slows gastric emptying while improving insulin sensitivity and glucose handling.</p></div></div>
+                                <div class="col-sm-4"><div class="protocol-card"><h6>Glucagon Arm</h6><p>The distinguishing third axis — raises energy expenditure and drives hepatic fat mobilisation (thermogenic effect).</p></div></div>
+                                <div class="col-sm-4"><div class="protocol-card"><h6>Clinical Translation</h6><p>Phase 2 trials reported up to ~24% mean body-weight reduction at 48 weeks — among the largest seen for a metabolic agent.</p></div></div>
+                            </div>
+                            <p class="mt-2" style="font-size:0.72rem;color:var(--text-muted);">Investigational — not FDA-approved. For research &amp; educational purposes only.</p>
+                        </div>
+                    </div>
+
+                    <div class="deep-item">
+                        <div class="deep-header" onclick="toggleDeep(this)">
+                            <span>Epitalon &amp; Semax — Neuroprotection &amp; Telomere Biology</span><span>+</span>
+                        </div>
+                        <div class="deep-body">
+                            <div class="row g-2">
+                                <div class="col-sm-6"><div class="protocol-card"><h6>Epitalon — The Cellular Clock</h6><p>Ala-Glu-Asp-Gly tetrapeptide. Activates telomerase (hTERT), modulates pineal gland / melatonin synthesis. 12–24% lifespan extension in rodent models.</p></div></div>
+                                <div class="col-sm-6"><div class="protocol-card"><h6>Semax — Neuroplasticity</h6><p>ACTH(4-10) analogue. Produces 3× increase in BDNF mRNA expression and TrkB activation. Supports cognitive enhancement and stroke recovery. Widely used in Eastern clinical practice.</p></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Regulatory 2026 -->
+                <div id="tab-regulatory" class="tab-pane-custom">
+                    <h6 class="fw-bold mb-3">⚖️ The 2026 Regulatory Pivot</h6>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="reg-timeline">
+                                <div class="reg-event red">
+                                    <div class="reg-date">Late 2023 — The Crackdown</div>
+                                    <div class="reg-text">FDA placed 19 peptides on Category 2 (Significant Safety Risks), effectively blocking all compounding pharmacies.</div>
+                                </div>
+                                <div class="reg-event">
+                                    <div class="reg-date">February 27, 2026 — HHS Announcement</div>
+                                    <div class="reg-text">HHS announced a regulatory pivot opening new pathways for compounding pharmacies.</div>
+                                </div>
+                                <div class="reg-event green">
+                                    <div class="reg-date">April 2026 — Return to Category 1</div>
+                                    <div class="reg-text">14 peptides restored to legally compoundable status:</div>
+                                    <div class="mt-1">
+                                        <span class="cat-pill cat-restored">BPC-157</span><span class="cat-pill cat-restored">GHK-Cu</span><span class="cat-pill cat-restored">TB-500</span><span class="cat-pill cat-restored">Epitalon</span><span class="cat-pill cat-restored">Semax</span><span class="cat-pill cat-restored">KPV</span><span class="cat-pill cat-restored">AOD-9604</span>
+                                    </div>
+                                    <div class="reg-text mt-1" style="font-size:0.72rem;">Pending PCAC Consults in 2026/2027.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <p style="font-size:0.8rem;font-weight:700;color:var(--charcoal);margin-bottom:0.6rem;">The Three Epistemological Pillars</p>
+                            <div class="protocol-card" style="border-color:var(--charcoal);margin-bottom:0.5rem;">
+                                <h6>Mainstream Pharma</h6>
+                                <p>Focus: Specific disease treatment · Evidence: Phase 3 RCTs · Examples: Tirzepatide, Bremelanotide</p>
+                            </div>
+                            <div class="protocol-card" style="border-color:#2E7D32;margin-bottom:0.5rem;">
+                                <h6>Longevity Clinics</h6>
+                                <p>Focus: Healthspan, tissue regeneration &amp; metabolic optimisation · Evidence: Off-label / Pilot studies · Examples: BPC-157, CJC-1295</p>
+                            </div>
+                            <div class="protocol-card" style="border-color:#D4AF37;margin-bottom:0.5rem;">
+                                <h6>Russian Gerontology</h6>
+                                <p>Focus: Bioregulators &amp; circadian modulation · Evidence: Decades of Eastern clinical use · Examples: Epitalon, Semax</p>
+                            </div>
+                            <p style="font-size:0.7rem;color:var(--text-muted);">Lack of Western RCTs does not necessarily indicate lack of biological efficacy — it requires different clinical risk assessment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Protocols -->
+                <div id="tab-protocols" class="tab-pane-custom">
+                    <h6 class="fw-bold mb-3">🔗 Research Protocols &amp; Stacks</h6>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <p style="font-size:0.82rem;font-weight:700;color:var(--charcoal);margin-bottom:0.75rem;">The "Glow Stack" Synergy Model</p>
+                            <div class="stack-layer">
+                                <div class="stack-dot" style="background:#D4AF37;"></div>
+                                <div><strong style="font-size:0.8rem;">GHK-Cu</strong> — Outer layer<br><span style="font-size:0.75rem;color:var(--text-muted);">Surface regeneration, skin elasticity &amp; collagen synthesis</span></div>
+                            </div>
+                            <div class="stack-layer">
+                                <div class="stack-dot" style="background:#4DB6A4;"></div>
+                                <div><strong style="font-size:0.8rem;">BPC-157 + TB-500</strong> — Middle layer<br><span style="font-size:0.75rem;color:var(--text-muted);">Deep tissue repair, angiogenesis &amp; inflammation modulation</span></div>
+                            </div>
+                            <div class="stack-layer">
+                                <div class="stack-dot" style="background:#E07A5F;"></div>
+                                <div><strong style="font-size:0.8rem;">NAD+</strong> — Core<br><span style="font-size:0.75rem;color:var(--text-muted);">Cellular energy &amp; mitochondrial function — provides the energy to execute the repair signals</span></div>
+                            </div>
+                            <div class="protocol-card mt-3">
+                                <h6>Cycling Pattern</h6>
+                                <p>4–8 weeks ON, followed by 2–4 weeks OFF. Prevents receptor desensitisation.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <p style="font-size:0.82rem;font-weight:700;color:var(--charcoal);margin-bottom:0.75rem;">Delivery &amp; Bioavailability</p>
+                            <div class="protocol-card" style="margin-bottom:0.5rem;">
+                                <h6>Subcutaneous / IM Injections ↑↑↑</h6>
+                                <p>Maximum bioavailability. Injectable GHK-Cu achieves tissue concentrations 10–20× higher than topicals.</p>
+                            </div>
+                            <div class="protocol-card" style="margin-bottom:0.5rem;">
+                                <h6>Microneedling + Topical ↑↑</h6>
+                                <p>Micro-channels create enhanced penetration — synergistic with GHK-Cu.</p>
+                            </div>
+                            <div class="protocol-card" style="margin-bottom:0.5rem;">
+                                <h6>Oral Troches ↑</h6>
+                                <p>Moderate systemic absorption via mucosa, bypassing digestive breakdown.</p>
+                            </div>
+                            <div class="protocol-card">
+                                <h6>Topicals / Serums ↗</h6>
+                                <p>High convenience, superficial penetration. Primary use: cosmetic GHK-Cu.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /modal-body -->
+
+            <div class="modal-footer" style="padding:0.6rem 1.25rem;">
+                <small class="text-muted me-auto">For research &amp; educational purposes only — not medical advice.</small>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-note">
+    <div class="container">
+        <p>© 2025 Pep Hub - Bio-Stimulators — Advanced peptide science for research purposes only.</p>
+        <p style="margin-top:0.4rem;">These products are not approved for human or veterinary therapeutic use and have not been evaluated by the FDA or EMA. For laboratory and preclinical research purposes only.</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleCategory(el) {
+        const content = el.querySelector('.category-content');
+        const icon    = el.querySelector('.toggle-icon');
+        content.classList.toggle('show');
+        icon.textContent = content.classList.contains('show') ? '−' : '+';
+    }
+
+    const peptideKnowledge = {
+        "BPC-157":    "<strong>📌 Research dose:</strong> 250–500 mcg/day<br><strong>⏱️ Half-life:</strong> 4–6 hours<br><strong>❄️ Storage:</strong> Refrigerate after reconstitution<br><strong>🧬 Primary use:</strong> Gut healing, tendon &amp; ligament repair, angiogenesis<br><strong>🔗 Mechanism:</strong> Upregulates VEGFR2 &amp; FGFR; activates FAK-paxillin signalling pathway; enhances nitric oxide signalling",
+        "TB-500":     "<strong>📌 Research dose:</strong> 2.5–5 mg/week<br><strong>⏱️ Half-life:</strong> 6–7 days<br><strong>❄️ Storage:</strong> Refrigerate after reconstitution<br><strong>🧬 Primary use:</strong> Systemic repair, stem cell mobilisation, inflammation resolution<br><strong>🔗 Mechanism:</strong> Binds G-actin via LKKTET motif; promotes cell migration, endothelial tube formation, and vascular regeneration",
+        "GHK-Cu":     "<strong>📌 Research dose:</strong> 1–2 mg/day<br><strong>⏱️ Half-life:</strong> 30–60 min<br><strong>❄️ Storage:</strong> Refrigerate; protect from light<br><strong>🧬 Primary use:</strong> Collagen &amp; elastin synthesis, dermal regeneration, hair follicle support<br><strong>🔗 Mechanism:</strong> Activates TGF-β signalling; modulates &gt;4,000 human genes including MMPs, TIMPs, and growth factors",
+        "Retatrutide": "<strong>📌 Research dose:</strong> 1–4 mg/week<br><strong>⏱️ Half-life:</strong> ~6 days<br><strong>❄️ Storage:</strong> Refrigerate; avoid repeated freeze-thaw<br><strong>🧬 Primary use:</strong> Metabolic regulation, body composition, insulin sensitivity<br><strong>🔗 Mechanism:</strong> Simultaneous GLP-1R, GIPR &amp; GcgR agonism; enhances insulin secretion, suppresses appetite, and increases thermogenic energy expenditure"
+    };
+
+    const historicalOverview = `<div>
+        <p><strong>🔬 Peptides in Research: A Timeline</strong></p>
+        <p><strong>1921:</strong> Insulin isolated — the world's first therapeutic peptide, proving biological peptides can be synthesised and used medicinally at scale.</p>
+        <p><strong>1950s–60s:</strong> Oxytocin and vasopressin synthesised. The concept of peptide hormones as precise regulatory signals becomes established in biochemistry.</p>
+        <p><strong>1970s:</strong> GHRPs (growth hormone-releasing peptides) discovered, laying the foundation for modern secretagogue research.</p>
+        <p><strong>1990s:</strong> BPC-157 isolated from human gastric juice. Early animal studies reveal remarkable tissue-healing properties across multiple organ systems.</p>
+        <p><strong>2000s:</strong> GHK-Cu gains scientific attention for wound healing and dermatological biology. Thymosin Beta-4 studied for cardiac and systemic repair.</p>
+        <p><strong>2010s–2020s:</strong> Retatrutide and other triple-agonist peptides emerge as leading candidates in metabolic disease research. TB-500 studies expand into systemic injury models.</p>
+        <hr style="border-color:#EDE8DC;margin:0.75rem 0;">
+        <p><strong>🧬 What peptides can signal:</strong><br>• Cellular regeneration and tissue repair<br>• Hormone modulation (GH, GLP-1, insulin)<br>• Inflammatory cytokine regulation<br>• Angiogenesis and stem cell mobilisation<br>• Metabolic rate and glucose homeostasis</p>
+        <p style="font-size:0.8rem;color:#5A6E7A;">Select a peptide above for specific dose, half-life, and mechanism data.</p>
+    </div>`;
+
+    function updatePeptideInfo() {
+        const peptide = document.getElementById('peptideSelect').value;
+        document.getElementById('knowledgePanel').innerHTML =
+            peptide && peptideKnowledge[peptide]
+                ? peptideKnowledge[peptide]
+                : historicalOverview;
+        calculateDose();
+    }
+
+    function calculateDose() {
+        const d = parseFloat(document.getElementById('doseMcg').value);
+        const v = parseFloat(document.getElementById('vialMg').value);
+        const b = parseFloat(document.getElementById('bacterioMl').value);
+        document.getElementById('unitsResult').innerText =
+            (!isNaN(d) && !isNaN(v) && !isNaN(b) && v > 0 && b > 0)
+                ? ((d / (v * 1000)) * b * 100).toFixed(1)
+                : 'Invalid';
+    }
+
+    ['doseMcg','vialMg','bacterioMl'].forEach(id =>
+        document.getElementById(id).addEventListener('input', calculateDose));
+
+    function switchTab(name, btn) {
+        document.querySelectorAll('.tab-pane-custom').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tools-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function toggleDeep(header) {
+        const body = header.nextElementSibling;
+        const icon = header.querySelector('span:last-child');
+        body.classList.toggle('open');
+        icon.textContent = body.classList.contains('open') ? '−' : '+';
+    }
+
+    function copyCode(code) {
+        navigator.clipboard.writeText(code).catch(()=>{});
+        let t = document.getElementById('ph-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'ph-toast';
+            t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#FF9000;color:#000;padding:0.65rem 1.25rem;border-radius:6px;font-weight:800;font-size:0.85rem;letter-spacing:0.02em;box-shadow:0 8px 24px rgba(255,144,0,0.4);z-index:10000;transition:opacity 0.3s;opacity:0;';
+            document.body.appendChild(t);
+        }
+        t.textContent = '✓ Code "' + code + '" copied — paste in cart';
+        t.style.opacity = '1';
+        clearTimeout(window._toastT);
+        window._toastT = setTimeout(()=>{ t.style.opacity='0'; }, 2200);
+    }
+
+    window.toggleCategory   = toggleCategory;
+    window.updatePeptideInfo = updatePeptideInfo;
+    window.calculateDose    = calculateDose;
+    window.switchTab        = switchTab;
+    window.toggleDeep       = toggleDeep;
+    window.copyCode         = copyCode;
+
+    document.getElementById('knowledgePanel').innerHTML = historicalOverview;
+    calculateDose();
+
+    // Loader dismiss
+    window.addEventListener('load', () => {
+        const l = document.getElementById('page-loader');
+        if (l) { l.style.opacity='0'; setTimeout(()=>l.style.display='none',450); }
+    });
+</script>
+</body>
+</html>
