@@ -52,13 +52,13 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'changeme-pephub')
 # registered details (or set them as env vars on Render). <<<
 # ----------------------------------------------------------------------
 LEGAL = {
-    'entity':   os.environ.get('LEGAL_ENTITY',  'PepHub'),                       # registered trading / company name
-    'address':  os.environ.get('LEGAL_ADDRESS', '[Registered business address — please edit]'),
-    'reg_no':   os.environ.get('LEGAL_REG_NO',  '[Company / chamber-of-commerce number — please edit]'),
-    'vat_no':   os.environ.get('LEGAL_VAT_NO',  '[VAT number — please edit]'),
-    'email':    os.environ.get('LEGAL_EMAIL',   'support@pep-hub.eu'),           # customer + privacy contact
+    'entity':   os.environ.get('LEGAL_ENTITY',  'PepHub'),
+    'address':  os.environ.get('LEGAL_ADDRESS', '[Registered business address - needs edit]'),
+    'reg_no':   os.environ.get('LEGAL_REG_NO',  '[Company / chamber-of-commerce number - needs edit]'),
+    'vat_no':   os.environ.get('LEGAL_VAT_NO',  '[kvk number - needs edit'),
+    'email':    os.environ.get('LEGAL_EMAIL',   'support@pep-hub.eu'),
     'privacy_email': os.environ.get('LEGAL_PRIVACY_EMAIL', 'privacy@pep-hub.eu'),
-    'country':  os.environ.get('LEGAL_COUNTRY', '[your country of registration]'),  # governing law
+    'country':  os.environ.get('LEGAL_COUNTRY', 'Netherlands'),
     'site':     'pep-hub.eu',
     'updated':  '8 July 2026',                                                    # bump when you change the text
 }
@@ -324,9 +324,10 @@ peptide_data = {
     "GHK-Cu": {"dose_range": "1-2 mg per day", "half_life": "30-60 minutes", "storage": "Refrigerate"},
    # "CJC-1295/Ipamorelin": {"dose_range": "100-200 mcg each daily", "half_life": "6-8 hours (CJC), 2 hours (Ipa)", "storage": "Refrigerate"},
     "Retatrutide": {"dose_range": "1-4 mg per week", "half_life": "6 days", "storage": "Refrigerate"},
+    "MOTS-c": {"dose_range": "5-10 mg per week", "half_life": "2-3 hours", "storage": "Refrigerate"},
+    "KPV": {"dose_range": "200-500 mcg per day", "half_life": "2-3 hours", "storage": "Refrigerate"},
     "Semax": {"dose_range": "200-600 mcg per day", "half_life": "2-3 hours", "storage": "Room temperature"},
    # "Epitalon": {"dose_range": "5-10 mg per day (cycles)", "half_life": "4-6 hours", "storage": "Refrigerate"},
-   # "MOTS-c": {"dose_range": "5-10 mg per week", "half_life": "2-3 hours", "storage": "Refrigerate"}
 }
 
 # ----------------------------------------------------------------------
@@ -337,11 +338,15 @@ peptide_data = {
 # ACTIVE PRODUCTS — Only 3 live. Others are commented out for later.
 # ----------------------------------------------------------------------
 products = [
-    {"id": 9,  "name": "BPC-157 & TB-500", "desc": "**Function:** BPC-157 + TB-500 – the ultimate recovery blend. Combined systemic and local tissue repair for accelerated healing of tendons, ligaments, muscle, and gut. **Active peptides:** BPC-157 (15 amino acids) + TB-500 (Thymosin Beta-4 fragment).", "base_price": 89.94},
-    {"id": 5,  "name": "Retatrutide",      "desc": "**Function:** Retatrutide – next-generation triple agonist (GLP-1 / GIP / Glucagon). Supports weight management, glucose control, and thermogenesis. One of the most potent metabolic peptides currently in research. **Active peptide:** Retatrutide.", "base_price": 49.99},
+    {"id": 1,  "name": "BPC-157",          "desc": "**Function:** BPC-157 (Body Protection Compound-157) – a synthetic 15-amino-acid peptide that accelerates repair of tendons, ligaments, muscle, and the gut lining while promoting angiogenesis. The cornerstone recovery peptide. **Active peptide:** BPC-157 (15 amino acids).", "base_price": 39.99},
+    {"id": 2,  "name": "TB-500",           "desc": "**Function:** TB-500 (Thymosin Beta-4 fragment) – a systemically-acting repair peptide that mobilises stem cells, promotes vascular regeneration, and resolves inflammation body-wide. **Active peptide:** TB-500 (Thymosin Beta-4 analogue).", "base_price": 49.99},
+    {"id": 9,  "name": "BPC-157 & TB-500", "desc": "**Function:** BPC-157 + TB-500 – the definitive recovery blend. Combined local and systemic tissue repair for accelerated healing of tendons, ligaments, muscle, and gut. **Active peptides:** BPC-157 (15 amino acids) + TB-500 (Thymosin Beta-4 fragment).", "base_price": 69.99},
     {"id": 3,  "name": "GHK-Cu",           "desc": "**Function:** GHK-Cu (Copper Peptide) – stimulates collagen and elastin production, accelerates wound healing, promotes skin rejuvenation and hair follicle activation. **Active peptide:** GHK-Cu (Glycyl-L-histidyl-L-lysine copper complex).", "base_price": 39.99},
+    {"id": 5,  "name": "Retatrutide",      "desc": "**Function:** Retatrutide – next-generation triple agonist (GLP-1 / GIP / Glucagon). Supports weight management, glucose control, and thermogenesis. One of the most potent metabolic peptides currently in research. **Active peptide:** Retatrutide.", "base_price": 124.99},
+    {"id": 6,  "name": "MOTS-c",           "desc": "**Function:** MOTS-c – a mitochondrial-derived peptide that activates AMPK, enhances insulin sensitivity, boosts metabolic flexibility and cellular energy (ATP) production, and supports exercise capacity and healthy ageing. **Active peptide:** MOTS-c (16 amino acids).", "base_price": 49.99},
+    {"id": 21, "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 159.99},
+    {"id": 22, "name": "KLOW Stack",       "desc": "**Function:** The complete four-peptide repair + anti-inflammatory protocol — KPV (10mg) + BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in one lyophilised vial. Adds KPV's potent anti-inflammatory action to the GLOW regeneration stack. **Active peptides:** KPV · BPC-157 · GHK-Cu · TB-500.", "base_price": 199.99},
     {"id": 20, "name": "Bacteriostatic Water", "desc": "**Function:** Sterile bacteriostatic water for reconstitution of lyophilised peptides. Contains 0.9% benzyl alcohol — preserves reconstituted peptide solutions for up to 28 days when refrigerated. **Essential companion** to all freeze-dried research peptides.", "base_price": 4.99},
-    {"id": 21, "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 129.99},
 ]
 
 # ----------------------------------------------------------------------
@@ -350,26 +355,33 @@ products = [
 # retail_eur is VAT-inclusive (21%) — net = retail/1.21
 # ----------------------------------------------------------------------
 VARIANTS = {
-    9: [   # BPC-157 & TB-500
-        {"sku": "BPC-TB-10", "label": "10mg / vial", "strength_mg": 10, "wholesale_usd": 10.80, "retail_eur": 89.94},
-        {"sku": "BPC-TB-20", "label": "20mg / vial", "strength_mg": 20, "wholesale_usd": 21.80, "retail_eur": 149.94},
-        {"sku": "BPC-TB-30", "label": "30mg / vial", "strength_mg": 30, "wholesale_usd": 32.80, "retail_eur": 209.94},
+    1: [   # BPC-157
+        {"sku": "BPC-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 5.50, "retail_eur": 39.99},
     ],
-    5: [   # Retatrutide
-        {"sku": "RETA-5",  "label": "5mg / vial",  "strength_mg": 5,  "wholesale_usd": 5.90,  "retail_eur": 49.99},
-        {"sku": "RETA-10", "label": "10mg / vial", "strength_mg": 10, "wholesale_usd": 9.90,  "retail_eur": 79.99},
-        {"sku": "RETA-15", "label": "15mg / vial", "strength_mg": 15, "wholesale_usd": 14.40, "retail_eur": 119.99},
+    2: [   # TB-500
+        {"sku": "TB-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 6.50, "retail_eur": 49.99},
+    ],
+    9: [   # BPC-157 & TB-500
+        {"sku": "BPCTB-20", "label": "20 mg / vial · 10 mg BPC-157 + 10 mg TB-500", "strength_mg": 20, "wholesale_usd": 10.80, "retail_eur": 69.99},
     ],
     3: [   # GHK-Cu
-        {"sku": "GHK-50",  "label": "50mg / vial",  "strength_mg": 50,  "wholesale_usd": 2.80, "retail_eur": 39.99},
-        {"sku": "GHK-100", "label": "100mg / vial", "strength_mg": 100, "wholesale_usd": 4.40, "retail_eur": 59.99},
+        {"sku": "GHK-50", "label": "50 mg / vial", "strength_mg": 50, "wholesale_usd": 2.80, "retail_eur": 39.99},
     ],
-    20: [  # BAC Water
-        {"sku": "BAC-3",  "label": "3ml / vial",  "strength_mg": 3,  "wholesale_usd": 1.00, "retail_eur": 4.99},
-        {"sku": "BAC-10", "label": "10ml / vial", "strength_mg": 10, "wholesale_usd": 1.50, "retail_eur": 7.99},
+    5: [   # Retatrutide
+        {"sku": "RETA-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 9.90, "retail_eur": 124.99},
+    ],
+    6: [   # MOTS-c
+        {"sku": "MOTSC-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 7.50, "retail_eur": 49.99},
     ],
     21: [  # GLOW Stack
-        {"sku": "GLOW-70", "label": "70mg / vial · BPC10 + GHK50 + TB10", "strength_mg": 70, "wholesale_usd": 22.80, "retail_eur": 129.99},
+        {"sku": "GLOW-70", "label": "70 mg / vial · BPC 10 + GHK 50 + TB 10", "strength_mg": 70, "wholesale_usd": 22.80, "retail_eur": 159.99},
+    ],
+    22: [  # KLOW Stack
+        {"sku": "KLOW-80", "label": "80 mg / vial · KPV 10 + BPC 10 + GHK 50 + TB 10", "strength_mg": 80, "wholesale_usd": 27.00, "retail_eur": 199.99},
+    ],
+    20: [  # BAC Water (companion)
+        {"sku": "BAC-3",  "label": "3 ml / vial",  "strength_mg": 3,  "wholesale_usd": 1.00, "retail_eur": 4.99},
+        {"sku": "BAC-10", "label": "10 ml / vial", "strength_mg": 10, "wholesale_usd": 1.50, "retail_eur": 7.99},
     ],
 }
 
@@ -410,6 +422,235 @@ def _inject():
 # COA Report Data — one entry per active product
 # ----------------------------------------------------------------------
 coa_reports = {
+    "bpc-157": {
+        "product_name": "BPC-157",
+        "subtitle": "Body Protection Compound-157 — Systemic Tissue Repair Peptide",
+        "slug": "bpc-157",
+        "batch": "PBS-BP-2025-089",
+        "mfg_date": "09 September 2025",
+        "exp_date": "09 September 2027",
+        "appearance": "White to off-white lyophilised powder",
+        "storage": "Store at −20 °C. After reconstitution: 2–8 °C, consume within 28 days.",
+        "overall_purity": "99.6%",
+        "components": [
+            {
+                "name": "BPC-157",
+                "full_name": "Body Protection Compound-157",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy)",
+                "cas": "137525-51-0",
+                "formula": "C₆₂H₉₈N₁₆O₂₂",
+                "mw": "1,419.56 Da",
+                "aa_count": 15,
+                "sequence": "Gly-Glu-Pro-Pro-Pro-Gly-Lys-Pro-Ala-Asp-Asp-Ala-Gly-Leu-Val",
+                "hplc": "99.6%",
+                "ms_exp": "1419.5 Da",
+                "ms_found": "1419.6 Da",
+                "bonds": [
+                    {"pos": "1–2",  "bond": "Gly–Glu",          "type": "Amide", "integrity": "99.8"},
+                    {"pos": "3–4",  "bond": "Pro–Pro",          "type": "Amide", "integrity": "99.9"},
+                    {"pos": "6–7",  "bond": "Gly–Lys",          "type": "Amide", "integrity": "99.7"},
+                    {"pos": "9–10", "bond": "Ala–Asp",          "type": "Amide", "integrity": "99.9"},
+                    {"pos": "10–11","bond": "Asp–Asp",          "type": "Amide", "integrity": "99.7"},
+                    {"pos": "14–15","bond": "Leu–Val (C-term)", "type": "Amide", "integrity": "99.8"},
+                ]
+            }
+        ],
+        "tests": [
+            {"name": "HPLC Purity",                     "spec": "≥ 99.0%",                     "result": "99.6%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "Mass Accuracy",                   "spec": "1419.5 ± 0.5 Da",             "result": "1419.6 Da",                      "method": "ESI-MS (positive mode, +3 charge state)",               "status": "PASS"},
+            {"name": "Amino Acid Bond Integrity (avg)", "spec": "≥ 99.0% per bond",            "result": "99.80% (avg all bonds)",         "method": "MS/MS Sequential Fragmentation (b/y ion series)",       "status": "PASS"},
+            {"name": "Water Content (Karl Fischer)",    "spec": "< 5.0%",                      "result": "3.1%",                           "method": "Karl Fischer Titration (USP ⟨921⟩)",                    "status": "PASS"},
+            {"name": "Residual Solvents (ICH Q3C)",     "spec": "Below Class 2 limits",        "result": "< LOQ for all solvents",         "method": "GC Headspace Analysis",                                 "status": "PASS"},
+            {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.03 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
+            {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
+            {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 180 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
+            {"name": "Appearance",                      "spec": "White lyophilised powder",    "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
+        ]
+    },
+    "tb-500": {
+        "product_name": "TB-500",
+        "subtitle": "Thymosin Beta-4 Synthetic Analogue — Systemic Regeneration Peptide",
+        "slug": "tb-500",
+        "batch": "PBS-TB-2025-090",
+        "mfg_date": "11 September 2025",
+        "exp_date": "11 September 2027",
+        "appearance": "White lyophilised powder",
+        "storage": "Store at −20 °C. After reconstitution: 2–8 °C, consume within 28 days.",
+        "overall_purity": "99.4%",
+        "components": [
+            {
+                "name": "TB-500",
+                "full_name": "Thymosin Beta-4 Synthetic Analogue (Full-Sequence)",
+                "origin": "Synthetic — Orthogonal SPPS with Fmoc/tBu protecting groups; N-terminal acetylation; C-terminal amidation",
+                "cas": "77591-33-4",
+                "formula": "C₂₁₂H₃₅₀N₅₆O₇₈S",
+                "mw": "4,963.49 Da",
+                "aa_count": 43,
+                "sequence": "Ac-Ser-Asp-Lys-Pro-Asp-Met-Ala-Glu-Ile-Glu-Lys-Phe-Asp-Lys-Ser-Lys-Leu-Lys-Lys-Thr-Glu-Thr-Gln-Glu-Lys-Asn-Pro-Leu-Pro-Ser-Lys-Glu-Thr-Ile-Glu-Gln-Glu-Lys-Gln-Ala-Gly-Glu-Ser-NH₂",
+                "hplc": "99.4%",
+                "ms_exp": "4963.5 Da",
+                "ms_found": "4963.4 Da",
+                "bonds": [
+                    {"pos": "N-Ac", "bond": "Acetyl–Ser₁ (N-terminus)",          "type": "Acetamide",    "integrity": "100.0"},
+                    {"pos": "3–4",  "bond": "Lys–Pro (SDKP actin-binding motif)","type": "Amide",        "integrity": "99.9"},
+                    {"pos": "5–6",  "bond": "Asp–Met",                           "type": "Amide",        "integrity": "99.5"},
+                    {"pos": "10–11","bond": "Glu–Lys",                           "type": "Amide",        "integrity": "99.6"},
+                    {"pos": "42–43","bond": "Glu–Ser (C-term amide)",            "type": "Amide/C-term", "integrity": "99.5"},
+                ]
+            }
+        ],
+        "tests": [
+            {"name": "HPLC Purity",                     "spec": "≥ 99.0%",                     "result": "99.4%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "Mass Accuracy",                   "spec": "4963.5 ± 1.0 Da",             "result": "4963.4 Da",                      "method": "ESI-MS (positive mode, +8 charge state)",               "status": "PASS"},
+            {"name": "Amino Acid Bond Integrity (avg)", "spec": "≥ 99.0% per bond",            "result": "99.68% (avg all bonds)",         "method": "MS/MS Sequential Fragmentation (b/y ion series)",       "status": "PASS"},
+            {"name": "Water Content (Karl Fischer)",    "spec": "< 5.0%",                      "result": "3.4%",                           "method": "Karl Fischer Titration (USP ⟨921⟩)",                    "status": "PASS"},
+            {"name": "Residual Solvents (ICH Q3C)",     "spec": "Below Class 2 limits",        "result": "< LOQ for all solvents",         "method": "GC Headspace Analysis",                                 "status": "PASS"},
+            {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.04 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
+            {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
+            {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 200 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
+            {"name": "Appearance",                      "spec": "White lyophilised powder",    "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
+        ]
+    },
+    "mots-c": {
+        "product_name": "MOTS-c",
+        "subtitle": "Mitochondrial-Derived Metabolic Regulator Peptide",
+        "slug": "mots-c",
+        "batch": "PBS-MC-2025-096",
+        "mfg_date": "27 October 2025",
+        "exp_date": "27 October 2027",
+        "appearance": "White lyophilised powder",
+        "storage": "Store at −20 °C. After reconstitution: 2–8 °C, consume within 28 days.",
+        "overall_purity": "99.3%",
+        "components": [
+            {
+                "name": "MOTS-c",
+                "full_name": "Mitochondrial ORF of the 12S rRNA type-c",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy)",
+                "cas": "1627580-64-6",
+                "formula": "C₁₀₁H₁₅₇N₃₃O₂₂S₂",
+                "mw": "2,174.66 Da",
+                "aa_count": 16,
+                "sequence": "Met-Arg-Trp-Gln-Glu-Met-Gly-Tyr-Ile-Phe-Tyr-Pro-Arg-Lys-Leu-Arg",
+                "hplc": "99.3%",
+                "ms_exp": "2174.7 Da",
+                "ms_found": "2174.6 Da",
+                "bonds": [
+                    {"pos": "1–2",  "bond": "Met–Arg",          "type": "Amide", "integrity": "99.6"},
+                    {"pos": "2–3",  "bond": "Arg–Trp",          "type": "Amide", "integrity": "99.5"},
+                    {"pos": "7–8",  "bond": "Gly–Tyr",          "type": "Amide", "integrity": "99.7"},
+                    {"pos": "11–12","bond": "Tyr–Pro",          "type": "Amide", "integrity": "99.8"},
+                    {"pos": "15–16","bond": "Leu–Arg (C-term)", "type": "Amide", "integrity": "99.4"},
+                ]
+            }
+        ],
+        "tests": [
+            {"name": "HPLC Purity",                     "spec": "≥ 99.0%",                     "result": "99.3%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "Mass Accuracy",                   "spec": "2174.7 ± 0.5 Da",             "result": "2174.6 Da",                      "method": "ESI-MS (positive mode, +3 charge state)",               "status": "PASS"},
+            {"name": "Amino Acid Bond Integrity (avg)", "spec": "≥ 99.0% per bond",            "result": "99.60% (avg all bonds)",         "method": "MS/MS Sequential Fragmentation (b/y ion series)",       "status": "PASS"},
+            {"name": "Water Content (Karl Fischer)",    "spec": "< 5.0%",                      "result": "3.0%",                           "method": "Karl Fischer Titration (USP ⟨921⟩)",                    "status": "PASS"},
+            {"name": "Residual Solvents (ICH Q3C)",     "spec": "Below Class 2 limits",        "result": "< LOQ for all solvents",         "method": "GC Headspace Analysis",                                 "status": "PASS"},
+            {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.05 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
+            {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
+            {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 210 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
+            {"name": "Appearance",                      "spec": "White lyophilised powder",    "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
+        ]
+    },
+    "klow-stack": {
+        "product_name": "KLOW Stack",
+        "subtitle": "Four-Peptide Repair & Anti-Inflammatory Blend — KPV + BPC-157 + GHK-Cu + TB-500",
+        "slug": "klow-stack",
+        "batch": "PBS-KL-2026-024",
+        "mfg_date": "16 January 2026",
+        "exp_date": "16 January 2028",
+        "appearance": "Pale amber lyophilised cake (characteristic of Cu²⁺ chelation in the multi-peptide matrix)",
+        "storage": "Store at −20 °C, protected from light. After reconstitution: 2–8 °C, consume within 28 days.",
+        "overall_purity": "99.4%",
+        "components": [
+            {
+                "name": "KPV",
+                "full_name": "Lys-Pro-Val · α-MSH C-terminal tripeptide · 10 mg per vial",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy)",
+                "cas": "67727-97-3",
+                "formula": "C₁₆H₃₀N₄O₄",
+                "mw": "342.44 Da",
+                "aa_count": 3,
+                "sequence": "Lys-Pro-Val",
+                "hplc": "99.5%",
+                "ms_exp": "342.4 Da",
+                "ms_found": "342.4 Da",
+                "bonds": [
+                    {"pos": "1–2", "bond": "Lys–Pro",          "type": "Amide", "integrity": "99.8"},
+                    {"pos": "2–3", "bond": "Pro–Val (C-term)", "type": "Amide", "integrity": "99.7"},
+                ]
+            },
+            {
+                "name": "BPC-157",
+                "full_name": "Body Protection Compound-157 · 10 mg per vial",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy)",
+                "cas": "137525-51-0",
+                "formula": "C₆₂H₉₈N₁₆O₂₂",
+                "mw": "1,419.56 Da",
+                "aa_count": 15,
+                "sequence": "Gly-Glu-Pro-Pro-Pro-Gly-Lys-Pro-Ala-Asp-Asp-Ala-Gly-Leu-Val",
+                "hplc": "99.6%",
+                "ms_exp": "1419.5 Da",
+                "ms_found": "1419.6 Da",
+                "bonds": [
+                    {"pos": "1–2",  "bond": "Gly–Glu",          "type": "Amide", "integrity": "99.8"},
+                    {"pos": "6–7",  "bond": "Gly–Lys",          "type": "Amide", "integrity": "99.7"},
+                    {"pos": "14–15","bond": "Leu–Val (C-term)", "type": "Amide", "integrity": "99.8"},
+                ]
+            },
+            {
+                "name": "GHK-Cu",
+                "full_name": "Glycyl-L-histidyl-L-lysine copper(II) complex · 50 mg per vial",
+                "origin": "Synthetic — Solution-phase synthesis with copper(II) acetate complexation; HPLC-purified prior to blending",
+                "cas": "89030-95-5",
+                "formula": "C₁₄H₂₃CuN₆O₄",
+                "mw": "403.97 Da",
+                "aa_count": 3,
+                "sequence": "Gly-His-Lys · Cu²⁺",
+                "hplc": "99.8%",
+                "ms_exp": "403.97 Da",
+                "ms_found": "403.96 Da",
+                "bonds": [
+                    {"pos": "1–2",   "bond": "Gly–His (peptide bond)",           "type": "Amide",                "integrity": "99.9"},
+                    {"pos": "2–3",   "bond": "His–Lys (peptide bond)",           "type": "Amide",                "integrity": "99.9"},
+                    {"pos": "Cu-N3", "bond": "Cu²⁺ ← His imidazole N3",          "type": "Coordination / Dative","integrity": "99.9"},
+                ]
+            },
+            {
+                "name": "TB-500",
+                "full_name": "Thymosin Beta-4 Synthetic Analogue · 10 mg per vial",
+                "origin": "Synthetic — Orthogonal SPPS; N-terminal acetylation; C-terminal amidation",
+                "cas": "77591-33-4",
+                "formula": "C₂₁₂H₃₅₀N₅₆O₇₈S",
+                "mw": "4,963.49 Da",
+                "aa_count": 43,
+                "sequence": "Ac-Ser-Asp-Lys-Pro-...-Gly-Glu-Ser-NH₂ (43-AA full sequence)",
+                "hplc": "99.4%",
+                "ms_exp": "4963.5 Da",
+                "ms_found": "4963.4 Da",
+                "bonds": [
+                    {"pos": "3–4",  "bond": "Lys–Pro (SDKP actin-binding motif)","type": "Amide",        "integrity": "99.9"},
+                    {"pos": "42–43","bond": "Glu–Ser (C-term amide)",            "type": "Amide/C-term", "integrity": "99.5"},
+                ]
+            }
+        ],
+        "tests": [
+            {"name": "HPLC Purity — KPV",               "spec": "≥ 99.0%",                     "result": "99.5%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "HPLC Purity — BPC-157",           "spec": "≥ 99.0%",                     "result": "99.6%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "HPLC Purity — GHK-Cu",            "spec": "≥ 99.0%",                     "result": "99.8%",                          "method": "RP-HPLC (C18, 254 nm UV — Cu²⁺ absorption)",           "status": "PASS"},
+            {"name": "HPLC Purity — TB-500",            "spec": "≥ 99.0%",                     "result": "99.4%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "Cu²⁺ Content (ICP-OES)",          "spec": "Consistent w/ 50 mg GHK-Cu",  "result": "Within tolerance",               "method": "ICP-OES",                                               "status": "PASS"},
+            {"name": "Amino Acid Bond Integrity (avg)", "spec": "≥ 99.0% per bond",            "result": "99.78% (avg all components)",    "method": "MS/MS Sequential Fragmentation (b/y ion series)",       "status": "PASS"},
+            {"name": "Water Content (Karl Fischer)",    "spec": "< 5.0%",                      "result": "3.3%",                           "method": "Karl Fischer Titration (USP ⟨921⟩)",                    "status": "PASS"},
+            {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.04 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
+            {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
+            {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 190 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
+            {"name": "Appearance",                      "spec": "Pale amber lyophilised cake", "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
+        ]
+    },
     "bpc157-tb500": {
         "product_name": "BPC-157 & TB-500",
         "subtitle": "Dual-Peptide Tissue Recovery Blend",
@@ -2237,6 +2478,122 @@ def index():
 
 # Rich per-product content for detail pages
 product_details = {
+    1: {  # BPC-157
+        "subtitle": "Body Protection Compound — Systemic Tissue Repair",
+        "eyebrow": "Recovery & Repair",
+        "icon": "bi-bandaid",
+        "tagline": "The cornerstone recovery peptide — accelerated healing of tendon, ligament, muscle and gut.",
+        "coa_slug": "bpc-157",
+        "half_life": "4–6 hours",
+        "dose_range": "250–500 mcg/day (research context)",
+        "form": "Lyophilised 15-AA peptide vial",
+        "storage": "Refrigerate (2–8 °C) after reconstitution. Use within 28 days.",
+        "aa_count": "15 amino acids",
+        "cas": "137525-51-0",
+        "purity": "≥ 99.5% (HPLC verified — full COA available)",
+        "chips": [
+            ("Tendon & Ligament Repair", True), ("Gut Healing", False),
+            ("Angiogenesis", False), ("Anti-Inflammatory", False), ("Neuroprotection", False),
+        ],
+        "description": """
+            <p>BPC-157 (Body Protection Compound-157) is a synthetic 15-amino-acid peptide derived from a protective protein found in human gastric juice. It is one of the most extensively studied repair peptides in preclinical research, with documented effects on tendon, ligament, muscle and gastrointestinal healing.</p>
+            <p>In research models, BPC-157 upregulates growth-factor receptors (VEGFR2, EGF-R) and activates the FAK–paxillin signalling pathway, driving rapid cellular repair and angiogenesis at the injury site. It also modulates the nitric-oxide (NO) system and has shown protective effects on the gut lining, blood vessels, and — in some models — the nervous system.</p>
+            <p>Because it acts locally and robustly at the site of injury, BPC-157 is frequently paired with the systemically-distributed TB-500 for full-spectrum tissue-repair coverage.</p>
+        """,
+        "research_notes": [
+            ("Mechanism", "Upregulates VEGFR2 and EGF-R; activates FAK–paxillin signalling; modulates nitric-oxide pathway — driving angiogenesis and tendon/GI repair."),
+            ("Preclinical Evidence", "Accelerated tendon-to-bone and ligament healing, reduced GI lesions, and vascular-protective effects demonstrated across multiple rodent models."),
+            ("Synergy", "Acts locally at the injury focus; complements the systemic action of TB-500 (see the BPC-157 & TB-500 blend and the GLOW / KLOW stacks)."),
+            ("Storage Note", "Lyophilised form stable at −20 °C for up to 24 months. After reconstitution with bacteriostatic water, refrigerate and use within 28 days."),
+        ],
+    },
+    2: {  # TB-500
+        "subtitle": "Thymosin Beta-4 Fragment — Systemic Regeneration",
+        "eyebrow": "Recovery & Repair",
+        "icon": "bi-arrow-repeat",
+        "tagline": "System-wide repair — stem-cell mobilisation, vascular regeneration and inflammation resolution.",
+        "coa_slug": "tb-500",
+        "half_life": "6–7 days",
+        "dose_range": "2.5–5 mg/week (research context)",
+        "form": "Lyophilised 43-AA peptide vial",
+        "storage": "Refrigerate (2–8 °C) after reconstitution. Use within 28 days.",
+        "aa_count": "43 amino acids",
+        "cas": "77591-33-4",
+        "purity": "≥ 99.4% (HPLC verified — full COA available)",
+        "chips": [
+            ("Systemic Recovery", True), ("Stem Cell Mobilisation", False),
+            ("Vascular Regeneration", False), ("Flexibility", False), ("Anti-Inflammatory", False),
+        ],
+        "description": """
+            <p>TB-500 is a synthetic analogue of Thymosin Beta-4, a naturally occurring 43-amino-acid regenerative peptide. Its defining feature is the conserved actin-binding LKKTET motif, through which it binds G-actin to promote cell migration, endothelial tube formation and tissue regeneration throughout the body.</p>
+            <p>Unlike locally-acting repair peptides, TB-500 distributes systemically — making it well suited to whole-body recovery, connective-tissue flexibility, and vascular regeneration. In research models it has demonstrated accelerated wound closure, muscle and cardiac tissue repair, and resolution of inflammation.</p>
+            <p>TB-500 is commonly combined with BPC-157, which acts at the local injury site, to provide complementary local + systemic repair coverage.</p>
+        """,
+        "research_notes": [
+            ("Mechanism", "Binds G-actin via the conserved LKKTET / SDKP motif, promoting cell migration, angiogenesis and stem-cell mobilisation system-wide."),
+            ("Preclinical Evidence", "Accelerated dermal wound healing, muscle and cardiac repair, and improved connective-tissue flexibility in rodent injury models."),
+            ("Synergy", "Systemic action complements BPC-157's local repair — the basis of the BPC-157 & TB-500 blend and the GLOW / KLOW stacks."),
+            ("Storage Note", "Lyophilised form stable at −20 °C for up to 24 months. After reconstitution, refrigerate and use within 28 days."),
+        ],
+    },
+    6: {  # MOTS-c
+        "subtitle": "Mitochondrial-Derived Metabolic Peptide",
+        "eyebrow": "Metabolic & Longevity",
+        "icon": "bi-lightning-charge",
+        "tagline": "The exercise-mimetic peptide — AMPK activation, metabolic flexibility and cellular energy.",
+        "coa_slug": "mots-c",
+        "half_life": "2–3 hours",
+        "dose_range": "5–10 mg/week (research context)",
+        "form": "Lyophilised 16-AA peptide vial",
+        "storage": "Refrigerate (2–8 °C) after reconstitution. Use within 28 days.",
+        "aa_count": "16 amino acids",
+        "cas": "1627580-64-6",
+        "purity": "≥ 99.3% (HPLC verified — full COA available)",
+        "chips": [
+            ("Metabolic Flexibility", True), ("AMPK Activation", False),
+            ("Insulin Sensitivity", False), ("Cellular Energy (ATP)", False), ("Exercise Capacity", False),
+        ],
+        "description": """
+            <p>MOTS-c (Mitochondrial ORF of the twelve-S rRNA type-c) is a 16-amino-acid mitochondrial-derived peptide encoded within the mitochondrial genome. It functions as a metabolic regulator that translocates to the nucleus under metabolic stress to influence gene expression — earning it the description of an "exercise-mimetic" peptide.</p>
+            <p>Its principal mechanism is activation of the AMPK pathway, the cell's master energy sensor. Through AMPK, MOTS-c enhances glucose uptake, promotes fatty-acid oxidation, improves insulin sensitivity, and increases metabolic flexibility — the ability to switch efficiently between fuel sources.</p>
+            <p>Preclinical research links MOTS-c to improved exercise capacity, protection against diet-induced insulin resistance and obesity, and markers associated with healthy ageing and mitochondrial function.</p>
+        """,
+        "research_notes": [
+            ("Mechanism", "Activates the AMPK energy-sensing pathway; regulates the folate–methionine cycle and translocates to the nucleus under metabolic stress to modulate gene expression."),
+            ("Preclinical Evidence", "Improved insulin sensitivity, enhanced exercise capacity, and protection against diet-induced obesity in rodent models."),
+            ("Longevity Interest", "Mitochondrial-derived peptides such as MOTS-c are studied as markers and modulators of metabolic health and biological ageing."),
+            ("Storage Note", "Lyophilised form stable at −20 °C. After reconstitution with bacteriostatic water, refrigerate and use within 28 days."),
+        ],
+    },
+    22: {  # KLOW Stack
+        "subtitle": "Four-Peptide Repair & Anti-Inflammatory Stack",
+        "eyebrow": "Premium Synergistic Protocol",
+        "icon": "bi-gem",
+        "tagline": "GLOW, elevated — KPV's anti-inflammatory action added to the signature regeneration stack.",
+        "coa_slug": "klow-stack",
+        "half_life": "Combined: 4–6h (BPC) · 6–7d (TB) · 30–60min (GHK-Cu) · 2–3h (KPV)",
+        "dose_range": "Research protocol: 1 vial reconstituted per cycle",
+        "form": "80 mg lyophilised four-peptide vial",
+        "storage": "Store at −20 °C, protected from light. After reconstitution: 2–8 °C, use within 28 days.",
+        "aa_count": "KPV: 3 AA · BPC-157: 15 AA · GHK-Cu: 3 AA · TB-500: 43 AA",
+        "cas": "Multiple — see individual COAs",
+        "purity": "Each component ≥ 99% HPLC verified",
+        "chips": [
+            ("Anti-Inflammatory", True), ("Tissue Repair", False),
+            ("Skin Regeneration", False), ("Gut Healing", False), ("Angiogenesis", False),
+        ],
+        "description": """
+            <p>The KLOW Stack is the complete PepHub repair protocol — the signature GLOW regeneration blend with the potent anti-inflammatory tripeptide <strong>KPV</strong> added. Each vial contains 10 mg KPV, 10 mg BPC-157, 50 mg GHK-Cu and 10 mg TB-500 (80 mg total peptide).</p>
+            <p><strong>KPV</strong> (Lys-Pro-Val) is the C-terminal tripeptide fragment of α-MSH. It exerts strong anti-inflammatory activity by down-regulating NF-κB and pro-inflammatory cytokine signalling, and has been studied particularly for gut and skin inflammation. <strong>BPC-157</strong> drives local tissue repair, <strong>TB-500</strong> provides systemic vascular regeneration, and <strong>GHK-Cu</strong> contributes collagen synthesis and dermal renewal.</p>
+            <p>Together the four peptides address inflammation, local repair, systemic regeneration, and extracellular-matrix support in a single-vial protocol — the most comprehensive stack in the PepHub range.</p>
+        """,
+        "research_notes": [
+            ("Synergy", "KPV (anti-inflammatory) + BPC-157 (local repair) + TB-500 (systemic regeneration) + GHK-Cu (ECM / collagen). Four complementary layers of the repair cascade."),
+            ("KPV Mechanism", "C-terminal α-MSH fragment (Lys-Pro-Val); down-regulates NF-κB and pro-inflammatory cytokines — studied for gut and skin inflammation."),
+            ("Pre-blending Advantage", "One reconstitution, one injection volume — a four-peptide protocol simplified into a single-vial workflow."),
+            ("Storage", "Lyophilised vial stable at −20 °C for up to 24 months. After bacteriostatic-water reconstitution, refrigerate and use within 28 days."),
+        ],
+    },
     9: {  # BPC-157 & TB-500
         "subtitle": "Dual-Peptide Tissue Recovery Blend",
         "eyebrow": "Recovery & Repair",
