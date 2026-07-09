@@ -68,6 +68,21 @@
         .detail-card p:last-child { margin-bottom: 0; }
         .detail-card p strong { color: #fff; }
 
+        /* Collapsible info sections — minimise the page, expand on demand */
+        .detail-acc { background: var(--ph-card); border: 1px solid var(--ph-border); border-radius: 1rem; margin-bottom: 1rem; overflow: hidden; }
+        .detail-acc > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; font-weight: 800; color: #fff; padding: 1.15rem 1.4rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .detail-acc > summary::-webkit-details-marker { display: none; }
+        .detail-acc > summary i.lead-ic { color: var(--ph-orange); }
+        .detail-acc > summary .acc-hint { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-left: 0.4rem; }
+        .detail-acc > summary .acc-chev { margin-left: auto; color: var(--ph-orange); transition: transform 0.25s; font-size: 0.95rem; }
+        .detail-acc[open] > summary { border-bottom: 1px solid var(--ph-border); }
+        .detail-acc[open] > summary .acc-chev { transform: rotate(180deg); }
+        .detail-acc[open] > summary .acc-hint { display: none; }
+        .detail-acc:hover { border-color: rgba(255,144,0,0.45); }
+        .acc-body { padding: 1.3rem 1.4rem 1.5rem; }
+        .acc-body > :first-child { margin-top: 0; }
+        .acc-body > :last-child { margin-bottom: 0; }
+
         /* ── Spec grid ── */
         .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
         @media (max-width: 576px) { .spec-grid { grid-template-columns: 1fr; } }
@@ -248,96 +263,101 @@
                 {% endfor %}
             </div>
 
-            <!-- Description -->
-            <div class="detail-card">
-                <h2><i class="bi bi-journal-text"></i> About This Compound</h2>
-                {{ detail.description|safe }}
-            </div>
+            <!-- Info sections — collapsible to keep the page clean; tap to expand -->
+            <details class="detail-acc" open>
+                <summary><i class="bi bi-journal-text lead-ic"></i> About This Compound <i class="bi bi-chevron-down acc-chev"></i></summary>
+                <div class="acc-body">
+                    {{ detail.description|safe }}
+                </div>
+            </details>
 
-            <!-- Specs -->
-            <div class="detail-card">
-                <h2><i class="bi bi-dna"></i> Technical Specifications</h2>
-                <div class="spec-grid">
-                    <div class="spec-item">
-                        <label>Half-Life</label>
-                        <span>{{ detail.half_life }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <label>Research Dose Range</label>
-                        <span>{{ detail.dose_range }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <label>Physical Form</label>
-                        <span>{{ detail.form }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <label>Storage Conditions</label>
-                        <span>{{ detail.storage }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <label>Amino Acid Composition</label>
-                        <span>{{ detail.aa_count }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <label>CAS Number</label>
-                        <span style="font-family:monospace;font-size:0.82rem;">{{ detail.cas }}</span>
-                    </div>
-                    <div class="spec-item" style="grid-column: span 2;">
-                        <label>Purity (HPLC)</label>
-                        <span>{{ detail.purity }}</span>
+            <details class="detail-acc">
+                <summary><i class="bi bi-dna lead-ic"></i> Technical Specifications <span class="acc-hint">tap to view</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <div class="acc-body">
+                    <div class="spec-grid">
+                        <div class="spec-item">
+                            <label>Half-Life</label>
+                            <span>{{ detail.half_life }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <label>Research Dose Range</label>
+                            <span>{{ detail.dose_range }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <label>Physical Form</label>
+                            <span>{{ detail.form }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <label>Storage Conditions</label>
+                            <span>{{ detail.storage }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <label>Amino Acid Composition</label>
+                            <span>{{ detail.aa_count }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <label>CAS Number</label>
+                            <span style="font-family:monospace;font-size:0.82rem;">{{ detail.cas }}</span>
+                        </div>
+                        <div class="spec-item" style="grid-column: span 2;">
+                            <label>Purity (HPLC)</label>
+                            <span>{{ detail.purity }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </details>
 
-            <!-- Research notes -->
-            <div class="detail-card">
-                <h2><span style="font-size:3rem;">🔬</span> Research &amp; Mechanism Notes</h2>
-                {% for label, text in detail.research_notes %}
-                <div class="note-item">
-                    <div class="note-label">{{ label }}</div>
-                    <div class="note-text">{{ text }}</div>
+            <details class="detail-acc">
+                <summary><i class="bi bi-clipboard2-pulse lead-ic"></i> Research &amp; Mechanism Notes <span class="acc-hint">tap to view</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <div class="acc-body">
+                    {% for label, text in detail.research_notes %}
+                    <div class="note-item">
+                        <div class="note-label">{{ label }}</div>
+                        <div class="note-text">{{ text }}</div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+            </details>
 
-            <!-- Bulk pack deals -->
-            <div class="detail-card">
-                <h2><i class="bi bi-tags"></i> Bulk Deals</h2>
-                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Buy more vials, pay for fewer. Deals apply automatically per compound in your cart — the more you stock up, the less you pay per vial.</p>
-                <table class="discount-table">
-                    <thead>
-                        <tr><th>Pack</th><th>You Pay</th><th>Per Vial</th><th>You Save</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1 vial</td>
-                            <td>€{{ "%.2f"|format(product.base_price) }}</td>
-                            <td>€{{ "%.2f"|format(product.base_price) }}</td>
-                            <td>—</td>
-                        </tr>
-                        <tr>
-                            <td>5 vials <span style="color:var(--text-muted);">(pay for 4)</span></td>
-                            <td>€{{ "%.2f"|format(product.base_price * 4) }}</td>
-                            <td>€{{ "%.2f"|format(product.base_price * 4 / 5) }}</td>
-                            <td class="saving">20% off</td>
-                        </tr>
-                        <tr>
-                            <td>10 vials <span style="color:var(--text-muted);">(pay for 7)</span></td>
-                            <td>€{{ "%.2f"|format(product.base_price * 7) }}</td>
-                            <td>€{{ "%.2f"|format(product.base_price * 7 / 10) }}</td>
-                            <td class="saving">30% off</td>
-                        </tr>
-                        {% if subscription_allowed(product.id) %}
-                        <tr>
-                            <td>{{ SUBSCRIPTION_INTERVAL }} subscription <span style="color:var(--text-muted);">(per vial)</span></td>
-                            <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}/mo</td>
-                            <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}</td>
-                            <td class="saving">{{ (SUBSCRIPTION_DISCOUNT * 100)|int }}% off</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
+            <details class="detail-acc">
+                <summary><i class="bi bi-tags lead-ic"></i> Bulk Deals <span class="acc-hint">save up to 30%</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <div class="acc-body">
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Buy more vials, pay for fewer. Deals apply automatically per compound in your cart — the more you stock up, the less you pay per vial.</p>
+                    <table class="discount-table">
+                        <thead>
+                            <tr><th>Pack</th><th>You Pay</th><th>Per Vial</th><th>You Save</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1 vial</td>
+                                <td>€{{ "%.2f"|format(product.base_price) }}</td>
+                                <td>€{{ "%.2f"|format(product.base_price) }}</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>5 vials <span style="color:var(--text-muted);">(pay for 4)</span></td>
+                                <td>€{{ "%.2f"|format(product.base_price * 4) }}</td>
+                                <td>€{{ "%.2f"|format(product.base_price * 4 / 5) }}</td>
+                                <td class="saving">20% off</td>
+                            </tr>
+                            <tr>
+                                <td>10 vials <span style="color:var(--text-muted);">(pay for 7)</span></td>
+                                <td>€{{ "%.2f"|format(product.base_price * 7) }}</td>
+                                <td>€{{ "%.2f"|format(product.base_price * 7 / 10) }}</td>
+                                <td class="saving">30% off</td>
+                            </tr>
+                            {% if subscription_allowed(product.id) %}
+                            <tr>
+                                <td>{{ SUBSCRIPTION_INTERVAL }} subscription <span style="color:var(--text-muted);">(per vial)</span></td>
+                                <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}/mo</td>
+                                <td>€{{ "%.2f"|format(product.base_price * (1 - SUBSCRIPTION_DISCOUNT)) }}</td>
+                                <td class="saving">{{ (SUBSCRIPTION_DISCOUNT * 100)|int }}% off</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
 
         </div>
 
