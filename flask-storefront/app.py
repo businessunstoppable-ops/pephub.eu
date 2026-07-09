@@ -176,6 +176,66 @@ _REVIEW_TOAST = """
 </script>
 """
 
+# Mobile navigation — a top-right hamburger + slide-in drawer, shown only below
+# the lg breakpoint (992px) where the desktop .ph-menu is hidden. Injected
+# site-wide so every page (and future pages) gets a working mobile menu.
+_MOBILE_NAV = """
+<button id="ph-mnav-btn" aria-label="Open menu">☰</button>
+<div id="ph-mnav-overlay"></div>
+<nav id="ph-mnav" aria-label="Mobile menu">
+  <div class="ph-mnav-head"><span>Pep<b>Hub</b> Menu</span><button id="ph-mnav-close" aria-label="Close menu">✕</button></div>
+  <a href="/">🏠 Home</a>
+  <a href="/shop">🧬 Shop</a>
+  <a href="/deals">📦 Bulk Deals</a>
+  <a href="/science">🔬 Science Hub</a>
+  <a href="/coa">📋 COA Reports</a>
+  <a href="/account">👤 My Account</a>
+  <a href="/cart" class="ph-mnav-cart">🛒 View Cart</a>
+</nav>
+<style>
+#ph-mnav-btn{display:none;position:fixed;top:10px;right:12px;z-index:12800;width:44px;height:44px;
+ align-items:center;justify-content:center;border:none;border-radius:10px;background:#FF9000;color:#111;
+ font-size:1.35rem;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);}
+#ph-mnav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:12900;opacity:0;visibility:hidden;transition:opacity .28s;}
+#ph-mnav-overlay.on{opacity:1;visibility:visible;}
+#ph-mnav{position:fixed;top:0;right:0;height:100%;width:80%;max-width:300px;background:#0f0f0f;
+ border-left:1px solid #2d2d2d;z-index:13000;transform:translateX(100%);transition:transform .28s ease;
+ display:flex;flex-direction:column;padding:.9rem 0;box-shadow:-12px 0 44px rgba(0,0,0,.55);
+ -webkit-overflow-scrolling:touch;overflow-y:auto;}
+#ph-mnav.on{transform:translateX(0);}
+#ph-mnav a{color:#ededed;text-decoration:none;font-weight:700;font-size:1rem;padding:.95rem 1.4rem;
+ border-bottom:1px solid #1c1c1c;transition:background .15s;}
+#ph-mnav a:active{background:#1a1a1a;}
+#ph-mnav a.ph-mnav-active{color:#FF9000;border-left:3px solid #FF9000;padding-left:calc(1.4rem - 3px);}
+#ph-mnav a.ph-mnav-cart{color:#FF9000;margin-top:.4rem;}
+.ph-mnav-head{display:flex;align-items:center;justify-content:space-between;padding:.3rem 1.2rem 1rem;
+ border-bottom:1px solid #2d2d2d;margin-bottom:.35rem;}
+.ph-mnav-head span{font-weight:800;color:#fff;font-size:1.05rem;}
+.ph-mnav-head b{color:#FF9000;}
+#ph-mnav-close{background:none;border:none;color:#aaa;font-size:1.2rem;cursor:pointer;line-height:1;}
+@media (max-width:991px){
+  #ph-mnav-btn{display:flex;}
+  .navbar .btn-outline-gold{display:none !important;}
+}
+</style>
+<script>
+(function(){
+ var b=document.getElementById('ph-mnav-btn'),m=document.getElementById('ph-mnav'),
+     o=document.getElementById('ph-mnav-overlay'),c=document.getElementById('ph-mnav-close');
+ if(!b||!m) return;
+ function open(){m.classList.add('on');o.classList.add('on');}
+ function close(){m.classList.remove('on');o.classList.remove('on');}
+ b.addEventListener('click',open); o.addEventListener('click',close);
+ if(c) c.addEventListener('click',close);
+ var links=m.querySelectorAll('a');
+ for(var i=0;i<links.length;i++){
+   if(links[i].getAttribute('href')===location.pathname){links[i].classList.add('ph-mnav-active');}
+   links[i].addEventListener('click',close);
+ }
+})();
+</script>
+"""
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -219,6 +279,8 @@ def _inject_site_chrome(resp):
                 tail += _COOKIE_BANNER
             if 'ph-review-toast' not in html:
                 tail += _REVIEW_TOAST
+            if 'ph-mnav' not in html:
+                tail += _MOBILE_NAV
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
