@@ -236,6 +236,58 @@ _MOBILE_NAV = """
 </script>
 """
 
+# First-visit welcome modal — "What are peptides" primer. Shown once (localStorage)
+# on the landing page; also mirrored as a static panel at the top of Science Hub.
+_INTRO_MODAL = """
+<div id="ph-intro-modal" role="dialog" aria-modal="true" aria-label="What are peptides">
+  <div class="pim-box">
+    <button class="pim-x" aria-label="Close" onclick="phIntroClose()">✕</button>
+    <h2>🔬 What Are Peptides — and Why Do They Matter?</h2>
+    <p>Peptides are short chains of amino acids that act as biological messengers — signalling your cells to
+       heal, regenerate, burn fat, or rebalance hormones. Your body produces them naturally, but output
+       declines significantly with age, chronic stress, and injury.</p>
+    <p>In research settings, synthetic peptides replicate and amplify these signals with remarkable specificity.
+       They bind to targeted receptors on cell surfaces, triggering precise downstream responses without the
+       broad side-effect profiles of conventional compounds — one of the most exciting frontiers in modern
+       longevity and performance research.</p>
+    <ul class="pim-list">
+      <li><i class="bi bi-file-earmark-check"></i> Independent COA &amp; test results — per batch</li>
+      <li><i class="bi bi-thermometer-snow"></i> Freeze-dried in an ISO Class 5 vacuum cleanroom</li>
+      <li><i class="bi bi-robot"></i> Robotically sealed &amp; UV contamination-inspected</li>
+      <li><i class="bi bi-shield-fill-check"></i> Endotoxin tested &lt; 0.10 EU/mg — every batch</li>
+    </ul>
+    <button class="pim-cta" onclick="phIntroClose()">Got it — start exploring →</button>
+  </div>
+</div>
+<style>
+#ph-intro-modal{position:fixed;inset:0;z-index:13500;display:none;align-items:center;justify-content:center;
+ background:rgba(0,0,0,.72);padding:1rem;}
+#ph-intro-modal.on{display:flex;}
+#ph-intro-modal .pim-box{position:relative;background:#1b1b1b;border:1px solid #2d2d2d;border-radius:16px;
+ max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:1.9rem 1.7rem;
+ box-shadow:0 24px 70px rgba(0,0,0,.6);font-family:'Inter',system-ui,sans-serif;}
+#ph-intro-modal h2{color:#fff;font-size:1.25rem;font-weight:800;margin:0 0 1rem;padding-right:1.6rem;line-height:1.3;}
+#ph-intro-modal p{color:#c4c4c4;font-size:.9rem;line-height:1.7;margin:0 0 .9rem;}
+#ph-intro-modal .pim-list{list-style:none;padding:0;margin:1.1rem 0 1.4rem;}
+#ph-intro-modal .pim-list li{color:#e8e8e8;font-size:.86rem;font-weight:600;display:flex;align-items:center;gap:.6rem;padding:.38rem 0;}
+#ph-intro-modal .pim-list i{color:#FF9000;font-size:1.05rem;flex-shrink:0;}
+#ph-intro-modal .pim-cta{width:100%;background:#FF9000;color:#111;border:0;border-radius:10px;padding:.8rem 1rem;
+ font-weight:900;font-size:.95rem;cursor:pointer;}
+#ph-intro-modal .pim-cta:hover{background:#ffa62e;}
+#ph-intro-modal .pim-x{position:absolute;top:.75rem;right:1rem;background:none;border:0;color:#999;font-size:1.2rem;cursor:pointer;line-height:1;}
+</style>
+<script>
+function phIntroClose(){var m=document.getElementById('ph-intro-modal');if(m)m.classList.remove('on');
+ try{localStorage.setItem('ph_intro_seen','1');}catch(e){}}
+(function(){
+ try{ if(localStorage.getItem('ph_intro_seen')) return; }catch(e){}
+ var m=document.getElementById('ph-intro-modal'); if(!m) return;
+ setTimeout(function(){ m.classList.add('on'); }, 1200);
+ m.addEventListener('click',function(e){ if(e.target===m) phIntroClose(); });
+})();
+</script>
+"""
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -281,6 +333,8 @@ def _inject_site_chrome(resp):
                 tail += _REVIEW_TOAST
             if 'ph-mnav' not in html:
                 tail += _MOBILE_NAV
+            if request.path == '/' and 'ph-intro-modal' not in html:
+                tail += _INTRO_MODAL
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
