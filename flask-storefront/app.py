@@ -256,7 +256,8 @@ _INTRO_MODAL = """
       <li><i class="bi bi-robot"></i> Robotically sealed &amp; UV contamination-inspected</li>
       <li><i class="bi bi-shield-fill-check"></i> Endotoxin tested &lt; 0.10 EU/mg — every batch</li>
     </ul>
-    <button class="pim-cta" onclick="phIntroClose()">Got it — start exploring →</button>
+    <div class="pim-safety"><i class="bi bi-exclamation-triangle-fill"></i> <strong>Research use only.</strong> All products are supplied strictly for laboratory and research purposes — not for human or veterinary consumption, food, or cosmetic use. You must be 18 or older to purchase.</div>
+    <button class="pim-cta" onclick="phIntroClose()">I understand — enter site →</button>
   </div>
 </div>
 <style>
@@ -271,6 +272,10 @@ _INTRO_MODAL = """
 #ph-intro-modal .pim-list{list-style:none;padding:0;margin:1.1rem 0 1.4rem;}
 #ph-intro-modal .pim-list li{color:#e8e8e8;font-size:.86rem;font-weight:600;display:flex;align-items:center;gap:.6rem;padding:.38rem 0;}
 #ph-intro-modal .pim-list i{color:#FF9000;font-size:1.05rem;flex-shrink:0;}
+#ph-intro-modal .pim-safety{background:rgba(255,144,0,.1);border:1px solid rgba(255,144,0,.4);border-radius:10px;
+ padding:.7rem .85rem;font-size:.78rem;line-height:1.55;color:#f0d9b8;margin-bottom:1rem;}
+#ph-intro-modal .pim-safety i{color:#FF9000;margin-right:.25rem;}
+#ph-intro-modal .pim-safety strong{color:#fff;}
 #ph-intro-modal .pim-cta{width:100%;background:#FF9000;color:#111;border:0;border-radius:10px;padding:.8rem 1rem;
  font-weight:900;font-size:.95rem;cursor:pointer;}
 #ph-intro-modal .pim-cta:hover{background:#ffa62e;}
@@ -333,6 +338,8 @@ def _inject_site_chrome(resp):
                 tail += _REVIEW_TOAST
             if 'ph-mnav' not in html:
                 tail += _MOBILE_NAV
+            if 'ph-intro-modal' not in html:
+                tail += _INTRO_MODAL
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
