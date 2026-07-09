@@ -1112,5 +1112,41 @@
         if (l) { l.style.opacity='0'; setTimeout(()=>l.style.display='none',450); }
     });
 </script>
+
+<!-- Collapse product descriptions on the landing page — keep cards compact, expand on tap -->
+<style>
+    .product-card.has-more .product-desc{ max-height:0; overflow:hidden; opacity:0; margin:0 !important;
+        transition:max-height .32s ease, opacity .25s ease, margin .25s ease; }
+    .product-card.has-more.desc-open .product-desc{ max-height:640px; opacity:1; margin:.35rem 0 1rem !important; }
+    .more-toggle{ align-self:flex-start; display:inline-flex; align-items:center; gap:.35rem;
+        background:transparent; border:1px solid var(--ph-orange); color:var(--ph-orange);
+        border-radius:6px; padding:.32rem .8rem; font-size:.76rem; font-weight:800; letter-spacing:.02em;
+        cursor:pointer; margin:.15rem 0 .35rem; transition:all .18s; font-family:inherit; }
+    .more-toggle:hover{ background:var(--ph-orange); color:#000; }
+    .more-toggle .bi{ font-size:.85rem; }
+</style>
+<script>
+(function(){
+    document.querySelectorAll('.product-card').forEach(function(card){
+        var desc = card.querySelector('.product-desc');
+        var top  = card.querySelector('.product-card-top');
+        if(!desc || !top) return;
+        card.classList.add('has-more');   // gates the CSS so no-JS still shows text
+        // Move the long description to the end of the card body, then add a toggle above it
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'more-toggle';
+        btn.innerHTML = '<i class="bi bi-info-circle"></i> More info';
+        top.appendChild(btn);
+        top.appendChild(desc);
+        btn.addEventListener('click', function(){
+            var open = card.classList.toggle('desc-open');
+            btn.innerHTML = open
+                ? '<i class="bi bi-chevron-up"></i> Hide info'
+                : '<i class="bi bi-info-circle"></i> More info';
+        });
+    });
+})();
+</script>
 </body>
 </html>
