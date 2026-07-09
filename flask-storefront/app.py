@@ -53,14 +53,14 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'changeme-pephub')
 # ----------------------------------------------------------------------
 LEGAL = {
     'entity':   os.environ.get('LEGAL_ENTITY',  'PepHub'),
-    'address':  os.environ.get('LEGAL_ADDRESS', '[Registered business address - needs edit]'),
-    'reg_no':   os.environ.get('LEGAL_REG_NO',  '[Company / chamber-of-commerce number - needs edit]'),
+    'address':  os.environ.get('LEGAL_ADDRESS', '[- needs edit]'),
+    'reg_no':   os.environ.get('LEGAL_REG_NO',  '[Company kvk number - needs edit]'),
     'vat_no':   os.environ.get('LEGAL_VAT_NO',  '[kvk number - needs edit'),
     'email':    os.environ.get('LEGAL_EMAIL',   'support@pep-hub.eu'),
     'privacy_email': os.environ.get('LEGAL_PRIVACY_EMAIL', 'privacy@pep-hub.eu'),
     'country':  os.environ.get('LEGAL_COUNTRY', 'Netherlands'),
     'site':     'pep-hub.eu',
-    'updated':  '8 July 2026',                                                    # bump when you change the text
+    'updated':  '1 July 2026',                                                    # bump when you change the text
 }
 
 # ----------------------------------------------------------------------
@@ -1485,7 +1485,7 @@ HTML_INDEX = """
 
 <div class="footer-note">
     <div class="container">
-        <p>© 2025 Pep Hub - Bio-Stimulators — Advanced peptide science for human optimisation. These statements have not been evaluated by the FDA.</p>
+        <p>© 2024–2026 Pep Hub · Bio-Stimulators — Advanced peptide science for human optimisation. These statements have not been evaluated by the FDA.</p>
     </div>
 </div>
 
@@ -1633,7 +1633,7 @@ PRODUCT_DETAIL_HTML = """
 </div>
 <div class="footer-note">
     <div class="container">
-        <p>© 2025 Pep Hub - Bio-Stimulators — For research purposes only.</p>
+        <p>© 2024–2026 Pep Hub · Bio-Stimulators — For research purposes only.</p>
     </div>
 </div>
 </body>
@@ -1848,7 +1848,7 @@ CART_HTML = """
     <div class="text-center"><a href="/" class="btn btn-primary rounded-pill">Browse Products</a></div>
     {% endif %}
 </div>
-<div class="footer-note"><div class="container"><p>© 2025 PepHub — Research-grade peptide science.</p></div></div>
+<div class="footer-note"><div class="container"><p>© 2024–2026 PepHub — Research-grade peptide science.</p></div></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>window.addEventListener('load',()=>{const l=document.getElementById('page-loader');if(l){l.style.opacity='0';setTimeout(()=>l.style.display='none',450);}});</script>
 </body>
@@ -3602,7 +3602,7 @@ ACCOUNT_HTML = """
     {% else %}<p class="muted">No orders yet. <a href="/" style="color:var(--gold);">Start shopping →</a></p>{% endif %}
   </div>
 </div>
-<div class="footer-note"><div class="container">© Pep Hub — for research purposes only.</div></div>
+<div class="footer-note"><div class="container">© 2024–2026 Pep Hub — for research purposes only.</div></div>
 </body></html>
 """
 
