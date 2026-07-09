@@ -56,6 +56,16 @@
         .trust-strip span { display:inline-flex; align-items:center; gap:.4rem; }
         .trust-strip i { color:var(--ph-orange); }
         .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
+
+        .rg-panel { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; padding:1.4rem 1.6rem; margin-top:1.25rem; }
+        .rg-panel h2 { font-size:1.1rem; font-weight:800; color:#fff; margin:0 0 .25rem; }
+        .rg-panel .rg-sub { font-size:.85rem; color:var(--text-muted); margin:0 0 .5rem; }
+        .category-item { border-bottom:1px solid var(--ph-border); padding:.75rem 0; cursor:pointer; }
+        .category-item:last-child { border-bottom:none; }
+        .category-header { display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:.92rem; color:#fff; user-select:none; gap:1rem; }
+        .category-header .toggle-icon { color:var(--ph-orange); font-weight:900; flex-shrink:0; }
+        .category-content { padding-top:.55rem; font-size:.85rem; color:var(--text-muted); display:none; line-height:1.7; }
+        .category-content.show { display:block; }
     </style>
 </head>
 <body>
@@ -77,6 +87,53 @@
 <div class="container hero">
     <h1>Shop <span class="accent">Research Peptides</span></h1>
     <p>Trusted by researchers since 2024. Browse the full PepHub range — single peptides, signature multi-peptide stacks, and the essential reconstitution solvent. Every batch is HPLC-tested with a full Certificate of Analysis. Select a product to view details, choose your option and order.</p>
+
+    <div class="rg-panel">
+        <h2>📂 Browse by Research Goal</h2>
+        <p class="rg-sub">Pick a goal to find the compounds that match your area of focus.</p>
+        <div id="categoryAccordion">
+            <div class="category-item" onclick="toggleCategory(this)">
+                <div class="category-header">
+                    <span><i class="bi bi-fire" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Weight &amp; Metabolic Regulation</span>
+                    <i class="bi bi-plus-lg toggle-icon"></i>
+                </div>
+                <div class="category-content">
+                    <a href="/product/5" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">Retatrutide</a> — Triple agonist (GLP-1 / GIP / Glucagon). Significant reductions in body weight, visceral adiposity, and fasting glucose — among the most potent metabolic profiles in peptide research.<br><br>
+                    <a href="/product/6" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">MOTS-c</a> — A mitochondrial-derived “exercise-mimetic” peptide that activates AMPK to boost insulin sensitivity, metabolic flexibility, cellular energy and exercise capacity.
+                </div>
+            </div>
+            <div class="category-item" onclick="toggleCategory(this)">
+                <div class="category-header">
+                    <span><i class="bi bi-heart-pulse" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Tissue Recovery &amp; Repair</span>
+                    <i class="bi bi-plus-lg toggle-icon"></i>
+                </div>
+                <div class="category-content">
+                    <a href="/product/1" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">BPC-157</a> — Cornerstone repair peptide for tendons, ligaments, muscle and the gut lining; drives angiogenesis at the injury site.<br><br>
+                    <a href="/product/2" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">TB-500</a> — Systemic Thymosin Beta-4 analogue; mobilises stem cells, promotes vascular regeneration and resolves inflammation body-wide.<br><br>
+                    <a href="/product/9" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">BPC-157 &amp; TB-500</a> — The two combined in one vial for complementary local + systemic repair.
+                </div>
+            </div>
+            <div class="category-item" onclick="toggleCategory(this)">
+                <div class="category-header">
+                    <span><i class="bi bi-stars" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Skin, Collagen &amp; Regeneration</span>
+                    <i class="bi bi-plus-lg toggle-icon"></i>
+                </div>
+                <div class="category-content">
+                    <a href="/product/3" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">GHK-Cu</a> — A naturally occurring copper-peptide complex that upregulates collagen and elastin synthesis, accelerates wound healing, stimulates hair follicle activation, and modulates inflammatory gene expression. One of the most researched anti-ageing peptides in dermatological literature.
+                </div>
+            </div>
+            <div class="category-item" onclick="toggleCategory(this)">
+                <div class="category-header">
+                    <span><i class="bi bi-gem" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Premium Multi-Peptide Stacks</span>
+                    <i class="bi bi-plus-lg toggle-icon"></i>
+                </div>
+                <div class="category-content">
+                    <a href="/product/21" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">GLOW Stack</a> — BPC-157 + GHK-Cu + TB-500 in one vial: local repair, systemic regeneration and collagen support combined.<br><br>
+                    <a href="/product/22" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">KLOW Stack</a> — The complete four-peptide protocol — KPV + BPC-157 + GHK-Cu + TB-500 — adding KPV’s potent anti-inflammatory action to GLOW.
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="container">
@@ -135,6 +192,12 @@
         });
     });
 })();
+function toggleCategory(el){
+    var content = el.querySelector('.category-content');
+    var icon = el.querySelector('.toggle-icon');
+    content.classList.toggle('show');
+    icon.textContent = content.classList.contains('show') ? '−' : '+';
+}
 </script>
 </body>
 </html>

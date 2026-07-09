@@ -333,8 +333,6 @@ def _inject_site_chrome(resp):
                 tail += _REVIEW_TOAST
             if 'ph-mnav' not in html:
                 tail += _MOBILE_NAV
-            if request.path == '/' and 'ph-intro-modal' not in html:
-                tail += _INTRO_MODAL
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
