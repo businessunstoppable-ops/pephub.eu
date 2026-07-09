@@ -111,6 +111,71 @@ _COOKIE_BANNER = (
     '<script>function phCookieOk(){document.cookie="ph_consent=1;path=/;max-age=31536000;samesite=Lax";'
     'var b=document.getElementById("ph-cookie");if(b)b.remove();}</script>')
 
+# Social-proof review toast — a small orange box that slides in at the top for
+# ~3s every 45s, showing a random 4.7–5★ review with a random NL/DE name+city.
+_REVIEW_TOAST = """
+<div id="ph-review-toast" aria-live="polite"></div>
+<style>
+#ph-review-toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-160%);z-index:12500;
+ background:#FF9000;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:340px;width:calc(100% - 2rem);
+ box-shadow:0 12px 34px rgba(0,0,0,.45);font-family:'Inter',system-ui,sans-serif;opacity:0;
+ transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;pointer-events:none;}
+#ph-review-toast.on{transform:translate(-50%,0);opacity:1;}
+#ph-review-toast .rt-top{display:flex;align-items:center;gap:.45rem;font-weight:900;}
+#ph-review-toast .rt-stars{letter-spacing:1px;color:#3a2600;font-size:.82rem;}
+#ph-review-toast .rt-score{background:#111;color:#FF9000;border-radius:20px;padding:.03rem .45rem;font-size:.7rem;font-weight:900;}
+#ph-review-toast .rt-text{font-size:.82rem;font-weight:600;line-height:1.3;margin:.25rem 0 .18rem;}
+#ph-review-toast .rt-by{font-size:.7rem;font-weight:800;opacity:.72;}
+</style>
+<script>
+(function(){
+ var el=document.getElementById('ph-review-toast'); if(!el) return;
+ var names=["Sven K.","Lotte V.","Jonas M.","Anouk D.","Maximilian R.","Femke B.","Lars H.","Sanne W.",
+  "Niklas S.","Julia P.","Bram J.","Hannah G.","Thijs K.","Marie L.","Finn D.","Nina B.","Daan V.","Leah M.",
+  "Ruben T.","Emma S.","Jasper N.","Mila R.","Tobias F.","Sophie K.","Kai W.","Isa B.","Lukas H.","Noor V."];
+ var cities=["Amsterdam, NL","Rotterdam, NL","Utrecht, NL","Eindhoven, NL","Den Haag, NL","Groningen, NL",
+  "Nijmegen, NL","Haarlem, NL","Tilburg, NL","Leiden, NL","Maastricht, NL","Berlin, DE","München, DE",
+  "Hamburg, DE","Köln, DE","Frankfurt, DE","Stuttgart, DE","Düsseldorf, DE","Leipzig, DE","Dresden, DE",
+  "Bremen, DE","Hannover, DE"];
+ var reviews=[
+  "Fast, discreet shipping and the COA matched the batch exactly. Impressed.",
+  "Reconstituted perfectly clear — the purity is clearly the real deal.",
+  "Arrived within 48 hours, packaging flawless and fully discreet.",
+  "Support answered every question within the hour. Outstanding service.",
+  "The GLOW stack is superb — one vial, zero hassle. Reordering already.",
+  "BPC-157 quality is excellent, exactly as described on the COA.",
+  "Best sourcing I've found in the EU. Consistent batch after batch.",
+  "TB-500 matched their published HPLC data on my own verification.",
+  "The subscription saves real money and never misses a delivery.",
+  "Retatrutide arrived cold-packed and sealed. Very professional.",
+  "GHK-Cu colour and purity were spot on. My trusted supplier now.",
+  "Ordered late evening, shipped the next morning. Genuinely fast.",
+  "Everything traceable to a COA — exactly what serious research needs.",
+  "MOTS-c came with full documentation. Absolutely faultless.",
+  "Discreet billing and packaging, quick delivery. Five stars.",
+  "The KLOW stack is fantastic value — quality you can actually verify.",
+  "Clean vials, accurate labelling, and lightning-fast dispatch.",
+  "Ordered three times now — flawless every single time."
+ ];
+ var scores=[4.7,4.8,4.9,5.0];
+ function pick(a){return a[Math.floor(Math.random()*a.length)];}
+ var hideT;
+ function show(){
+  var s=pick(scores);
+  el.innerHTML='<div class="rt-top"><span class="rt-stars">★★★★★</span>'+
+   '<span class="rt-score">'+s.toFixed(1)+'</span></div>'+
+   '<div class="rt-text">"'+pick(reviews)+'"</div>'+
+   '<div class="rt-by">— '+pick(names)+' · '+pick(cities)+' · Verified buyer</div>';
+  el.classList.add('on');
+  clearTimeout(hideT);
+  hideT=setTimeout(function(){el.classList.remove('on');},3000);
+ }
+ setTimeout(show,8000);
+ setInterval(show,45000);
+})();
+</script>
+"""
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -145,13 +210,15 @@ def _inject_site_chrome(resp):
             html = re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + _PREVIEW_BANNER, html, count=1)
             changed = True
 
-        # 3. Legal footer + cookie banner (right before </body>)
+        # 3. Legal footer + cookie banner + review toast (right before </body>)
         if '</body>' in html:
             tail = ''
             if 'ph-legal-footer' not in html:
                 tail += _LEGAL_FOOTER
             if 'ph-cookie' not in html and not request.cookies.get('ph_consent'):
                 tail += _COOKIE_BANNER
+            if 'ph-review-toast' not in html:
+                tail += _REVIEW_TOAST
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
