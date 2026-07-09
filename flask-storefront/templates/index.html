@@ -790,7 +790,7 @@
 
                     <div class="deep-item">
                         <div class="deep-header" onclick="toggleDeep(this)">
-                            <span>BPC-157 — The Systemic Healing Catalyst &amp; NO Modulator</span><span>−</span>
+                            <span>BPC-157 — The Systemic Healing Catalyst &amp; NO Modulator</span><span class="acc-toggle is-open"></span>
                         </div>
                         <div class="deep-body open">
                             <p><strong>Activation Pathway:</strong></p>
@@ -805,7 +805,7 @@
 
                     <div class="deep-item">
                         <div class="deep-header" onclick="toggleDeep(this)">
-                            <span>GHK-Cu — The Epigenetic Switchboard for Dermal Regeneration</span><span>+</span>
+                            <span>GHK-Cu — The Epigenetic Switchboard for Dermal Regeneration</span><span class="acc-toggle"></span>
                         </div>
                         <div class="deep-body">
                             <p><strong>Modulates ~31% of human genes.</strong> Plasma levels decline from ~200 ng/mL at age 20 to ~80 ng/mL at age 60.</p>
@@ -819,7 +819,7 @@
 
                     <div class="deep-item">
                         <div class="deep-header" onclick="toggleDeep(this)">
-                            <span>TB-500 — Cytoskeletal Dynamics &amp; The Migration Engine</span><span>+</span>
+                            <span>TB-500 — Cytoskeletal Dynamics &amp; The Migration Engine</span><span class="acc-toggle"></span>
                         </div>
                         <div class="deep-body">
                             <p><strong>Molecular definition:</strong> Synthetic 7-amino-acid fragment (Ac-LKKTETQ) of full-length Thymosin Beta-4.</p>
@@ -833,7 +833,7 @@
 
                     <div class="deep-item">
                         <div class="deep-header" onclick="toggleDeep(this)">
-                            <span>Retatrutide — The Triple-Agonist Metabolic Powerhouse</span><span>+</span>
+                            <span>Retatrutide — The Triple-Agonist Metabolic Powerhouse</span><span class="acc-toggle"></span>
                         </div>
                         <div class="deep-body">
                             <p><strong>Mechanism:</strong> A single 39-amino-acid analogue that simultaneously activates three receptors — the broadest metabolic signalling of any peptide in development.</p>
@@ -849,7 +849,7 @@
 
                     <div class="deep-item">
                         <div class="deep-header" onclick="toggleDeep(this)">
-                            <span>Epitalon &amp; Semax — Neuroprotection &amp; Telomere Biology</span><span>+</span>
+                            <span>Epitalon &amp; Semax — Neuroprotection &amp; Telomere Biology</span><span class="acc-toggle"></span>
                         </div>
                         <div class="deep-body">
                             <div class="row g-2">
@@ -1025,9 +1025,9 @@
 
     function toggleDeep(header) {
         const body = header.nextElementSibling;
-        const icon = header.querySelector('span:last-child');
+        const t = header.querySelector('.acc-toggle');
         body.classList.toggle('open');
-        icon.textContent = body.classList.contains('open') ? '−' : '+';
+        if (t) t.classList.toggle('is-open', body.classList.contains('open'));
     }
 
     function copyCode(code) {

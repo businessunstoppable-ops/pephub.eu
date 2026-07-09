@@ -265,14 +265,14 @@
 
             <!-- Info sections — collapsible to keep the page clean; tap to expand -->
             <details class="detail-acc" open>
-                <summary><i class="bi bi-journal-text lead-ic"></i> About This Compound <i class="bi bi-chevron-down acc-chev"></i></summary>
+                <summary><i class="bi bi-journal-text lead-ic"></i> About This Compound <span class="acc-toggle"></span></summary>
                 <div class="acc-body">
                     {{ detail.description|safe }}
                 </div>
             </details>
 
             <details class="detail-acc">
-                <summary><i class="bi bi-dna lead-ic"></i> Technical Specifications <span class="acc-hint">tap to view</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <summary><i class="bi bi-dna lead-ic"></i> Technical Specifications <span class="acc-hint">tap to view</span><span class="acc-toggle"></span></summary>
                 <div class="acc-body">
                     <div class="spec-grid">
                         <div class="spec-item">
@@ -308,7 +308,7 @@
             </details>
 
             <details class="detail-acc">
-                <summary><i class="bi bi-clipboard2-pulse lead-ic"></i> Research &amp; Mechanism Notes <span class="acc-hint">tap to view</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <summary><i class="bi bi-clipboard2-pulse lead-ic"></i> Research &amp; Mechanism Notes <span class="acc-hint">tap to view</span><span class="acc-toggle"></span></summary>
                 <div class="acc-body">
                     {% for label, text in detail.research_notes %}
                     <div class="note-item">
@@ -320,7 +320,7 @@
             </details>
 
             <details class="detail-acc">
-                <summary><i class="bi bi-tags lead-ic"></i> Bulk Deals <span class="acc-hint">save up to 30%</span><i class="bi bi-chevron-down acc-chev"></i></summary>
+                <summary><i class="bi bi-tags lead-ic"></i> Bulk Deals <span class="acc-hint">save up to 30%</span><span class="acc-toggle"></span></summary>
                 <div class="acc-body">
                     <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Buy more vials, pay for fewer. Deals apply automatically per compound in your cart — the more you stock up, the less you pay per vial.</p>
                     <table class="discount-table">

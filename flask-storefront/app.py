@@ -293,6 +293,20 @@ function phIntroClose(){var m=document.getElementById('ph-intro-modal');if(m)m.c
 </script>
 """
 
+# Unified accordion toggle — one clean circular +/- badge for every dropdown
+# on the site (native <details>, the category accordions, and the Deep Dives).
+# Injected globally so all templates share one consistent style.
+_ACC_CSS = ('<style id="ph-acc-css">'
+ '.acc-toggle{width:26px;height:26px;min-width:26px;border-radius:50%;border:1.6px solid #FF9000;color:#FF9000;'
+ 'display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;line-height:1;'
+ 'margin-left:auto;flex-shrink:0;box-sizing:border-box;transition:background .18s,color .18s;}'
+ '.acc-toggle::before{content:"+";display:block;margin-top:-2px;}'
+ '.acc-toggle.is-open,[open]>summary .acc-toggle,.category-item.open .acc-toggle{background:#FF9000;color:#000;}'
+ '.acc-toggle.is-open::before,[open]>summary .acc-toggle::before,.category-item.open .acc-toggle::before{content:"\\2212";}'
+ 'summary.acc-summary{list-style:none;cursor:pointer;}summary.acc-summary::-webkit-details-marker{display:none;}'
+ '.acc-toggle:hover{background:#FF9000;color:#000;}'
+ '</style>')
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -340,6 +354,8 @@ def _inject_site_chrome(resp):
                 tail += _MOBILE_NAV
             if 'ph-intro-modal' not in html:
                 tail += _INTRO_MODAL
+            if 'ph-acc-css' not in html:
+                tail += _ACC_CSS
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True

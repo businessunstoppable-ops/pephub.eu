@@ -65,7 +65,7 @@
         .category-header { display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:.92rem; color:#fff; user-select:none; gap:1rem; }
         .category-header .toggle-icon { color:var(--ph-orange); font-weight:900; flex-shrink:0; }
         .category-content { padding-top:.55rem; font-size:.85rem; color:var(--text-muted); display:none; line-height:1.7; }
-        .category-content.show { display:block; }
+        .category-item.open .category-content { display:block; }
     </style>
 </head>
 <body>
@@ -95,7 +95,7 @@
             <div class="category-item" onclick="toggleCategory(this)">
                 <div class="category-header">
                     <span><i class="bi bi-fire" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Weight &amp; Metabolic Regulation</span>
-                    <i class="bi bi-plus-lg toggle-icon"></i>
+                    <span class="acc-toggle"></span>
                 </div>
                 <div class="category-content">
                     <a href="/product/5" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">Retatrutide</a> — Triple agonist (GLP-1 / GIP / Glucagon). Significant reductions in body weight, visceral adiposity, and fasting glucose — among the most potent metabolic profiles in peptide research.<br><br>
@@ -105,7 +105,7 @@
             <div class="category-item" onclick="toggleCategory(this)">
                 <div class="category-header">
                     <span><i class="bi bi-heart-pulse" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Tissue Recovery &amp; Repair</span>
-                    <i class="bi bi-plus-lg toggle-icon"></i>
+                    <span class="acc-toggle"></span>
                 </div>
                 <div class="category-content">
                     <a href="/product/1" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">BPC-157</a> — Cornerstone repair peptide for tendons, ligaments, muscle and the gut lining; drives angiogenesis at the injury site.<br><br>
@@ -116,7 +116,7 @@
             <div class="category-item" onclick="toggleCategory(this)">
                 <div class="category-header">
                     <span><i class="bi bi-stars" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Skin, Collagen &amp; Regeneration</span>
-                    <i class="bi bi-plus-lg toggle-icon"></i>
+                    <span class="acc-toggle"></span>
                 </div>
                 <div class="category-content">
                     <a href="/product/3" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">GHK-Cu</a> — A naturally occurring copper-peptide complex that upregulates collagen and elastin synthesis, accelerates wound healing, stimulates hair follicle activation, and modulates inflammatory gene expression. One of the most researched anti-ageing peptides in dermatological literature.
@@ -125,7 +125,7 @@
             <div class="category-item" onclick="toggleCategory(this)">
                 <div class="category-header">
                     <span><i class="bi bi-gem" style="color:var(--ph-orange);margin-right:0.4rem;"></i> Premium Multi-Peptide Stacks</span>
-                    <i class="bi bi-plus-lg toggle-icon"></i>
+                    <span class="acc-toggle"></span>
                 </div>
                 <div class="category-content">
                     <a href="/product/21" style="color:var(--ph-orange);text-decoration:none;font-weight:800;">GLOW Stack</a> — BPC-157 + GHK-Cu + TB-500 in one vial: local repair, systemic regeneration and collagen support combined.<br><br>
@@ -193,10 +193,7 @@
     });
 })();
 function toggleCategory(el){
-    var content = el.querySelector('.category-content');
-    var icon = el.querySelector('.toggle-icon');
-    content.classList.toggle('show');
-    icon.textContent = content.classList.contains('show') ? '−' : '+';
+    el.classList.toggle('open');
 }
 </script>
 </body>
