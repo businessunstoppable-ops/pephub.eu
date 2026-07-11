@@ -1391,17 +1391,25 @@ def _science_topic_counts():
 # Promo code system
 # ----------------------------------------------------------------------
 PROMO_CODES = {
-    'LAUNCH25':  {'percent': 25, 'desc': '🚀 Launch week — 25% off entire order'},
     'STACK15':   {'percent': 15, 'desc': '🧬 Stack discount — 15% off (2+ different peptides)', 'min_unique': 2},
     'BULK20':    {'percent': 20, 'desc': '⚡ Bulk discount — 20% off (5+ total units)', 'min_total_qty': 5},
-    'WELCOME10': {'percent': 10, 'desc': '👋 First-order welcome — 10% off'},
+    'WELCOME10': {'percent': 10, 'desc': '👋 First-order welcome — 10% off', 'first_order_only': True},
     'RESEARCH':  {'percent': 10, 'desc': '🎓 Researcher / academic — 10% off'},
 }
 FREE_SHIPPING_THRESHOLD = 100.0
 SHIPPING_COST = 9.95
 
-def validate_promo(code, items):
-    """Return (promo_dict, error_msg). promo_dict is None if invalid."""
+def _customer_has_orders(customer):
+    """True if this customer has placed at least one order before."""
+    if not customer or not getattr(customer, 'id', None):
+        return False
+    return Order.query.filter_by(customer_id=customer.id).count() > 0
+
+
+def validate_promo(code, items, customer=None):
+    """Return (promo_dict, error_msg). promo_dict is None if invalid.
+    `customer` (if known) is used to enforce profile-linked rules such as
+    first-order-only codes."""
     if not code:
         return None, None
     code = code.strip().upper()
@@ -1414,13 +1422,16 @@ def validate_promo(code, items):
         return None, f'Code {code} requires at least {promo["min_unique"]} different products'
     if 'min_total_qty' in promo and total_qty < promo['min_total_qty']:
         return None, f'Code {code} requires at least {promo["min_total_qty"]} total units'
+    if promo.get('first_order_only') and _customer_has_orders(customer):
+        return None, f'Code {code} is valid on your first order only'
     return promo, None
 
-def compute_totals(items):
-    """All retail prices are VAT-inclusive (21%). VAT is shown for clarity."""
+def compute_totals(items, customer=None):
+    """All retail prices are VAT-inclusive (21%). VAT is shown for clarity.
+    `customer` lets profile-linked promo rules (e.g. first-order-only) apply."""
     subtotal = sum(i['subtotal'] for i in items)
     promo_code = session.get('promo')
-    promo, err = validate_promo(promo_code, items)
+    promo, err = validate_promo(promo_code, items, customer)
     discount = round(subtotal * promo['percent'] / 100, 2) if promo else 0
     after_discount = subtotal - discount
     shipping = 0 if after_discount >= FREE_SHIPPING_THRESHOLD else (SHIPPING_COST if items else 0)
@@ -1920,13 +1931,11 @@ CART_HTML = """
 <div id="page-loader"><div>Pep<span class="hub-tag">Hub</span></div></div>
 
 <div class="ph-marquee"><div class="ph-marquee-track">
-    <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
     <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">⚡ BULK 5+ · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">🎓 RESEARCHER · 10% <code>RESEARCH</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">👋 NEW · 10% OFF <code>WELCOME10</code></span><span class="ph-divider">◆</span>
-    <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
     <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">⚡ BULK 5+ · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
@@ -2107,11 +2116,9 @@ CHECKOUT_HTML = """
 <div class="ph-marquee"><div class="ph-marquee-track">
     <span class="ph-promo">🔒 SECURE STRIPE CHECKOUT</span><span class="ph-divider">◆</span>
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
-    <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · COA INCLUDED</span><span class="ph-divider">◆</span>
     <span class="ph-promo">🔒 SECURE STRIPE CHECKOUT</span><span class="ph-divider">◆</span>
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
-    <span class="ph-promo">🚀 LAUNCH WEEK · 25% OFF <code>LAUNCH25</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">🔬 EVERY BATCH HPLC-TESTED · COA INCLUDED</span><span class="ph-divider">◆</span>
 </div></div>
 
@@ -3087,7 +3094,7 @@ def _build_cart_items():
 @app.route('/cart')
 def cart():
     items = _build_cart_items()
-    totals = compute_totals(items)
+    totals = compute_totals(items, current_customer())
     return render_template_string(CART_HTML, cart=items, **totals, promo_catalog=PROMO_CODES)
 
 @app.route('/cart/update', methods=['POST'])
@@ -3122,7 +3129,7 @@ def cart_update():
 def apply_promo():
     code = request.form.get('code', '').strip().upper()
     items = _build_cart_items()
-    promo, err = validate_promo(code, items)
+    promo, err = validate_promo(code, items, current_customer())
     if promo:
         session['promo'] = code
         session.pop('promo_error', None)
@@ -3142,7 +3149,7 @@ def checkout():
     items = _build_cart_items()
     if not items:
         return redirect('/')
-    totals = compute_totals(items)
+    totals = compute_totals(items, current_customer())
     # Prefill from previous order if same browser
     prefill = session.get('checkout_prefill', {})
     return render_template_string(CHECKOUT_HTML, cart=items, **totals, prefill=prefill,
@@ -3182,8 +3189,6 @@ def place_order():
         session['checkout_prefill'] = fields
         return redirect(url_for('checkout'))
 
-    totals = compute_totals(items)
-
     # Prefer the logged-in member; otherwise find-or-create by email.
     customer = None
     if session.get('customer_id'):
@@ -3201,6 +3206,11 @@ def place_order():
     customer.postal_code   = fields['postal_code']
     customer.country       = fields['country']
     db.session.flush()
+
+    # Totals — computed with the resolved customer so first-order-only codes
+    # are enforced here (a returning buyer can't sneak a first-order promo
+    # through by staying logged out).
+    totals = compute_totals(items, customer)
 
     order = Order(
         order_number=_new_order_number(),
