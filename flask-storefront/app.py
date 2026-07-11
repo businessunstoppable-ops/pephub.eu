@@ -1429,10 +1429,23 @@ def validate_promo(code, items, customer=None):
 def compute_totals(items, customer=None):
     """All retail prices are VAT-inclusive (21%). VAT is shown for clarity.
     `customer` lets profile-linked promo rules (e.g. first-order-only) apply."""
-    subtotal = sum(i['subtotal'] for i in items)
+    subtotal = sum(i['subtotal'] for i in items)                       # after bulk / subscription
+    list_subtotal = sum(i['base_price'] * i['quantity'] for i in items)  # before any discount
+    auto_savings = round(list_subtotal - subtotal, 2)                  # bulk + subscription savings
     promo_code = session.get('promo')
     promo, err = validate_promo(promo_code, items, customer)
-    discount = round(subtotal * promo['percent'] / 100, 2) if promo else 0
+    # Promo codes do NOT stack with the automatic bulk / subscription discounts.
+    # The customer gets whichever is larger — the promo only applies the amount
+    # by which it *exceeds* the discount already baked into the subtotal.
+    promo_note = None
+    if promo:
+        promo_on_list = list_subtotal * promo['percent'] / 100
+        discount = round(max(0.0, promo_on_list - auto_savings), 2)
+        if discount == 0 and auto_savings > 0:
+            promo_note = ('Your bulk / subscription pricing already beats this code — '
+                          'no extra discount applied.')
+    else:
+        discount = 0
     after_discount = subtotal - discount
     shipping = 0 if after_discount >= FREE_SHIPPING_THRESHOLD else (SHIPPING_COST if items else 0)
     total = round(after_discount + shipping, 2)
@@ -1447,6 +1460,7 @@ def compute_totals(items, customer=None):
         'promo_code': promo_code if promo else None,
         'promo_desc': promo['desc'] if promo else None,
         'promo_percent': promo['percent'] if promo else 0,
+        'promo_note': promo_note,
         'discount': discount,
         'shipping': shipping,
         'free_shipping': shipping == 0 and bool(items),
@@ -2031,6 +2045,9 @@ CART_HTML = """
                 <a href="/remove-promo" title="Remove">×</a>
             </div>
             {% endif %}
+            {% if promo_note %}
+            <div class="promo-error" style="background:rgba(255,144,0,.12);border-color:rgba(255,144,0,.4);color:#ffce9e;">ℹ {{ promo_note }}</div>
+            {% endif %}
             {% if session.promo_error %}
             <div class="promo-error">⚠ {{ session.promo_error }}</div>
             {% endif %}
@@ -2235,6 +2252,9 @@ CHECKOUT_HTML = """
                 <h5 style="font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:1rem;letter-spacing:0.02em;">🧾 ORDER SUMMARY</h5>
                 {% if promo_code %}
                 <div class="promo-badge">✓ {{ promo_code }} — {{ promo_desc }}</div>
+                {% endif %}
+                {% if promo_note %}
+                <div style="font-size:.72rem;color:#ffce9e;background:rgba(255,144,0,.12);border:1px solid rgba(255,144,0,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.6rem;">ℹ {{ promo_note }}</div>
                 {% endif %}
                 {% for item in cart %}
                 <div class="product-line">
