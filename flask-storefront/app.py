@@ -307,6 +307,17 @@ _ACC_CSS = ('<style id="ph-acc-css">'
  '.acc-toggle:hover{background:#FF9000;color:#000;}'
  '</style>')
 
+# Brand logo — render "Hub" as dark text inside a rounded orange gradient pill,
+# matching the PepHub wordmark. Injected globally so every navbar variant
+# (.brand-hub / .h / .hub-tag) gets the same look regardless of template CSS.
+_LOGO_CSS = ('<style id="ph-logo-css">'
+ '.navbar-brand .brand-hub,.navbar-brand .h,.navbar-brand .hub-tag{'
+ 'background:linear-gradient(180deg,#FDB44E 0%,#FF9412 52%,#E67A00 100%)!important;'
+ 'color:#1a1a1a!important;border-radius:999px!important;padding:0.04em 0.42em 0.08em!important;'
+ 'margin-left:4px!important;font-weight:900!important;letter-spacing:-0.01em!important;'
+ 'box-shadow:0 2px 10px rgba(255,144,0,.35)!important;}'
+ '</style>')
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -356,6 +367,8 @@ def _inject_site_chrome(resp):
                 tail += _INTRO_MODAL
             if 'ph-acc-css' not in html:
                 tail += _ACC_CSS
+            if 'ph-logo-css' not in html:
+                tail += _LOGO_CSS
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
