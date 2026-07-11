@@ -1405,9 +1405,7 @@ def _science_topic_counts():
 # ----------------------------------------------------------------------
 PROMO_CODES = {
     'STACK15':   {'percent': 15, 'desc': '🧬 Stack discount — 15% off (2+ different peptides)', 'min_unique': 2},
-    'BULK20':    {'percent': 20, 'desc': '⚡ Bulk discount — 20% off (5+ total units)', 'min_total_qty': 5},
     'WELCOME10': {'percent': 10, 'desc': '👋 First-order welcome — 10% off', 'first_order_only': True},
-    'RESEARCH':  {'percent': 10, 'desc': '🎓 Researcher / academic — 10% off'},
 }
 FREE_SHIPPING_THRESHOLD = 100.0
 SHIPPING_COST = 9.95
@@ -1960,13 +1958,9 @@ CART_HTML = """
 <div class="ph-marquee"><div class="ph-marquee-track">
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
     <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
-    <span class="ph-promo">⚡ BULK 5+ · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
-    <span class="ph-promo">🎓 RESEARCHER · 10% <code>RESEARCH</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">👋 NEW · 10% OFF <code>WELCOME10</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">📦 FREE EU SHIPPING OVER €100</span><span class="ph-divider">◆</span>
     <span class="ph-promo">🧬 STACK 2 PEPTIDES · 15% OFF <code>STACK15</code></span><span class="ph-divider">◆</span>
-    <span class="ph-promo">⚡ BULK 5+ · 20% OFF <code>BULK20</code></span><span class="ph-divider">◆</span>
-    <span class="ph-promo">🎓 RESEARCHER · 10% <code>RESEARCH</code></span><span class="ph-divider">◆</span>
     <span class="ph-promo">👋 NEW · 10% OFF <code>WELCOME10</code></span><span class="ph-divider">◆</span>
 </div></div>
 
