@@ -1,21 +1,24 @@
-# Secrets & env
+# =====================================================================
+# This repo is scoped to flask-storefront/. The parent folder also holds
+# a broken virtualenv, logo assets and other artifacts that must NEVER be
+# committed. Ignore ALL top-level entries except the few we track.
+# =====================================================================
+/*
+!/.gitignore
+!/render.yaml
+!/requirements.txt
+!/flask-storefront/
+
+# --- also ignored anywhere inside tracked dirs ---
 .env
 *.env
-
-# Local database (production uses Postgres via DATABASE_URL)
 *.db
 instance/
-
-# Python
 venv/
 __pycache__/
 *.pyc
 .Python
-
-# OS / editor
 .DS_Store
 .vscode/
 .idea/
-
-# Claude local settings
 .claude/settings.local.json
