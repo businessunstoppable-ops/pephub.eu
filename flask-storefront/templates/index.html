@@ -59,14 +59,6 @@
         .bullet-list li i { color: var(--ph-orange); font-size: 1rem; width: 1.3rem; flex-shrink: 0; margin-top: 2px; }
         .bullet-list li a { color: var(--text-light); text-decoration: underline; text-decoration-color: var(--ph-orange); }
 
-        /* ── Category accordion ── */
-        .category-item { border-bottom: 1px solid var(--ph-border); padding: 0.75rem 0; cursor: pointer; }
-        .category-item:last-child { border-bottom: none; }
-        .category-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; color: #fff; user-select: none; }
-        .category-header .toggle-icon { transition: transform 0.2s; color: var(--ph-orange); }
-        .category-content { padding-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); display: none; line-height: 1.7; }
-        .category-content.show { display: block; }
-
         /* ── Section heading ── */
         .section-label { text-align: center; margin-bottom: 2.5rem; }
         .section-label h2 { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
@@ -220,13 +212,10 @@
         <div class="eyebrow">Est. 2024 · Research-Grade · Batch-Tested · EU Shipped</div>
         <h1>Pep<em>Hub</em><br>Advanced Peptide Science</h1>
         <div class="trust-strip">
-            <span class="trust-pill">✓ Trusted since 2024</span>
             <span class="trust-pill">✓ ≥ 99% HPLC Purity</span>
             <span class="trust-pill">✓ Full COA per Batch</span>
             <span class="trust-pill">✓ ISO Class 5 Filled</span>
-            <span class="trust-pill">✓ Robotic Hermetic Seal</span>
             <span class="trust-pill">✓ 100% UV Inspected</span>
-            <span class="trust-pill">✓ Fast EU Delivery</span>
         </div>
     </div>
 </div>
@@ -952,13 +941,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function toggleCategory(el) {
-        const content = el.querySelector('.category-content');
-        const icon    = el.querySelector('.toggle-icon');
-        content.classList.toggle('show');
-        icon.textContent = content.classList.contains('show') ? '−' : '+';
-    }
-
     const peptideKnowledge = {
         "BPC-157":    "<strong>📌 Research dose:</strong> 250–500 mcg/day<br><strong>⏱️ Half-life:</strong> 4–6 hours<br><strong>❄️ Storage:</strong> Refrigerate after reconstitution<br><strong>🧬 Primary use:</strong> Gut healing, tendon &amp; ligament repair, angiogenesis<br><strong>🔗 Mechanism:</strong> Upregulates VEGFR2 &amp; FGFR; activates FAK-paxillin signalling pathway; enhances nitric oxide signalling",
         "TB-500":     "<strong>📌 Research dose:</strong> 2.5–5 mg/week<br><strong>⏱️ Half-life:</strong> 6–7 days<br><strong>❄️ Storage:</strong> Refrigerate after reconstitution<br><strong>🧬 Primary use:</strong> Systemic repair, stem cell mobilisation, inflammation resolution<br><strong>🔗 Mechanism:</strong> Binds G-actin via LKKTET motif; promotes cell migration, endothelial tube formation, and vascular regeneration",
@@ -1030,7 +1012,6 @@
         window._toastT = setTimeout(()=>{ t.style.opacity='0'; }, 2200);
     }
 
-    window.toggleCategory   = toggleCategory;
     window.updatePeptideInfo = updatePeptideInfo;
     window.calculateDose    = calculateDose;
     window.switchTab        = switchTab;
