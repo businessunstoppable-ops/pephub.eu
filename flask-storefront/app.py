@@ -528,9 +528,69 @@ def _ensure_columns():
                     conn.exec_driver_sql(f'ALTER TABLE {table} ADD COLUMN {name} {ddl}')
         conn.commit()
 
+# ----------------------------------------------------------------------
+# Science Hub batch library — auto-published on startup from science_seed/*.json
+# (idempotent: skips slugs already in the DB). Set DISABLE_AUTOSEED=1 to skip.
+# ----------------------------------------------------------------------
+_SCIENCE_SEED_DIR = os.path.join(basedir, 'science_seed')
+_SCIENCE_SEED_TOPICS = {
+    'peptide-science':    'Peptide Science',
+    'nutrition':          'Nutrition',
+    'bio-hacking':        'Bio-hacking',
+    'vitality-longevity': 'Vitality & Longevity',
+    'training-recovery':  'Training & Recovery',
+    'health-wellbeing':   'Health & Wellbeing',
+}
+_SCIENCE_SEED_DATES = [(2025, 3), (2025, 9), (2026, 2), (2026, 4), (2026, 6)]
+
+def _seed_science_batch():
+    """Publish science_seed/*.json on startup. Idempotent (skips existing slugs);
+    safe no-op if the folder is missing or on any error."""
+    if os.environ.get('DISABLE_AUTOSEED'):
+        return
+    if not os.path.isdir(_SCIENCE_SEED_DIR):
+        return
+    _log = logging.getLogger('pephub.sciencehub')
+    created = 0
+    for cat_i, (fname, topic) in enumerate(_SCIENCE_SEED_TOPICS.items()):
+        path = os.path.join(_SCIENCE_SEED_DIR, fname + '.json')
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding='utf-8') as fh:
+                articles = json.load(fh)
+        except Exception:
+            _log.exception('science seed: could not read %s', path)
+            continue
+        for art_i, a in enumerate(articles):
+            slug = (a.get('slug') or '').strip().lower()
+            if not slug or Article.query.filter_by(slug=slug).first():
+                continue
+            year, month = _SCIENCE_SEED_DATES[art_i % len(_SCIENCE_SEED_DATES)]
+            when = datetime(year, month, 6 + cat_i * 3, 9, (cat_i * 7) % 60)
+            db.session.add(Article(
+                slug=slug, title=a['title'][:240], topic=topic,
+                excerpt=a.get('excerpt', ''), body_html=(a.get('body_html') or '').strip(),
+                takeaways_json=json.dumps(a.get('takeaways', [])),
+                sources_json=json.dumps(a.get('sources', [])),
+                status='PUBLISHED', created_at=when, published_at=when,
+            ))
+            created += 1
+    if created:
+        try:
+            db.session.commit()
+            _log.info('science seed: published %d new article(s)', created)
+        except Exception:
+            db.session.rollback()
+            _log.exception('science seed: commit failed')
+
 with app.app_context():
     db.create_all()
     _ensure_columns()
+    try:
+        _seed_science_batch()
+    except Exception:
+        logging.getLogger('pephub.sciencehub').exception('science seed: startup error')
 
 # ----------------------------------------------------------------------
 # Peptide data for calculator & knowledge (unchanged)
