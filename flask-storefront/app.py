@@ -314,6 +314,11 @@ _LOGO_CSS = """<style id="ph-logo-css">
 /* Exact PepHub logo image (served from /static). Text kept for screen readers. */
 .navbar-brand{display:inline-block!important;width:122px;height:38px;padding:0!important;background:url('/static/pephub-logo.jpg') left center/contain no-repeat!important;text-indent:-9999px;overflow:hidden;white-space:nowrap;border-radius:0!important;box-shadow:none!important;}
 .navbar-brand .brand-hub,.navbar-brand .h,.navbar-brand .hub-tag{background:none!important;color:transparent!important;padding:0!important;box-shadow:none!important;}
+/* Loading screen: show the logo (pulsing) instead of text/icon. */
+#page-loader{background:#000!important;}
+#page-loader>*{display:none!important;}
+#page-loader::before{content:"";display:block;width:220px;max-width:64vw;height:74px;background:url('/static/pephub-logo.jpg') center/contain no-repeat;animation:phLogoPulse 1.35s ease-in-out infinite;}
+@keyframes phLogoPulse{0%,100%{opacity:.5;transform:scale(.98)}50%{opacity:1;transform:scale(1.04)}}
 </style>"""
 
 
