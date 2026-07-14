@@ -311,10 +311,9 @@ _ACC_CSS = ('<style id="ph-acc-css">'
 # matching the PepHub wordmark. Injected globally so every navbar variant
 # (.brand-hub / .h / .hub-tag) gets the same look regardless of template CSS.
 _LOGO_CSS = """<style id="ph-logo-css">
-/* Logo: gold molecule glyph + white "Pep" + black "Hub" on a gold pill. */
-.navbar-brand{display:inline-flex!important;align-items:center;color:#fff!important;font-weight:800!important;letter-spacing:-.5px!important;text-decoration:none!important;background:none!important;padding:0!important;box-shadow:none!important;border-radius:0!important;}
-.navbar-brand::before{content:"";width:1.35em;height:1.35em;margin-right:.45rem;flex:0 0 auto;background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23D4AF37'%20stroke='%23D4AF37'%20stroke-width='2.4'%20stroke-linecap='round'%3E%3Cline%20x1='20'%20y1='21'%20x2='12'%20y2='10'/%3E%3Cline%20x1='20'%20y1='21'%20x2='9'%20y2='30'/%3E%3Cline%20x1='20'%20y1='21'%20x2='32'%20y2='15'/%3E%3Ccircle%20cx='20'%20cy='21'%20r='5.4'/%3E%3Ccircle%20cx='12'%20cy='9'%20r='3.7'/%3E%3Ccircle%20cx='8'%20cy='31'%20r='3.7'/%3E%3Ccircle%20cx='33'%20cy='14'%20r='3.7'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;}
-.navbar-brand .brand-hub,.navbar-brand .h,.navbar-brand .hub-tag{background:linear-gradient(135deg,#F6EBBE 0%,#E7C965 40%,#D4AF37 68%,#A9822F 100%)!important;color:#111!important;border-radius:999px!important;padding:.05em .5em .09em!important;margin-left:4px!important;font-weight:900!important;box-shadow:0 2px 8px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.4)!important;}
+/* Exact PepHub logo image (served from /static). Text kept for screen readers. */
+.navbar-brand{display:inline-block!important;width:122px;height:38px;padding:0!important;background:url('/static/pephub-logo.jpg') left center/contain no-repeat!important;text-indent:-9999px;overflow:hidden;white-space:nowrap;border-radius:0!important;box-shadow:none!important;}
+.navbar-brand .brand-hub,.navbar-brand .h,.navbar-brand .hub-tag{background:none!important;color:transparent!important;padding:0!important;box-shadow:none!important;}
 </style>"""
 
 
