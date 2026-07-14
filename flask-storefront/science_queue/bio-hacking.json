@@ -1,0 +1,234 @@
+[
+  {
+    "title": "Breathwork and CO2 Tolerance: What the Evidence Actually Shows",
+    "slug": "breathwork-co2-tolerance-evidence",
+    "excerpt": "Slow breathing and CO2-tolerance drills are popular tools for calm and focus. Here is a neutral look at the physiology, the measurable markers, and where caution matters.",
+    "takeaways": [
+      "Slow, nasal breathing at roughly six breaths per minute may shift heart-rate variability and perceived calm in some people.",
+      "\"CO2 tolerance\" is really about comfort with mild air hunger, not a validated health metric.",
+      "Breath-hold practices near water or while driving can be dangerous and should never be combined with those activities.",
+      "Track subjective calm and simple resting metrics rather than chasing extreme hold times."
+    ],
+    "body_html": "<p>Breathwork covers a wide range of practices, from slow diaphragmatic breathing to structured breath-holds intended to build what enthusiasts call \"CO2 tolerance.\" The underlying idea is that the urge to breathe is driven largely by rising carbon dioxide rather than falling oxygen, and that gently exposing yourself to mild air hunger can make that urge feel less urgent over time. This is physiologically real, but the language around it often outpaces the evidence.</p><h2>The physiology in plain terms</h2><p>Your drive to breathe is controlled by chemoreceptors that respond primarily to CO2 and blood pH. When you breathe slowly, CO2 levels rise slightly and the nervous system often shifts toward a calmer, more parasympathetic state. Studies on paced breathing near six breaths per minute report changes in heart-rate variability and, in some participants, reduced self-reported stress. <strong>These effects are modest and vary a lot between individuals.</strong></p><p>\"CO2 tolerance\" is not a clinical measurement. Popular tests such as timing a comfortable exhale hold give a rough, highly variable snapshot of how comfortable you are with mild air hunger. They are influenced by relaxation, practice, and expectation, so treat them as a personal trend line, not a diagnostic number.</p><h2>What people are actually measuring</h2><ul><li><em>Resting respiratory rate</em> over days or weeks, which some wearables estimate during sleep.</li><li><em>Perceived calm or focus</em> before and after a session, logged simply.</li><li><em>Heart-rate variability</em> trends, keeping in mind these are noisy day to day.</li></ul><blockquote>Comfort with slow breathing is trainable. Extreme performance in breath-holds is a separate, riskier pursuit and is not required for the calming benefits most people are after.</blockquote><h2>Where caution is essential</h2><p>The single most important safety point: never practice breath-holds or hyperventilation-style breathing in or near water, in a bath, or while driving. Fainting during these practices has caused drownings and injuries. People with cardiovascular conditions, a history of fainting, or who are pregnant should speak with a clinician before starting intense protocols. Gentle slow breathing is low-risk for most people, but aggressive routines are not.</p><p>If you experiment, favor short, seated sessions, stop if you feel dizzy, and prioritize consistency over intensity. Measurement should serve comfort and calm, not become another source of pressure.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Slow breathing and autonomic function research",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=slow+breathing+heart+rate+variability"
+      },
+      {
+        "title": "Breathwork and stress: evidence overview",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/breathing-exercises/"
+      },
+      {
+        "title": "Controlled breathing and the nervous system",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/deep_breathing.htm"
+      }
+    ]
+  },
+  {
+    "title": "Sleep-Tracking Wearables: How Accurate Are They, Really?",
+    "slug": "sleep-tracking-wearables-accuracy",
+    "excerpt": "Rings and watches now stage your sleep and score your nights. We look at how well consumer devices match lab measurement and how to use the data without obsessing.",
+    "takeaways": [
+      "Consumer wearables estimate total sleep time reasonably well but are less reliable at classifying specific sleep stages.",
+      "The gold standard remains polysomnography in a lab, which measures brain activity directly.",
+      "Trends over weeks are more meaningful than any single night's score.",
+      "Anxiety about sleep data can itself worsen sleep, sometimes called orthosomnia."
+    ],
+    "body_html": "<p>Wrist and finger wearables have made sleep tracking mainstream. Most combine movement sensors with heart-rate and sometimes temperature data, then apply algorithms to estimate when you were asleep and which stage you were in. The results look precise, but precision on a screen is not the same as accuracy against a laboratory reference.</p><h2>How devices compare to the lab standard</h2><p>The clinical reference is polysomnography, which records brain waves, eye movement, and muscle activity to stage sleep directly. Against this standard, validation studies show that modern consumer devices are fairly good at detecting <strong>total sleep time and whether you are asleep or awake</strong>. They are considerably weaker at distinguishing light, deep, and REM sleep, because those stages are defined by brain activity the devices cannot measure. Accuracy also varies by device generation and by sleeper.</p><h2>Using the numbers sensibly</h2><ul><li>Watch <em>trends</em> across weeks, not individual nightly scores.</li><li>Correlate the data with how you actually feel and function during the day.</li><li>Treat stage percentages as rough estimates, not medical readouts.</li><li>Use the device to test one change at a time, such as a consistent bedtime.</li></ul><blockquote>A wearable is a coach with limited vision, not a diagnostic instrument. It can nudge better habits, but it cannot diagnose a sleep disorder.</blockquote><h2>The risk of tracking too hard</h2><p>Clinicians have described a pattern sometimes called orthosomnia, where fixating on sleep scores creates anxiety that undermines sleep itself. If checking your score first thing in the morning shapes your whole mood, the tool may be working against you. Persistent problems such as loud snoring with pauses, unrefreshing sleep, or severe daytime sleepiness deserve evaluation by a professional rather than reliance on an app.</p><p>Used lightly, these devices are a reasonable way to build awareness of routines and consistency. Used compulsively, they can add stress. Let the data inform gentle experiments, and give more weight to how rested you feel than to any generated number.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Validation of consumer sleep-tracking devices",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=consumer+sleep+wearable+validation+polysomnography"
+      },
+      {
+        "title": "Sleep tracking accuracy and limitations",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/sleep/"
+      },
+      {
+        "title": "Wearable sleep sensors and research use",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/sleep.htm"
+      }
+    ]
+  },
+  {
+    "title": "Continuous Glucose Monitors for People Without Diabetes",
+    "slug": "continuous-glucose-monitors-non-diabetics",
+    "excerpt": "CGMs have jumped from diabetes care to the biohacking mainstream. A neutral look at what a non-diabetic can learn, and the limits of interpreting normal fluctuations.",
+    "takeaways": [
+      "Glucose naturally rises and falls throughout the day, and spikes after meals are normal in people without diabetes.",
+      "CGMs can reveal individual responses to specific foods, activity, and stress.",
+      "There is limited evidence that CGM use improves health outcomes in metabolically healthy people.",
+      "Over-interpreting normal variation can drive unnecessary food anxiety."
+    ],
+    "body_html": "<p>Continuous glucose monitors, or CGMs, use a small sensor worn on the arm to estimate blood sugar in near real time. Developed to help people with diabetes manage their condition, they are increasingly marketed to healthy individuals curious about how meals, sleep, and stress affect their metabolism. The data can be genuinely interesting, but interpreting it well requires context that many marketing messages leave out.</p><h2>What the data can and cannot tell you</h2><p>In people without diabetes, blood glucose fluctuates throughout the day and rises after eating, especially after carbohydrate-rich meals. <strong>These post-meal rises are normal</strong> and do not by themselves indicate a problem. A CGM can show you how your own body responds to a particular food, to a walk after dinner, or to a poor night's sleep, and those personal patterns are the most defensible use of the device.</p><p>What the data cannot reliably do is diagnose disease or prove that flattening every curve makes a healthy person healthier. Sensors also carry measurement error and lag behind actual blood values, so small differences between readings may not be meaningful.</p><h2>Reasonable ways to experiment</h2><ul><li>Compare your response to two similar meals to see personal patterns.</li><li>Observe how a short walk after eating changes the curve.</li><li>Note how sleep loss or stress shows up, if at all.</li><li>Look at overall trends rather than reacting to every reading.</li></ul><blockquote>The most useful question is not \"how do I eliminate every spike\" but \"what habits leave me feeling steady and energetic over time.\"</blockquote><h2>Caution and perspective</h2><p>Evidence that CGM use improves long-term health in metabolically healthy people is currently limited. Meanwhile, watching glucose data closely can push some users toward restrictive eating or anxiety about ordinary foods like fruit. If you have symptoms such as excessive thirst, unexplained weight change, or a family history of diabetes, a clinician-ordered blood test is the appropriate path, not a consumer sensor. Treat a CGM as a curiosity tool for self-observation, and keep expectations grounded.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Continuous glucose monitoring in non-diabetic individuals",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=continuous+glucose+monitoring+non-diabetic"
+      },
+      {
+        "title": "Blood sugar and glycemic response overview",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/blood-glucose/"
+      },
+      {
+        "title": "Glucose monitoring technology research",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/blood_sugar.htm"
+      }
+    ]
+  },
+  {
+    "title": "Nootropic Stacks: Separating Evidence From Hype",
+    "slug": "nootropic-stacks-evidence-review",
+    "excerpt": "\"Stacks\" of cognitive-enhancement supplements promise sharper focus and memory. We review what the research supports, what is uncertain, and why caution matters.",
+    "takeaways": [
+      "Caffeine paired with L-theanine is among the better-studied combinations for focus and calm alertness.",
+      "Many popular nootropic ingredients have thin or inconsistent human evidence.",
+      "Supplement quality and dosing vary widely, and interactions with medications are a real concern.",
+      "Sleep, exercise, and stress management influence cognition more reliably than most stacks."
+    ],
+    "body_html": "<p>A nootropic \"stack\" is a combination of supplements taken together in hopes of improving focus, memory, or mental energy. The category ranges from familiar compounds like caffeine to obscure ingredients with little human data. Because these products are sold as supplements rather than medicines, the burden of proof placed on them is low, so a skeptical, measurement-minded approach is warranted.</p><h2>What has reasonable support</h2><p>The best-studied combination is probably caffeine with L-theanine. Caffeine is a well-established stimulant, and L-theanine, found in tea, may take the edge off jitteriness while supporting a state some describe as calm alertness. <strong>The effects are modest and short-lived.</strong> A few other ingredients, such as certain adaptogens or creatine for cognitive performance under stress, have emerging but mixed evidence.</p><h2>What is uncertain or overstated</h2><ul><li>Many \"brain\" ingredients rely on small studies, animal data, or marketing rather than robust trials.</li><li>Effects that appear in one population may not generalize to healthy adults.</li><li>Blends often hide individual ingredient amounts as \"proprietary,\" making dosing opaque.</li><li>Placebo effects on subjective focus are strong, which makes self-assessment unreliable.</li></ul><blockquote>If a product claims dramatic, universal cognitive gains, that is a reason for more skepticism, not less.</blockquote><h2>Safety and a sensible baseline</h2><p>Supplements can interact with prescription medications and with each other, and quality control varies between manufacturers. Combining multiple active compounds increases the chance of unwanted effects, and \"natural\" does not mean risk-free. Anyone taking medication, pregnant, or managing a health condition should consult a clinician before experimenting.</p><p>It is also worth remembering that the most reliable cognitive supports are unglamorous: adequate sleep, regular physical activity, managing stress, and staying hydrated. These have far stronger and more consistent evidence than any stack. If you do experiment, change one variable at a time, keep expectations realistic, and treat subjective improvements with healthy doubt.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Caffeine and L-theanine cognitive effects",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=caffeine+l-theanine+cognition"
+      },
+      {
+        "title": "Nootropics and cognitive supplements evidence",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/nootropics/"
+      },
+      {
+        "title": "Cognitive enhancement research overview",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/cognition.htm"
+      }
+    ]
+  },
+  {
+    "title": "Blue-Light Blocking: Glasses, Screens, and What Sleep Science Says",
+    "slug": "blue-light-blocking-sleep-science",
+    "excerpt": "Blue-light glasses and night modes are everywhere. We separate the reasonably supported claims about evening light and sleep from the marketing overreach.",
+    "takeaways": [
+      "Light in the evening, especially bright and blue-enriched light, can suppress melatonin and delay sleep timing.",
+      "Reducing overall evening light exposure is better supported than any single product.",
+      "Evidence that blue-blocking glasses cure eye strain is weak.",
+      "Behavioral changes like dimming lights matter more than the color of your lenses."
+    ],
+    "body_html": "<p>Blue-light blocking has become a small industry, spanning tinted glasses, screen filters, and device \"night modes.\" The rationale draws on real science: specialized cells in the eye are especially sensitive to blue-enriched light and help set the body's internal clock. But the leap from that biology to specific product claims is often larger than the evidence supports.</p><h2>The part that is well grounded</h2><p>Light exposure in the evening, particularly bright light rich in shorter blue wavelengths, can suppress the sleep hormone melatonin and push the circadian clock later. This is why sleep researchers generally advise <strong>dimming lights and reducing screen brightness in the hours before bed</strong>. The strongest lever is total evening light: how bright your environment is, and how close and large your screens are.</p><h2>Where claims outrun the data</h2><ul><li>Studies on blue-blocking glasses for sleep show mixed results, with some benefit in certain settings and little in others.</li><li>Claims that blue light from screens damages the eyes or that glasses relieve digital eye strain are weakly supported; eye strain is more about blinking less and focusing effort.</li><li>Amber-tinted glasses that block a lot of blue light tend to show more effect than lightly tinted \"computer glasses.\"</li></ul><blockquote>If a strategy only works when you also dim the room and stop late-night scrolling, the lighting behavior may be doing most of the work.</blockquote><h2>A practical, low-cost approach</h2><p>Rather than relying on a single gadget, consider layering simple habits: lower ambient lighting in the evening, reduce screen brightness, keep bright overhead lights off close to bedtime, and give yourself a wind-down period away from stimulating content. Warm-toned bulbs and device night modes are inexpensive and reasonable additions. If you enjoy blue-blocking glasses and they help you build an evening routine, there is little downside, but keep expectations proportional to the evidence. Persistent insomnia is worth discussing with a professional rather than solving with eyewear alone.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Evening light, melatonin, and circadian timing",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=blue+light+melatonin+sleep"
+      },
+      {
+        "title": "Light exposure and sleep evidence",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/sleep/"
+      },
+      {
+        "title": "Blue light and circadian rhythm research",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/circadian_rhythm.htm"
+      }
+    ]
+  },
+  {
+    "title": "NSDR and Yoga Nidra: Structured Rest as a Recovery Tool",
+    "slug": "nsdr-yoga-nidra-structured-rest",
+    "excerpt": "Non-sleep deep rest and yoga nidra promise restoration without sleeping. We examine the roots, the plausible mechanisms, and how to gauge whether it helps you.",
+    "takeaways": [
+      "NSDR is a modern umbrella term for guided relaxation practices, including yoga nidra.",
+      "These practices reliably induce a calm, low-arousal state, though deep physiological claims are less proven.",
+      "Short sessions may help some people feel refreshed or fall asleep more easily.",
+      "It is a complement to, not a replacement for, adequate sleep."
+    ],
+    "body_html": "<p>Non-sleep deep rest, often abbreviated NSDR, is a modern term popularized to describe guided practices that put the body into a deeply relaxed, wakeful state. It overlaps heavily with yoga nidra, a much older guided meditation tradition. The appeal is intuitive: a short, structured period of rest that leaves you feeling restored without requiring actual sleep.</p><h2>What these practices involve</h2><p>A typical session is a recorded or spoken guidance that walks you through slow breathing, a body scan, and progressive relaxation while you lie still. The goal is to lower physiological arousal and quiet mental chatter. <strong>Most people can reach a noticeably calmer state within ten to twenty minutes</strong>, and some drift toward the edge of sleep without fully falling asleep.</p><h2>Plausible benefits and honest limits</h2><ul><li>Guided relaxation and meditation have reasonable evidence for reducing acute stress and self-reported tension.</li><li>Some people use NSDR to unwind midday or to fall asleep more easily at night.</li><li>Claims about dramatic dopamine restoration or replacing lost sleep are not well established.</li><li>Benefits are partly subjective, so your own experience is the most relevant measure.</li></ul><blockquote>Think of NSDR as a reliable way to downshift your nervous system, not as a scientifically proven substitute for the recovery that real sleep provides.</blockquote><h2>How to try it and what to track</h2><p>The barrier to entry is low: a quiet space, something to lie on, and a guided track. You might note your perceived stress or alertness before and after, and whether short sessions help you sleep or focus over a few weeks. Because there is essentially no physical risk for healthy people, it is a low-stakes experiment.</p><p>That said, structured rest does not replace consistent, sufficient sleep. If you are chronically exhausted, relying on daytime relaxation instead of addressing sleep quantity or a possible sleep disorder can mask a real problem. Used alongside good sleep habits, NSDR is a gentle, accessible tool for managing stress and building a calming routine.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Yoga nidra and guided relaxation studies",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=yoga+nidra+relaxation"
+      },
+      {
+        "title": "Meditation and stress reduction evidence",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/meditation/"
+      },
+      {
+        "title": "Relaxation response and the nervous system",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/relaxation.htm"
+      }
+    ]
+  },
+  {
+    "title": "Hyperbaric Oxygen Therapy Outside the Clinic: A Cautious Look",
+    "slug": "hyperbaric-oxygen-therapy-cautious-look",
+    "excerpt": "HBOT has established medical uses, but wellness marketing stretches far beyond them. We review the approved indications, the unproven claims, and the safety considerations.",
+    "takeaways": [
+      "HBOT has well-established medical uses for specific conditions under clinical supervision.",
+      "Wellness claims about anti-aging and general vitality remain largely unproven.",
+      "Pressurized oxygen environments carry real risks, including ear injury and fire hazard.",
+      "Any use should involve qualified medical oversight, not self-administration."
+    ],
+    "body_html": "<p>Hyperbaric oxygen therapy, or HBOT, involves breathing oxygen at higher-than-normal atmospheric pressure inside a sealed chamber. In legitimate medical settings it treats conditions such as certain non-healing wounds, carbon monoxide poisoning, and decompression sickness. Its migration into wellness spaces, promoted for anti-aging, energy, and recovery, is where the evidence becomes much thinner and the need for caution grows.</p><h2>Established versus speculative uses</h2><p>For its approved indications, HBOT is supported by clinical evidence and delivered under medical supervision with carefully controlled pressure and duration. <strong>The wellness applications are a different matter.</strong> Claims that regular sessions reverse aging, dramatically boost cognition, or enhance general vitality in healthy people rest largely on small studies, preliminary findings, or extrapolation. Some early research is intriguing, but it is far from settled science, and results from patients with specific conditions do not necessarily apply to healthy individuals.</p><h2>Safety is not a footnote</h2><ul><li><em>Ear and sinus barotrauma</em> can occur as pressure changes.</li><li><em>Oxygen-rich environments</em> raise fire risk, which is why strict protocols exist.</li><li><em>Certain lung conditions</em> and other medical situations can make HBOT unsafe.</li><li>Vision changes and, rarely, oxygen toxicity are documented effects.</li></ul><blockquote>The pressurized environment that makes HBOT medically useful is the same thing that makes casual, unsupervised use inadvisable.</blockquote><h2>Approaching claims responsibly</h2><p>If you encounter marketing for HBOT as a general enhancement tool, treat the strongest claims with corresponding skepticism, and look for whether they cite robust human trials or merely mechanisms and testimonials. This is not a practice to improvise. Any consideration of HBOT should involve a qualified clinician who can weigh your individual health status, contraindications, and whether there is a credible reason to use it at all. For most healthy people pursuing general wellness, the evidence does not currently justify the cost or the risks.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Hyperbaric oxygen therapy clinical evidence",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=hyperbaric+oxygen+therapy"
+      },
+      {
+        "title": "Oxygen therapy uses and limitations",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/oxygen/"
+      },
+      {
+        "title": "Hyperbaric medicine research",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/hyperbaric_medicine.htm"
+      }
+    ]
+  },
+  {
+    "title": "Fasting-Mimicking Protocols: What They Are and What We Know",
+    "slug": "fasting-mimicking-protocols-overview",
+    "excerpt": "Fasting-mimicking approaches aim to capture some benefits of fasting while still eating. We review the concept, the current evidence, and important safety caveats.",
+    "takeaways": [
+      "Fasting-mimicking protocols use low-calorie, specifically composed intake to imitate a fasting state.",
+      "Much of the promising data comes from animal studies and early human trials.",
+      "Effects on weight and some metabolic markers appear in some studies, but long-term outcomes are less clear.",
+      "Fasting-style protocols are not appropriate for everyone and can be risky without guidance."
+    ],
+    "body_html": "<p>Fasting-mimicking protocols are structured eating plans designed to reproduce some of the biological signals of fasting while still allowing limited food intake. The idea, developed from research on caloric restriction and cellular stress responses, is that a carefully composed low-calorie period might trigger beneficial processes such as cellular cleanup, without the difficulty of a full water fast.</p><h2>The underlying concept</h2><p>During prolonged fasting, the body shifts its fuel sources and activates maintenance pathways. Fasting-mimicking approaches attempt to nudge similar signals through specific macronutrient composition and reduced calories over a defined window. <strong>The intent is to preserve some fasting-like effects while reducing the burden and risk of not eating at all.</strong> This is a genuine area of scientific interest, particularly in aging and metabolic research.</p><h2>What the evidence supports</h2><ul><li>Much of the foundational work comes from animal models, which do not always translate to humans.</li><li>Some early human trials report changes in body weight and certain metabolic markers.</li><li>Evidence on long-term health outcomes and durability of benefits is still limited.</li><li>Individual responses vary, and short-term marker changes are not the same as proven health gains.</li></ul><blockquote>Promising mechanisms and early results are a reason for interest, not a guarantee of benefit. This is a field still building its human evidence base.</blockquote><h2>Safety and who should be cautious</h2><p>Reducing calories substantially is not safe for everyone. People who are pregnant or breastfeeding, those with a history of disordered eating, individuals with diabetes or who take blood-sugar or blood-pressure medication, older adults at risk of muscle loss, and anyone underweight should avoid such protocols or attempt them only under medical supervision. Side effects can include fatigue, dizziness, and irritability. If you are curious, the responsible path is a conversation with a qualified clinician who knows your health history, rather than following an internet protocol. Measurement, moderation, and professional input matter more here than novelty.</p><p><em>For research and educational purposes only. This is not medical advice.</em></p>",
+    "sources": [
+      {
+        "title": "Fasting-mimicking diet human and animal studies",
+        "source": "PubMed",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/?term=fasting+mimicking+diet"
+      },
+      {
+        "title": "Intermittent fasting and caloric restriction evidence",
+        "source": "Examine.com",
+        "url": "https://examine.com/topics/intermittent-fasting/"
+      },
+      {
+        "title": "Caloric restriction and metabolism research",
+        "source": "ScienceDaily",
+        "url": "https://www.sciencedaily.com/terms/caloric_restriction.htm"
+      }
+    ]
+  }
+]

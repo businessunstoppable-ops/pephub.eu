@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        :root { --gold:#FF9000; --ph-orange:#FF9000; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; --text-muted:#999; }
+        :root { --gold:#D4AF37; --ph-orange:#D4AF37; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; --text-muted:#999; }
         body { background: var(--ph-black); font-family:'Inter','Segoe UI',system-ui,sans-serif; color:#F5F5F5; line-height:1.6; }
         .navbar { background:#000 !important; border-bottom:1px solid var(--ph-border); padding:.85rem 0; }
         .navbar-brand { font-weight:800; color:#fff !important; font-size:1.55rem; letter-spacing:-.5px; text-decoration:none; }
@@ -30,8 +30,8 @@
         .deal-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
         @media (max-width:800px){ .deal-cards { grid-template-columns:1fr; } }
         .deal-card { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; padding:1.6rem; position:relative; overflow:hidden; cursor:pointer; transition:all .18s; }
-        .deal-card:hover { border-color:rgba(255,144,0,.55); transform:translateY(-3px); }
-        .deal-card.selected { border-color:var(--ph-orange); box-shadow:0 0 0 1px var(--ph-orange) inset, 0 14px 36px -16px rgba(255,144,0,.35); }
+        .deal-card:hover { border-color:rgba(212, 175, 55,.55); transform:translateY(-3px); }
+        .deal-card.selected { border-color:var(--ph-orange); box-shadow:0 0 0 1px var(--ph-orange) inset, 0 14px 36px -16px rgba(212, 175, 55,.35); }
         .deal-card.selected::before { content:'✓ Selected'; position:absolute; top:0; left:0; background:var(--ph-orange); color:#000; font-size:.66rem; font-weight:800; letter-spacing:.05em; padding:.18rem .7rem; border-radius:0 0 8px 0; }
         .deal-card .badge-save { position:absolute; top:1.1rem; right:1.1rem; background:var(--ph-orange); color:#000; font-weight:800; font-size:.72rem; border-radius:30px; padding:.2rem .7rem; }
         .deal-card .emoji { font-size:2rem; margin-top:.4rem; }
@@ -43,10 +43,10 @@
         table.deals { width:100%; border-collapse:collapse; }
         table.deals thead th { background:#1A1A1A; color:var(--text-muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; padding:.85rem 1rem; text-align:right; border-bottom:1px solid var(--ph-border); transition:color .15s,background .15s; }
         table.deals thead th:first-child { text-align:left; }
-        table.deals thead th.col-active { color:var(--ph-orange); background:rgba(255,144,0,.08); }
+        table.deals thead th.col-active { color:var(--ph-orange); background:rgba(212, 175, 55,.08); }
         table.deals tbody td { padding:.9rem 1rem; border-bottom:1px solid var(--ph-border); text-align:right; vertical-align:middle; }
         table.deals tbody td:first-child { text-align:left; }
-        table.deals tbody td.col-active { background:rgba(255,144,0,.06); }
+        table.deals tbody td.col-active { background:rgba(212, 175, 55,.06); }
         table.deals tbody tr:last-child td { border-bottom:none; }
         .pname { font-weight:700; color:#fff; }
         .pname a { color:#fff; text-decoration:none; }

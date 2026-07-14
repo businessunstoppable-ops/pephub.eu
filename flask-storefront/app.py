@@ -105,8 +105,8 @@ _COOKIE_BANNER = (
     'align-items:center;flex-wrap:wrap;">'
     '<div style="flex:1;min-width:240px;line-height:1.5;">We use only <strong>essential cookies</strong> needed '
     'to run the store (your cart, login and security). We do not use tracking or advertising cookies. '
-    'See our <a href="/legal/cookies" style="color:#FF9000;">Cookie Policy</a>.</div>'
-    '<button onclick="phCookieOk()" style="background:#FF9000;color:#000;border:0;border-radius:8px;'
+    'See our <a href="/legal/cookies" style="color:#D4AF37;">Cookie Policy</a>.</div>'
+    '<button onclick="phCookieOk()" style="background:#D4AF37;color:#000;border:0;border-radius:8px;'
     'padding:.55rem 1.2rem;font-weight:800;cursor:pointer;white-space:nowrap;">Got it</button></div>'
     '<script>function phCookieOk(){document.cookie="ph_consent=1;path=/;max-age=31536000;samesite=Lax";'
     'var b=document.getElementById("ph-cookie");if(b)b.remove();}</script>')
@@ -117,13 +117,13 @@ _REVIEW_TOAST = """
 <div id="ph-review-toast" aria-live="polite"></div>
 <style>
 #ph-review-toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-160%);z-index:12500;
- background:#FF9000;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:340px;width:calc(100% - 2rem);
+ background:#D4AF37;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:340px;width:calc(100% - 2rem);
  box-shadow:0 12px 34px rgba(0,0,0,.45);font-family:'Inter',system-ui,sans-serif;opacity:0;
  transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;pointer-events:none;}
 #ph-review-toast.on{transform:translate(-50%,0);opacity:1;}
 #ph-review-toast .rt-top{display:flex;align-items:center;gap:.45rem;font-weight:900;}
 #ph-review-toast .rt-stars{letter-spacing:1px;color:#3a2600;font-size:.82rem;}
-#ph-review-toast .rt-score{background:#111;color:#FF9000;border-radius:20px;padding:.03rem .45rem;font-size:.7rem;font-weight:900;}
+#ph-review-toast .rt-score{background:#111;color:#D4AF37;border-radius:20px;padding:.03rem .45rem;font-size:.7rem;font-weight:900;}
 #ph-review-toast .rt-text{font-size:.82rem;font-weight:600;line-height:1.3;margin:.25rem 0 .18rem;}
 #ph-review-toast .rt-by{font-size:.7rem;font-weight:800;opacity:.72;}
 </style>
@@ -194,7 +194,7 @@ _MOBILE_NAV = """
 </nav>
 <style>
 #ph-mnav-btn{display:none;position:fixed;top:10px;right:12px;z-index:12800;width:44px;height:44px;
- align-items:center;justify-content:center;border:none;border-radius:10px;background:#FF9000;color:#111;
+ align-items:center;justify-content:center;border:none;border-radius:10px;background:#D4AF37;color:#111;
  font-size:1.35rem;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);}
 #ph-mnav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:12900;opacity:0;visibility:hidden;transition:opacity .28s;}
 #ph-mnav-overlay.on{opacity:1;visibility:visible;}
@@ -206,12 +206,12 @@ _MOBILE_NAV = """
 #ph-mnav a{color:#ededed;text-decoration:none;font-weight:700;font-size:1rem;padding:.95rem 1.4rem;
  border-bottom:1px solid #1c1c1c;transition:background .15s;}
 #ph-mnav a:active{background:#1a1a1a;}
-#ph-mnav a.ph-mnav-active{color:#FF9000;border-left:3px solid #FF9000;padding-left:calc(1.4rem - 3px);}
-#ph-mnav a.ph-mnav-cart{color:#FF9000;margin-top:.4rem;}
+#ph-mnav a.ph-mnav-active{color:#D4AF37;border-left:3px solid #D4AF37;padding-left:calc(1.4rem - 3px);}
+#ph-mnav a.ph-mnav-cart{color:#D4AF37;margin-top:.4rem;}
 .ph-mnav-head{display:flex;align-items:center;justify-content:space-between;padding:.3rem 1.2rem 1rem;
  border-bottom:1px solid #2d2d2d;margin-bottom:.35rem;}
 .ph-mnav-head span{font-weight:800;color:#fff;font-size:1.05rem;}
-.ph-mnav-head b{color:#FF9000;}
+.ph-mnav-head b{color:#D4AF37;}
 #ph-mnav-close{background:none;border:none;color:#aaa;font-size:1.2rem;cursor:pointer;line-height:1;}
 @media (max-width:991px){
   #ph-mnav-btn{display:flex;}
@@ -271,14 +271,14 @@ _INTRO_MODAL = """
 #ph-intro-modal p{color:#c4c4c4;font-size:.9rem;line-height:1.7;margin:0 0 .9rem;}
 #ph-intro-modal .pim-list{list-style:none;padding:0;margin:1.1rem 0 1.4rem;}
 #ph-intro-modal .pim-list li{color:#e8e8e8;font-size:.86rem;font-weight:600;display:flex;align-items:center;gap:.6rem;padding:.38rem 0;}
-#ph-intro-modal .pim-list i{color:#FF9000;font-size:1.05rem;flex-shrink:0;}
-#ph-intro-modal .pim-safety{background:rgba(255,144,0,.1);border:1px solid rgba(255,144,0,.4);border-radius:10px;
+#ph-intro-modal .pim-list i{color:#D4AF37;font-size:1.05rem;flex-shrink:0;}
+#ph-intro-modal .pim-safety{background:rgba(212, 175, 55,.1);border:1px solid rgba(212, 175, 55,.4);border-radius:10px;
  padding:.7rem .85rem;font-size:.78rem;line-height:1.55;color:#f0d9b8;margin-bottom:1rem;}
-#ph-intro-modal .pim-safety i{color:#FF9000;margin-right:.25rem;}
+#ph-intro-modal .pim-safety i{color:#D4AF37;margin-right:.25rem;}
 #ph-intro-modal .pim-safety strong{color:#fff;}
-#ph-intro-modal .pim-cta{width:100%;background:#FF9000;color:#111;border:0;border-radius:10px;padding:.8rem 1rem;
+#ph-intro-modal .pim-cta{width:100%;background:#D4AF37;color:#111;border:0;border-radius:10px;padding:.8rem 1rem;
  font-weight:900;font-size:.95rem;cursor:pointer;}
-#ph-intro-modal .pim-cta:hover{background:#ffa62e;}
+#ph-intro-modal .pim-cta:hover{background:#E4C15C;}
 #ph-intro-modal .pim-x{position:absolute;top:.75rem;right:1rem;background:none;border:0;color:#999;font-size:1.2rem;cursor:pointer;line-height:1;}
 </style>
 <script>
@@ -297,25 +297,30 @@ function phIntroClose(){var m=document.getElementById('ph-intro-modal');if(m)m.c
 # on the site (native <details>, the category accordions, and the Deep Dives).
 # Injected globally so all templates share one consistent style.
 _ACC_CSS = ('<style id="ph-acc-css">'
- '.acc-toggle{width:26px;height:26px;min-width:26px;border-radius:50%;border:1.6px solid #FF9000;color:#FF9000;'
+ '.acc-toggle{width:26px;height:26px;min-width:26px;border-radius:50%;border:1.6px solid #D4AF37;color:#D4AF37;'
  'display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;line-height:1;'
  'margin-left:auto;flex-shrink:0;box-sizing:border-box;transition:background .18s,color .18s;}'
  '.acc-toggle::before{content:"+";display:block;margin-top:-2px;}'
- '.acc-toggle.is-open,[open]>summary .acc-toggle,.category-item.open .acc-toggle{background:#FF9000;color:#000;}'
+ '.acc-toggle.is-open,[open]>summary .acc-toggle,.category-item.open .acc-toggle{background:#D4AF37;color:#000;}'
  '.acc-toggle.is-open::before,[open]>summary .acc-toggle::before,.category-item.open .acc-toggle::before{content:"\\2212";}'
  'summary.acc-summary{list-style:none;cursor:pointer;}summary.acc-summary::-webkit-details-marker{display:none;}'
- '.acc-toggle:hover{background:#FF9000;color:#000;}'
+ '.acc-toggle:hover{background:#D4AF37;color:#000;}'
  '</style>')
 
 # Brand logo — render "Hub" as dark text inside a rounded orange gradient pill,
 # matching the PepHub wordmark. Injected globally so every navbar variant
 # (.brand-hub / .h / .hub-tag) gets the same look regardless of template CSS.
 _LOGO_CSS = ('<style id="ph-logo-css">'
+ # Whole "PepHub" wordmark as black text on a metallic gold pill.
+ '.navbar-brand{'
+ 'background:linear-gradient(135deg,#F6EBBE 0%,#E7C965 40%,#D4AF37 68%,#A9822F 100%)!important;'
+ 'color:#111!important;border-radius:999px!important;padding:0.12em 0.7em 0.16em!important;'
+ 'font-weight:900!important;letter-spacing:-0.02em!important;text-decoration:none!important;'
+ 'box-shadow:0 3px 14px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.45)!important;}'
+ # Neutralise the old split "Hub" badge so the whole word reads as one wordmark.
  '.navbar-brand .brand-hub,.navbar-brand .h,.navbar-brand .hub-tag{'
- 'background:linear-gradient(180deg,#FDB44E 0%,#FF9412 52%,#E67A00 100%)!important;'
- 'color:#1a1a1a!important;border-radius:999px!important;padding:0.04em 0.42em 0.08em!important;'
- 'margin-left:4px!important;font-weight:900!important;letter-spacing:-0.01em!important;'
- 'box-shadow:0 2px 10px rgba(255,144,0,.35)!important;}'
+ 'background:none!important;color:#111!important;border-radius:0!important;padding:0!important;'
+ 'margin:0!important;box-shadow:none!important;}'
  '</style>')
 
 
@@ -584,13 +589,57 @@ def _seed_science_batch():
             db.session.rollback()
             _log.exception('science seed: commit failed')
 
+# ----------------------------------------------------------------------
+# Weekly-drip backlog — science_queue/*.json loaded as hidden QUEUED drafts.
+# The weekly scheduler promotes one per category to PUBLISHED each week
+# (AI-first, this backlog as fallback). Idempotent on startup.
+# ----------------------------------------------------------------------
+_SCIENCE_QUEUE_DIR = os.path.join(basedir, 'science_queue')
+
+def _load_science_queue():
+    """Load science_queue/*.json into the DB as hidden QUEUED drafts (idempotent)."""
+    if os.environ.get('DISABLE_AUTOSEED') or not os.path.isdir(_SCIENCE_QUEUE_DIR):
+        return
+    _log = logging.getLogger('pephub.sciencehub')
+    added = 0
+    for fname, topic in _SCIENCE_SEED_TOPICS.items():
+        path = os.path.join(_SCIENCE_QUEUE_DIR, fname + '.json')
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding='utf-8') as fh:
+                articles = json.load(fh)
+        except Exception:
+            _log.exception('science queue: could not read %s', path)
+            continue
+        for a in articles:
+            slug = (a.get('slug') or '').strip().lower()
+            if not slug or Article.query.filter_by(slug=slug).first():
+                continue
+            db.session.add(Article(
+                slug=slug, title=a['title'][:240], topic=topic,
+                excerpt=a.get('excerpt', ''), body_html=(a.get('body_html') or '').strip(),
+                takeaways_json=json.dumps(a.get('takeaways', [])),
+                sources_json=json.dumps(a.get('sources', [])),
+                status='QUEUED',
+            ))
+            added += 1
+    if added:
+        try:
+            db.session.commit()
+            _log.info('science queue: loaded %d queued article(s)', added)
+        except Exception:
+            db.session.rollback()
+            _log.exception('science queue: commit failed')
+
 with app.app_context():
     db.create_all()
     _ensure_columns()
-    try:
-        _seed_science_batch()
-    except Exception:
-        logging.getLogger('pephub.sciencehub').exception('science seed: startup error')
+    for _fn in (_seed_science_batch, _load_science_queue):
+        try:
+            _fn()
+        except Exception:
+            logging.getLogger('pephub.sciencehub').exception('science startup: %s error', _fn.__name__)
 
 # ----------------------------------------------------------------------
 # Peptide data for calculator & knowledge (unchanged)
@@ -1557,7 +1606,7 @@ CART_HTML = """
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        :root { --ph-orange:#FF9000; --ph-orange-dark:#E07800; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; }
+        :root { --ph-orange:#D4AF37; --ph-orange-dark:#A9822F; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; }
         body { background: var(--ph-black); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color:#F5F5F5; }
         .navbar { background: #000 !important; border-bottom: 1px solid var(--ph-border); padding: 0.85rem 0; }
         .navbar-brand { font-weight: 800; color: #fff !important; font-size: 1.55rem; letter-spacing:-0.5px; text-decoration: none; }
@@ -1588,13 +1637,13 @@ CART_HTML = """
         .footer-note { border-top: 1px solid var(--ph-border); font-size: 0.75rem; text-align: center; padding: 2rem 0; margin-top: 3rem; color: #999; background:#0D0D0D; }
         #page-loader { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.45s ease; }
         #page-loader > div { font-size:2.5rem; font-weight:900; letter-spacing:-1px; color:#fff; }
-        #page-loader .hub-tag { background:#FF9000; color:#000; border-radius:6px; padding:0 0.2em; margin-left:3px; }
+        #page-loader .hub-tag { background:#D4AF37; color:#000; border-radius:6px; padding:0 0.2em; margin-left:3px; }
         /* Marquee */
-        .ph-marquee { background:#FF9000; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; position:relative; }
+        .ph-marquee { background:#D4AF37; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; position:relative; }
         .ph-marquee-track { display:flex; gap:2.25rem; width:max-content; animation:marqueeScroll 55s linear infinite; }
         .ph-marquee:hover .ph-marquee-track { animation-play-state: paused; }
         .ph-promo { white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; }
-        .ph-promo code { background:#000; color:#FF9000; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; margin-left:0.2rem; }
+        .ph-promo code { background:#000; color:#D4AF37; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; margin-left:0.2rem; }
         .ph-divider { color:rgba(0,0,0,0.35); font-weight:900; }
         @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         /* Promo + totals */
@@ -1604,10 +1653,10 @@ CART_HTML = """
         .summary-card h5 { font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:1rem; letter-spacing:0.02em; }
         .promo-input-wrap { display:flex; gap:0.5rem; margin-bottom:0.5rem; }
         .promo-input { flex:1; background:#0F0F0F; border:1px solid var(--ph-border); border-radius:6px; padding:0.55rem 0.8rem; color:#fff; font-family:'Courier New',monospace; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; font-size:0.85rem; }
-        .promo-input:focus { outline:none; border-color:var(--ph-orange); box-shadow:0 0 0 2px rgba(255,144,0,0.2); }
+        .promo-input:focus { outline:none; border-color:var(--ph-orange); box-shadow:0 0 0 2px rgba(212, 175, 55,0.2); }
         .btn-apply { background:var(--ph-orange); color:#000; border:none; border-radius:6px; padding:0.55rem 1rem; font-weight:800; font-size:0.8rem; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; }
         .btn-apply:hover { background:#fff; }
-        .promo-active { background:rgba(255,144,0,0.1); border:1px solid rgba(255,144,0,0.4); border-radius:6px; padding:0.55rem 0.8rem; font-size:0.78rem; color:var(--ph-orange); margin-bottom:0.85rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+        .promo-active { background:rgba(212, 175, 55,0.1); border:1px solid rgba(212, 175, 55,0.4); border-radius:6px; padding:0.55rem 0.8rem; font-size:0.78rem; color:var(--ph-orange); margin-bottom:0.85rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
         .promo-active a { color:#999; text-decoration:none; font-size:1.2rem; line-height:1; }
         .promo-active a:hover { color:#fff; }
         .promo-error { background:rgba(198,40,40,0.12); border:1px solid rgba(198,40,40,0.5); border-radius:6px; padding:0.5rem 0.75rem; font-size:0.78rem; color:#E57373; margin-bottom:0.85rem; }
@@ -1666,7 +1715,7 @@ CART_HTML = """
                 <tr>
                     <td>
                         <strong style="color:#fff;">{{ item.name }}</strong>
-                        {% if item.mode == 'sub' %}<span style="display:inline-block;background:rgba(255,144,0,0.15);border:1px solid rgba(255,144,0,0.4);color:var(--ph-orange);border-radius:5px;padding:0 0.4rem;font-size:0.62rem;font-weight:800;margin-left:0.35rem;vertical-align:middle;">🔁 MONTHLY</span>{% endif %}
+                        {% if item.mode == 'sub' %}<span style="display:inline-block;background:rgba(212, 175, 55,0.15);border:1px solid rgba(212, 175, 55,0.4);color:var(--ph-orange);border-radius:5px;padding:0 0.4rem;font-size:0.62rem;font-weight:800;margin-left:0.35rem;vertical-align:middle;">🔁 MONTHLY</span>{% endif %}
                         <br><span style="color:#888;font-size:0.75rem;">{{ item.variant_label }} · {{ item.sku }}{% if item.mode == 'sub' %} · billed monthly{% endif %}</span>
                     </td>
                     <td>
@@ -1721,7 +1770,7 @@ CART_HTML = """
             </div>
             {% endif %}
             {% if promo_note %}
-            <div class="promo-error" style="background:rgba(255,144,0,.12);border-color:rgba(255,144,0,.4);color:#ffce9e;">ℹ {{ promo_note }}</div>
+            <div class="promo-error" style="background:rgba(212, 175, 55,.12);border-color:rgba(212, 175, 55,.4);color:#ffce9e;">ℹ {{ promo_note }}</div>
             {% endif %}
             {% if session.promo_error %}
             <div class="promo-error">⚠ {{ session.promo_error }}</div>
@@ -1769,7 +1818,7 @@ CHECKOUT_HTML = """
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        :root { --ph-orange:#FF9000; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; }
+        :root { --ph-orange:#D4AF37; --ph-black:#141414; --ph-card:#242424; --ph-border:#2D2D2D; }
         body { background: var(--ph-black); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color:#F5F5F5; }
         .navbar { background: #000 !important; border-bottom: 1px solid var(--ph-border); padding: 0.85rem 0; }
         .navbar-brand { font-weight: 800; color: #fff !important; font-size: 1.55rem; letter-spacing:-0.5px; text-decoration: none; }
@@ -1784,12 +1833,12 @@ CHECKOUT_HTML = """
         .btn-back:hover { color: var(--ph-orange); }
         #page-loader { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.45s ease; }
         #page-loader > div { font-size:2.5rem; font-weight:900; letter-spacing:-1px; color:#fff; }
-        #page-loader .hub-tag { background:#FF9000; color:#000; border-radius:6px; padding:0 0.2em; margin-left:3px; }
-        .ph-marquee { background:#FF9000; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; position:relative; }
+        #page-loader .hub-tag { background:#D4AF37; color:#000; border-radius:6px; padding:0 0.2em; margin-left:3px; }
+        .ph-marquee { background:#D4AF37; color:#000; overflow:hidden; padding:0.55rem 0; border-bottom:2px solid #000; font-size:0.8rem; font-weight:700; position:relative; }
         .ph-marquee-track { display:flex; gap:2.25rem; width:max-content; animation:marqueeScroll 55s linear infinite; }
         .ph-marquee:hover .ph-marquee-track { animation-play-state: paused; }
         .ph-promo { white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; }
-        .ph-promo code { background:#000; color:#FF9000; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; margin-left:0.2rem; }
+        .ph-promo code { background:#000; color:#D4AF37; padding:0.05rem 0.4rem; border-radius:3px; font-family:'Courier New',monospace; font-size:0.78rem; font-weight:800; margin-left:0.2rem; }
         .ph-divider { color:rgba(0,0,0,0.35); font-weight:900; }
         @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .order-summary { background:#0F0F0F; border:1px solid var(--ph-border); border-radius:0.75rem; padding:1.25rem; margin-bottom:1.5rem; }
@@ -1799,7 +1848,7 @@ CHECKOUT_HTML = """
         .summary-row.grand span:last-child { color:var(--ph-orange); }
         .product-line { display:flex; justify-content:space-between; padding:0.35rem 0; font-size:0.82rem; color:#999; border-bottom:1px dashed var(--ph-border); }
         .product-line:last-child { border-bottom:none; margin-bottom:0.4rem; }
-        .promo-badge { display:inline-block; background:rgba(255,144,0,0.15); border:1px solid rgba(255,144,0,0.4); color:var(--ph-orange); border-radius:6px; padding:0.3rem 0.7rem; font-size:0.78rem; font-weight:700; margin-bottom:1rem; }
+        .promo-badge { display:inline-block; background:rgba(212, 175, 55,0.15); border:1px solid rgba(212, 175, 55,0.4); color:var(--ph-orange); border-radius:6px; padding:0.3rem 0.7rem; font-size:0.78rem; font-weight:700; margin-bottom:1rem; }
     </style>
 </head>
 <body>
@@ -1833,14 +1882,14 @@ CHECKOUT_HTML = """
     @media (max-width: 900px) { .checkout-grid { grid-template-columns: 1fr; } }
     .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap:0.85rem; }
     .form-grid .full { grid-column: 1 / -1; }
-    .form-grid label { display:block; font-size:0.7rem; font-weight:800; color:#FF9000; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.3rem; }
+    .form-grid label { display:block; font-size:0.7rem; font-weight:800; color:#D4AF37; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.3rem; }
     .form-grid input { width:100%; background:#0F0F0F; border:1px solid #2D2D2D; border-radius:6px; padding:0.6rem 0.85rem; color:#fff; font-size:0.9rem; }
-    .form-grid input:focus { outline:none; border-color:#FF9000; box-shadow:0 0 0 2px rgba(255,144,0,0.2); }
+    .form-grid input:focus { outline:none; border-color:#D4AF37; box-shadow:0 0 0 2px rgba(212, 175, 55,0.2); }
     .field-error { background:rgba(198,40,40,0.12); border:1px solid rgba(198,40,40,0.5); border-radius:6px; padding:0.55rem 0.8rem; font-size:0.82rem; color:#E57373; margin-bottom:1rem; }
     .vat-note { font-size:0.72rem; color:#888; padding:0.4rem 0; font-style:italic; }
     .trust-badges { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-top:1rem; }
     .trust-badge { background:#0F0F0F; border:1px solid var(--ph-border,#2D2D2D); border-radius:8px; padding:0.7rem 0.5rem; text-align:center; }
-    .trust-badge i { font-size:1.15rem; color:#FF9000; display:block; margin-bottom:0.3rem; }
+    .trust-badge i { font-size:1.15rem; color:#D4AF37; display:block; margin-bottom:0.3rem; }
     .trust-badge .tb-title { font-size:0.72rem; font-weight:800; color:#fff; letter-spacing:0.02em; }
     .trust-badge .tb-sub { font-size:0.62rem; color:#888; margin-top:0.15rem; line-height:1.3; }
     .trust-strip { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:0.85rem; padding:0.55rem 0.75rem; background:rgba(46,125,50,0.08); border:1px solid rgba(46,125,50,0.4); border-radius:8px; font-size:0.74rem; font-weight:700; color:#81C784; }
@@ -1888,8 +1937,8 @@ CHECKOUT_HTML = """
                 </div>
                 {% set has_sub = cart|selectattr('mode','equalto','sub')|list|length > 0 %}
                 {% if has_sub %}
-                <div style="margin-top:1rem;padding:0.85rem 1rem;background:rgba(255,144,0,0.08);border:1px solid rgba(255,144,0,0.4);border-radius:8px;font-size:0.82rem;color:#e0c9a0;line-height:1.55;">
-                    <strong style="color:#FF9000;">🔁 Subscription terms:</strong> Your subscription renews monthly and has a <strong>3-month minimum term</strong>. You can cancel anytime from your account after the minimum term; the first three deliveries are committed.
+                <div style="margin-top:1rem;padding:0.85rem 1rem;background:rgba(212, 175, 55,0.08);border:1px solid rgba(212, 175, 55,0.4);border-radius:8px;font-size:0.82rem;color:#e0c9a0;line-height:1.55;">
+                    <strong style="color:#D4AF37;">🔁 Subscription terms:</strong> Your subscription renews monthly and has a <strong>3-month minimum term</strong>. You can cancel anytime from your account after the minimum term; the first three deliveries are committed.
                     <label style="display:flex;gap:0.5rem;align-items:flex-start;margin-top:0.6rem;font-size:0.8rem;color:#ccc;cursor:pointer;">
                         <input type="checkbox" name="agree_sub_terms" required style="margin-top:0.2rem;">
                         <span>I understand this subscription has a 3-month minimum commitment.</span>
@@ -1929,7 +1978,7 @@ CHECKOUT_HTML = """
                 <div class="promo-badge">✓ {{ promo_code }} — {{ promo_desc }}</div>
                 {% endif %}
                 {% if promo_note %}
-                <div style="font-size:.72rem;color:#ffce9e;background:rgba(255,144,0,.12);border:1px solid rgba(255,144,0,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.6rem;">ℹ {{ promo_note }}</div>
+                <div style="font-size:.72rem;color:#ffce9e;background:rgba(212, 175, 55,.12);border:1px solid rgba(212, 175, 55,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.6rem;">ℹ {{ promo_note }}</div>
                 {% endif %}
                 {% for item in cart %}
                 <div class="product-line">
@@ -1967,24 +2016,24 @@ SUCCESS_HTML = """
         body { background:#141414; color:#F5F5F5; font-family:'Inter','Segoe UI',system-ui,sans-serif; margin:0; }
         .navbar { background:#000; border-bottom:1px solid #2D2D2D; padding:0.85rem 0; }
         .navbar-brand { font-weight:800; color:#fff; font-size:1.55rem; letter-spacing:-0.5px; text-decoration:none; }
-        .navbar-brand .brand-hub { background:#FF9000; color:#000; border-radius:6px; padding:0.05em 0.3em; margin-left:2px; font-weight:900; }
+        .navbar-brand .brand-hub { background:#D4AF37; color:#000; border-radius:6px; padding:0.05em 0.3em; margin-left:2px; font-weight:900; }
         .success-card { background:#242424; border:1px solid #2D2D2D; border-radius:1rem; padding:2rem; color:#E0E0E0; max-width:720px; margin:2rem auto; }
-        .success-icon { font-size:3rem; text-align:center; color:#FF9000; margin-bottom:0.5rem; }
+        .success-icon { font-size:3rem; text-align:center; color:#D4AF37; margin-bottom:0.5rem; }
         h1 { color:#fff; font-weight:800; text-align:center; }
-        .ord-num { display:block; text-align:center; font-family:'Courier New',monospace; font-size:1.2rem; color:#FF9000; font-weight:800; margin:0.6rem 0 1.5rem; letter-spacing:0.05em; }
+        .ord-num { display:block; text-align:center; font-family:'Courier New',monospace; font-size:1.2rem; color:#D4AF37; font-weight:800; margin:0.6rem 0 1.5rem; letter-spacing:0.05em; }
         .ord-card { background:#0F0F0F; border:1px solid #2D2D2D; border-radius:0.7rem; padding:1.2rem; margin-bottom:1rem; }
-        .ord-card h6 { font-size:0.72rem; font-weight:800; color:#FF9000; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:0.7rem; }
+        .ord-card h6 { font-size:0.72rem; font-weight:800; color:#D4AF37; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:0.7rem; }
         .ord-line { display:flex; justify-content:space-between; font-size:0.85rem; padding:0.3rem 0; color:#BFBFBF; border-bottom:1px dashed #2D2D2D; }
         .ord-line:last-child { border-bottom:none; }
         .ord-line strong { color:#fff; }
         .ord-line.total { font-weight:800; font-size:1.05rem; color:#fff; border-bottom:none; padding-top:0.65rem; }
-        .ord-line.total span:last-child { color:#FF9000; }
+        .ord-line.total span:last-child { color:#D4AF37; }
         .next-steps { font-size:0.85rem; line-height:1.7; color:#BFBFBF; }
         .next-steps strong { color:#fff; }
-        .btn-cont { display:inline-block; background:#FF9000; color:#000; border-radius:6px; padding:0.6rem 1.5rem; text-decoration:none; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
+        .btn-cont { display:inline-block; background:#D4AF37; color:#000; border-radius:6px; padding:0.6rem 1.5rem; text-decoration:none; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
         .ph-menu { display:flex; gap:1.6rem; align-items:center; }
         .ph-menu a { color:#cfcfcf; text-decoration:none; font-weight:600; font-size:.92rem; transition:color .2s; white-space:nowrap; }
-        .ph-menu a:hover { color:#FF9000; }
+        .ph-menu a:hover { color:#D4AF37; }
     </style>
 </head>
 <body>
@@ -2011,7 +2060,7 @@ SUCCESS_HTML = """
             <div class="ord-line"><span>{{ it.product_name }} · {{ it.variant_label }} <span style="color:#666;">× {{ it.quantity }}</span></span><span>€{{ "%.2f"|format(it.line_total_eur) }}</span></div>
             {% endfor %}
             <div class="ord-line" style="margin-top:0.5rem;"><span>Subtotal</span><span>€{{ "%.2f"|format(order.subtotal_eur) }}</span></div>
-            {% if order.discount_eur > 0 %}<div class="ord-line"><span style="color:#FF9000;">Promo · {{ order.promo_code }}</span><span style="color:#FF9000;">−€{{ "%.2f"|format(order.discount_eur) }}</span></div>{% endif %}
+            {% if order.discount_eur > 0 %}<div class="ord-line"><span style="color:#D4AF37;">Promo · {{ order.promo_code }}</span><span style="color:#D4AF37;">−€{{ "%.2f"|format(order.discount_eur) }}</span></div>{% endif %}
             <div class="ord-line"><span>Shipping</span><span>{% if order.shipping_eur == 0 %}FREE{% else %}€{{ "%.2f"|format(order.shipping_eur) }}{% endif %}</span></div>
             <div class="ord-line" style="color:#888;font-size:0.78rem;"><span>VAT incl.</span><span>€{{ "%.2f"|format(order.vat_eur) }}</span></div>
             <div class="ord-line total"><span>Total paid</span><span>€{{ "%.2f"|format(order.total_eur) }}</span></div>
@@ -2060,9 +2109,9 @@ ADMIN_LOGIN_HTML = """
 <style>body{background:#141414;color:#F5F5F5;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
 .box{background:#242424;border:1px solid #2D2D2D;border-radius:1rem;padding:2rem;width:340px;}
 h1{font-size:1.4rem;font-weight:800;color:#fff;margin:0 0 0.3rem;}
-h1 .h{background:#FF9000;color:#000;padding:0 0.3em;border-radius:6px;}
+h1 .h{background:#D4AF37;color:#000;padding:0 0.3em;border-radius:6px;}
 input{width:100%;background:#0F0F0F;border:1px solid #2D2D2D;border-radius:6px;padding:0.7rem;color:#fff;margin-bottom:1rem;}
-button{width:100%;background:#FF9000;color:#000;border:none;border-radius:6px;padding:0.7rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
+button{width:100%;background:#D4AF37;color:#000;border:none;border-radius:6px;padding:0.7rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
 .err{color:#E57373;font-size:0.85rem;margin-bottom:1rem;}
 .hint{color:#666;font-size:0.72rem;text-align:center;margin-top:1rem;}</style>
 </head><body><div class="box"><h1>Pep<span class="h">Hub</span> Admin</h1><p style="color:#888;font-size:0.85rem;margin-bottom:1.25rem;">Operations dashboard</p>
@@ -2076,33 +2125,33 @@ ADMIN_HTML = """
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>body{background:#141414;color:#F5F5F5;font-family:'Inter',sans-serif;margin:0;}
 .navbar{background:#000;border-bottom:1px solid #2D2D2D;padding:0.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
-.navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;letter-spacing:-0.5px;} .navbar a.brand .h{background:#FF9000;color:#000;border-radius:6px;padding:0 0.3em;}
-.navbar .logout{color:#999;font-size:0.85rem;text-decoration:none;} .navbar .logout:hover{color:#FF9000;}
+.navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;letter-spacing:-0.5px;} .navbar a.brand .h{background:#D4AF37;color:#000;border-radius:6px;padding:0 0.3em;}
+.navbar .logout{color:#999;font-size:0.85rem;text-decoration:none;} .navbar .logout:hover{color:#D4AF37;}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;padding:1.5rem;}
 .kpi{background:#242424;border:1px solid #2D2D2D;border-radius:0.85rem;padding:1rem 1.2rem;}
-.kpi .label{font-size:0.7rem;font-weight:800;color:#FF9000;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;}
+.kpi .label{font-size:0.7rem;font-weight:800;color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;}
 .kpi .val{font-size:1.5rem;font-weight:900;color:#fff;}
 .kpi .sub{font-size:0.72rem;color:#888;margin-top:0.2rem;}
 .section{padding:0 1.5rem 2rem;}
 h2{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:1rem;}
 table{width:100%;background:#242424;border-collapse:collapse;border:1px solid #2D2D2D;border-radius:0.7rem;overflow:hidden;font-size:0.85rem;}
-th{background:#1A1A1A;color:#FF9000;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid #2D2D2D;}
+th{background:#1A1A1A;color:#D4AF37;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid #2D2D2D;}
 td{padding:0.75rem 0.85rem;border-bottom:1px solid #2D2D2D;color:#E0E0E0;vertical-align:top;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#1F1F1F;}
 .status{display:inline-block;border-radius:4px;padding:0.15rem 0.5rem;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;}
 .status-PENDING{background:rgba(255,255,255,0.07);color:#aaa;}
-.status-AWAITING_PAYMENT{background:rgba(255,144,0,0.12);color:#FF9000;}
+.status-AWAITING_PAYMENT{background:rgba(212, 175, 55,0.12);color:#D4AF37;}
 .status-PAID{background:rgba(46,125,50,0.18);color:#81C784;}
 .status-SUBMITTED_TO_SUPPLIER{background:rgba(33,150,243,0.18);color:#64B5F6;}
 .status-SHIPPED{background:rgba(156,39,176,0.18);color:#CE93D8;}
 .status-DELIVERED{background:rgba(76,175,80,0.25);color:#A5D6A7;}
 .status-CLOSED{background:rgba(255,255,255,0.04);color:#666;}
 .status-REFUNDED, .status-CANCELLED, .status-FAILED{background:rgba(198,40,40,0.18);color:#E57373;}
-.mono{font-family:'Courier New',monospace;font-size:0.82rem;color:#FF9000;font-weight:700;}
+.mono{font-family:'Courier New',monospace;font-size:0.82rem;color:#D4AF37;font-weight:700;}
 .muted{color:#888;font-size:0.78rem;}
 .actions form{display:inline-block;margin-right:0.4rem;}
-.actions button{background:#FF9000;color:#000;border:none;border-radius:4px;padding:0.25rem 0.6rem;font-size:0.7rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
+.actions button{background:#D4AF37;color:#000;border:none;border-radius:4px;padding:0.25rem 0.6rem;font-size:0.7rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
 .actions button.ghost{background:#2D2D2D;color:#ccc;}
 .empty{padding:2rem;text-align:center;color:#666;}
 </style></head>
@@ -2162,16 +2211,16 @@ ADMIN_SUBS_HTML = """
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>body{background:#141414;color:#F5F5F5;font-family:'Inter',sans-serif;margin:0;}
 .navbar{background:#000;border-bottom:1px solid #2D2D2D;padding:0.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
-.navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;} .navbar a.brand .h{background:#FF9000;color:#000;border-radius:6px;padding:0 0.3em;}
-.navbar a.lnk{color:#999;font-size:0.85rem;text-decoration:none;margin-left:1.25rem;} .navbar a.lnk:hover{color:#FF9000;}
+.navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;} .navbar a.brand .h{background:#D4AF37;color:#000;border-radius:6px;padding:0 0.3em;}
+.navbar a.lnk{color:#999;font-size:0.85rem;text-decoration:none;margin-left:1.25rem;} .navbar a.lnk:hover{color:#D4AF37;}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;padding:1.5rem;}
 .kpi{background:#242424;border:1px solid #2D2D2D;border-radius:0.85rem;padding:1rem 1.2rem;}
-.kpi .label{font-size:0.7rem;font-weight:800;color:#FF9000;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;}
+.kpi .label{font-size:0.7rem;font-weight:800;color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;}
 .kpi .val{font-size:1.5rem;font-weight:900;color:#fff;}
 .section{padding:0 1.5rem 2rem;}
 h2{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:1rem;}
 table{width:100%;background:#242424;border-collapse:collapse;border:1px solid #2D2D2D;border-radius:0.7rem;overflow:hidden;font-size:0.85rem;}
-th{background:#1A1A1A;color:#FF9000;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid #2D2D2D;}
+th{background:#1A1A1A;color:#D4AF37;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid #2D2D2D;}
 td{padding:0.75rem 0.85rem;border-bottom:1px solid #2D2D2D;color:#E0E0E0;vertical-align:top;}
 tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
 .status{display:inline-block;border-radius:4px;padding:0.15rem 0.5rem;font-size:0.7rem;font-weight:800;text-transform:uppercase;}
@@ -2221,14 +2270,14 @@ ADMIN_ORDER_HTML = """
 body{background:#141414;color:#F5F5F5;font-family:'Inter','Segoe UI',system-ui,sans-serif;margin:0;}
 .navbar{background:#000;border-bottom:1px solid #2D2D2D;padding:0.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
 .navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;letter-spacing:-0.5px;}
-.navbar a.brand .h{background:#FF9000;color:#000;border-radius:6px;padding:0 0.3em;}
-.navbar a{color:#999;font-size:0.85rem;text-decoration:none;} .navbar a:hover{color:#FF9000;}
+.navbar a.brand .h{background:#D4AF37;color:#000;border-radius:6px;padding:0 0.3em;}
+.navbar a{color:#999;font-size:0.85rem;text-decoration:none;} .navbar a:hover{color:#D4AF37;}
 .container-narrow{max-width:980px;margin:0 auto;padding:1.5rem;}
 h1{font-size:1.4rem;font-weight:800;color:#fff;margin:0 0 0.3rem;}
-.ord-num{font-family:'Courier New',monospace;font-size:1.05rem;color:#FF9000;font-weight:800;letter-spacing:0.04em;}
+.ord-num{font-family:'Courier New',monospace;font-size:1.05rem;color:#D4AF37;font-weight:800;letter-spacing:0.04em;}
 .status{display:inline-block;border-radius:4px;padding:0.2rem 0.55rem;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;}
 .status-PENDING{background:rgba(255,255,255,0.07);color:#aaa;}
-.status-AWAITING_PAYMENT{background:rgba(255,144,0,0.12);color:#FF9000;}
+.status-AWAITING_PAYMENT{background:rgba(212, 175, 55,0.12);color:#D4AF37;}
 .status-PAID{background:rgba(46,125,50,0.18);color:#81C784;}
 .status-SUBMITTED_TO_SUPPLIER{background:rgba(33,150,243,0.18);color:#64B5F6;}
 .status-SHIPPED{background:rgba(156,39,176,0.18);color:#CE93D8;}
@@ -2238,33 +2287,33 @@ h1{font-size:1.4rem;font-weight:800;color:#fff;margin:0 0 0.3rem;}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;}
 @media(max-width:880px){.grid{grid-template-columns:1fr;}}
 .card{background:#242424;border:1px solid #2D2D2D;border-radius:0.85rem;padding:1.4rem;}
-.card h3{font-size:0.78rem;font-weight:800;color:#FF9000;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.85rem;}
+.card h3{font-size:0.78rem;font-weight:800;color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.85rem;}
 .row-flex{display:flex;justify-content:space-between;font-size:0.85rem;padding:0.35rem 0;color:#BFBFBF;border-bottom:1px dashed #2D2D2D;}
 .row-flex:last-child{border-bottom:none;}
 .row-flex strong{color:#fff;}
 .row-flex.total{font-weight:800;color:#fff;font-size:1.05rem;padding-top:0.65rem;}
-.row-flex.total span:last-child{color:#FF9000;}
+.row-flex.total span:last-child{color:#D4AF37;}
 .address{font-size:0.9rem;line-height:1.65;color:#E0E0E0;background:#0F0F0F;border:1px solid #2D2D2D;border-radius:6px;padding:0.85rem 1rem;}
 .address strong{color:#fff;}
 .muted{color:#888;font-size:0.78rem;}
 
 .email-card{background:#1A1A1A;border:1px solid #2D2D2D;border-radius:0.85rem;padding:1.5rem;margin-top:1.5rem;}
 .email-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
-.email-card h3{margin:0;font-size:0.85rem;font-weight:800;color:#FF9000;text-transform:uppercase;letter-spacing:0.06em;}
+.email-card h3{margin:0;font-size:0.85rem;font-weight:800;color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;}
 .email-meta{font-size:0.78rem;color:#999;margin-bottom:0.85rem;}
 .email-meta strong{color:#E0E0E0;}
 .email-body{background:#0A0A0A;border:1px solid #2D2D2D;border-radius:6px;padding:1rem;font-family:'Courier New',monospace;font-size:0.82rem;color:#E0E0E0;white-space:pre-wrap;line-height:1.55;max-height:340px;overflow-y:auto;}
 .btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.85rem;}
-.btn{background:#FF9000;color:#000;border:none;border-radius:6px;padding:0.55rem 1.1rem;font-size:0.78rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;}
+.btn{background:#D4AF37;color:#000;border:none;border-radius:6px;padding:0.55rem 1.1rem;font-size:0.78rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;}
 .btn:hover{background:#fff;color:#000;}
 .btn.ghost{background:#2D2D2D;color:#E0E0E0;}
 .btn.ghost:hover{background:#3D3D3D;color:#fff;}
 .actions-row{margin-top:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;}
 .actions-row form{display:inline-block;margin:0;}
 .actions-row input{background:#0F0F0F;border:1px solid #2D2D2D;border-radius:6px;padding:0.4rem 0.7rem;color:#fff;font-size:0.82rem;width:160px;}
-.actions-row input:focus{outline:none;border-color:#FF9000;}
+.actions-row input:focus{outline:none;border-color:#D4AF37;}
 .kpi-strip{display:flex;flex-wrap:wrap;gap:1.5rem;font-size:0.78rem;color:#999;margin-top:0.6rem;}
-.kpi-strip span strong{color:#FF9000;font-weight:800;font-size:0.95rem;display:block;}
+.kpi-strip span strong{color:#D4AF37;font-weight:800;font-size:0.95rem;display:block;}
 </style></head>
 <body>
 <div class="navbar">
@@ -2314,7 +2363,7 @@ h1{font-size:1.4rem;font-weight:800;color:#fff;margin:0 0 0.3rem;}
             </div>
             {% endfor %}
             <div class="row-flex" style="margin-top:0.4rem;"><span>Subtotal</span><span>€{{ "%.2f"|format(order.subtotal_eur) }}</span></div>
-            {% if order.discount_eur > 0 %}<div class="row-flex" style="color:#FF9000;"><span>Promo · {{ order.promo_code }}</span><span>−€{{ "%.2f"|format(order.discount_eur) }}</span></div>{% endif %}
+            {% if order.discount_eur > 0 %}<div class="row-flex" style="color:#D4AF37;"><span>Promo · {{ order.promo_code }}</span><span>−€{{ "%.2f"|format(order.discount_eur) }}</span></div>{% endif %}
             <div class="row-flex"><span>Shipping</span><span>{% if order.shipping_eur == 0 %}FREE{% else %}€{{ "%.2f"|format(order.shipping_eur) }}{% endif %}</span></div>
             <div class="row-flex" style="color:#888;font-size:0.78rem;"><span>VAT incl. (21%)</span><span>€{{ "%.2f"|format(order.vat_eur) }}</span></div>
             <div class="row-flex total"><span>Total paid</span><span>€{{ "%.2f"|format(order.total_eur) }}</span></div>
@@ -2359,7 +2408,7 @@ Email: {{ order.customer.email }}
     </p>
 </div>
 
-<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#FF9000;color:#000;padding:0.65rem 1.25rem;border-radius:6px;font-weight:800;font-size:0.85rem;box-shadow:0 8px 24px rgba(255,144,0,0.4);opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;"></div>
+<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#D4AF37;color:#000;padding:0.65rem 1.25rem;border-radius:6px;font-weight:800;font-size:0.85rem;box-shadow:0 8px 24px rgba(212, 175, 55,0.4);opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;"></div>
 
 <script>
 function copyText(text, btn) {
@@ -3223,23 +3272,77 @@ def admin_science_delete(slug):
 # Weekly ingest scheduler — runs in-process while the server is up.
 # Guarded so it starts once; manual trigger also available in admin.
 # ----------------------------------------------------------------------
-def _scheduled_ingest():
+def _ai_publish_one(topic):
+    """Best-effort: synthesise and PUBLISH one fresh article for a topic via AI.
+    Returns True on success. Never raises."""
+    if not ANTHROPIC_API_KEY:
+        return False
+    try:
+        candidates = _fetch_candidates(topic)
+        if len(candidates) < MIN_SOURCES_PER_ARTICLE:
+            return False
+        art = _synthesize(topic, candidates)
+        slug = _slugify(art.get('slug') or art.get('title'))
+        base, n = slug, 2
+        while Article.query.filter_by(slug=slug).first():
+            slug = f'{base}-{n}'; n += 1
+        db.session.add(Article(
+            slug=slug, title=art['title'][:240], topic=topic,
+            excerpt=art.get('excerpt', ''), body_html=art.get('body_html', ''),
+            takeaways_json=json.dumps(art.get('key_takeaways', [])),
+            sources_json=json.dumps([{'title': c['title'], 'source': c['source'], 'url': c['link']}
+                                     for c in candidates]),
+            status='PUBLISHED', published_at=datetime.utcnow(),
+        ))
+        for c in candidates:
+            db.session.add(ScienceSeen(url=c['link']))
+        db.session.commit()
+        return True
+    except Exception:
+        db.session.rollback()
+        logging.getLogger('pephub.sciencehub').exception('AI publish failed for %s', topic)
+        return False
+
+def _publish_from_queue(topic):
+    """Promote the oldest QUEUED backlog article for a topic to PUBLISHED (dated now)."""
+    a = (Article.query.filter_by(topic=topic, status='QUEUED')
+         .order_by(Article.id.asc()).first())
+    if not a:
+        return False
+    now = datetime.utcnow()
+    a.status, a.published_at, a.created_at = 'PUBLISHED', now, now
+    db.session.commit()
+    return True
+
+def _weekly_science_drip():
+    """Publish one article per category each week — AI first, backlog as fallback."""
+    _log = logging.getLogger('pephub.sciencehub')
     with app.app_context():
-        try:
-            created, notes = run_science_ingest()
-            log.info('weekly ingest: %d created — %s', created, '; '.join(notes))
-        except Exception:
-            log.exception('weekly ingest failed')
+        for topic in SCIENCE_TOPICS:
+            try:
+                if _ai_publish_one(topic):
+                    _log.info('weekly drip [%s]: AI-published', topic)
+                elif _publish_from_queue(topic):
+                    _log.info('weekly drip [%s]: published from backlog', topic)
+                else:
+                    _log.warning('weekly drip [%s]: nothing to publish (backlog empty)', topic)
+            except Exception:
+                db.session.rollback()
+                _log.exception('weekly drip failed for %s', topic)
 
 def _start_scheduler():
     if os.environ.get('DISABLE_SCHEDULER'):
         return
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
+        from apscheduler.triggers.cron import CronTrigger
         sched = BackgroundScheduler(daemon=True)
-        sched.add_job(_scheduled_ingest, 'interval', weeks=1, id='science_weekly_ingest')
+        # One fresh article per category, every Monday 09:00 UTC.
+        sched.add_job(_weekly_science_drip,
+                      CronTrigger(day_of_week='mon', hour=9, minute=0),
+                      id='science_weekly_drip', misfire_grace_time=6 * 3600, coalesce=True)
         sched.start()
-        log.info('Science Hub weekly ingest scheduler started')
+        log.info('Science Hub weekly drip scheduler started (Mondays 09:00 UTC)')
     except Exception:
         log.exception('could not start scheduler')
 
@@ -3372,7 +3475,7 @@ AUTH_HTML = """
 <title>{{ 'Create account' if mode=='register' else 'Sign in' }} | Pep Hub</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
- :root{--gold:#FF9000;--ph-border:#2D2D2D;}
+ :root{--gold:#D4AF37;--ph-border:#2D2D2D;}
  body{background:#141414;color:#F5F5F5;font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
  .navbar{background:#000;border-bottom:1px solid var(--ph-border);padding:.85rem 0;}
  .navbar-brand{font-weight:800;color:#fff!important;font-size:1.5rem;text-decoration:none;}
@@ -3417,7 +3520,7 @@ ACCOUNT_HTML = """
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
- :root{--gold:#FF9000;--ph-card:#242424;--ph-border:#2D2D2D;--muted:#999;}
+ :root{--gold:#D4AF37;--ph-card:#242424;--ph-border:#2D2D2D;--muted:#999;}
  body{background:#141414;color:#F5F5F5;font-family:'Inter',system-ui,sans-serif;}
  .navbar{background:#000;border-bottom:1px solid var(--ph-border);padding:.85rem 0;}
  .navbar-brand{font-weight:800;color:#fff!important;font-size:1.5rem;text-decoration:none;}
@@ -3525,7 +3628,7 @@ LEGAL_HTML = """
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 <style>
- :root{--gold:#FF9000;--ph-border:#2D2D2D;--muted:#9a9a9a;}
+ :root{--gold:#D4AF37;--ph-border:#2D2D2D;--muted:#9a9a9a;}
  body{background:#141414;color:#EDEDED;font-family:'Inter',system-ui,sans-serif;margin:0;}
  .navbar{background:#000;border-bottom:1px solid var(--ph-border);padding:.85rem 0;}
  .navbar-brand{font-weight:800;color:#fff!important;font-size:1.5rem;text-decoration:none;}
