@@ -348,6 +348,13 @@ def _inject_site_chrome(resp):
         html = resp.get_data(as_text=True)
         changed = False
 
+        # 0. Favicon / tab icon (into <head>)
+        if '</head>' in html and 'id="ph-favicon"' not in html:
+            fav = ('<link id="ph-favicon" rel="icon" type="image/png" href="/static/favicon.png">'
+                   '<link rel="apple-touch-icon" href="/static/favicon.png">')
+            html = html.replace('</head>', fav + '</head>', 1)
+            changed = True
+
         # 1. CSRF token into every POST form (skip if none / already present)
         if '<form' in html and 'name="csrf_token"' not in html:
             html = _inject_csrf_tokens(html, generate_csrf())
@@ -2428,6 +2435,10 @@ function copyText(text, btn) {
 # ----------------------------------------------------------------------
 # Flask routes
 # ----------------------------------------------------------------------
+@app.route('/favicon.ico')
+def favicon():
+    return redirect('/static/favicon.png', code=301)
+
 @app.route('/')
 def index():
     return render_template('index.html', products=products)
