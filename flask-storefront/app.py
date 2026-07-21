@@ -2253,7 +2253,7 @@ input{width:100%;background:#0F0F0F;border:1px solid #2D2D2D;border-radius:6px;p
 button{width:100%;background:#D4AF37;color:#000;border:none;border-radius:6px;padding:0.7rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
 .err{color:#E57373;font-size:0.85rem;margin-bottom:1rem;}
 .hint{color:#666;font-size:0.72rem;text-align:center;margin-top:1rem;}</style>
-</head><body><div class="box"><h1>Pep<span class="h">Hub</span> Admin</h1><p style="color:#888;font-size:0.85rem;margin-bottom:1.25rem;">Operations dashboard</p>
+</head><body><div class="box"><img src="/static/pephub-logo.jpg" alt="PepHub" style="height:38px;display:block;margin:0 auto 0.6rem;"><p style="color:#888;font-size:0.85rem;margin-bottom:1.25rem;text-align:center;">Admin · Operations dashboard</p>
 {% if err %}<div class="err">⚠ {{ err }}</div>{% endif %}
 <form method="POST"><input type="password" name="password" placeholder="Admin password" autofocus required><button>Sign in</button></form>
 <div class="hint">Set <code>ADMIN_PASSWORD</code> env var in production.</div></div></body></html>
