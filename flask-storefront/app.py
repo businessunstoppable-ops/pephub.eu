@@ -421,6 +421,23 @@ _LOGO_CSS = """<style id="ph-logo-css">
 .vial-label .ph-brand .hub-tag{background:none!important;padding:0!important;margin:0!important;}
 </style>"""
 
+# Video background — a looping, muted, compressed clip behind all content, with
+# a dark scrim so text stays readable. Poster shows instantly / as fallback.
+_BG_VIDEO = """
+<video id="ph-bg-video" autoplay muted loop playsinline preload="auto" poster="/static/background-poster.jpg" aria-hidden="true">
+<source src="/static/background.mp4" type="video/mp4">
+</video>
+<div id="ph-bg-scrim" aria-hidden="true"></div>
+<style>
+html{background:#0b0a07!important;}
+body{background-color:transparent!important;}
+#ph-bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;pointer-events:none;}
+#ph-bg-scrim{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 38%, rgba(11,10,7,.12) 0%, rgba(11,10,7,.5) 68%, rgba(11,10,7,.74) 100%);}
+.site-hero,.product-hero,.hub-hero,.page-hero,.report-header{background:transparent!important;}
+</style>
+<script>(function(){var v=document.getElementById('ph-bg-video');if(!v)return;v.muted=true;try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}})();</script>
+"""
+
 
 def _inject_csrf_tokens(html, token):
     """Insert a hidden csrf_token field immediately after every POST <form> tag."""
@@ -479,8 +496,8 @@ def _inject_site_chrome(resp):
                 tail += _ACC_CSS
             if 'ph-logo-css' not in html:
                 tail += _LOGO_CSS
-            if 'ph-bg-canvas' not in html:
-                tail += _BG_CANVAS
+            if 'ph-bg-video' not in html:
+                tail += _BG_VIDEO
             if 'ph-fast-loader' not in html:
                 tail += _FAST_LOADER
             if 'ph-prefetch' not in html:
