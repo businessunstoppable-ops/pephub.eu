@@ -46,6 +46,9 @@
         .sources li { color:var(--text-muted); margin-bottom:.5rem; font-size:.9rem; }
         .disclaimer { max-width:760px; margin-top:2rem; font-size:.8rem; color:var(--text-muted); background:#0f0f0f; border:1px solid var(--ph-border); border-radius:.6rem; padding:1rem 1.25rem; }
         .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
+        .art-shell { background:rgba(10,9,7,.78); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); padding-top:.5rem; }
+        .emoji-band.has-img { position:relative; background-size:cover !important; background-position:center !important; }
+        .emoji-band.has-img::before { content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.5)); }
     </style>
 </head>
 <body>
@@ -64,11 +67,11 @@
     </div>
 </nav>
 
+<div class="art-shell">
 <div class="container hero">
     <a href="/science" style="color:var(--text-muted);text-decoration:none;font-size:.85rem;"><i class="bi bi-arrow-left"></i> Back to Science Hub</a>
-    <div class="emoji-band" style="background:{{ article.meta.grad }};margin-top:1rem;">
-        <span class="watermark">{{ article.meta.emoji }}</span>
-        <span class="glyph">{{ article.meta.emoji }}</span>
+    <div class="emoji-band {% if article.image %}has-img{% endif %}" style="background:{% if article.image %}#000 url('{{ article.image }}'){% else %}{{ article.meta.grad }}{% endif %};margin-top:1rem;">
+        {% if not article.image %}<span class="watermark">{{ article.meta.emoji }}</span><span class="glyph">{{ article.meta.emoji }}</span>{% endif %}
     </div>
     <div class="chip">{{ article.topic }}</div>
     <h1 class="title">{{ article.title }}</h1>
@@ -103,6 +106,7 @@
         <strong style="color:#ccc;">For research &amp; educational purposes only.</strong> This content is an editorial synthesis of public research and is not medical advice. Peptides referenced by Pep Hub are sold for laboratory research use only and are not intended to diagnose, treat, cure, or prevent any disease.
     </div>
 </div>
+</div><!-- /art-shell -->
 
 <div class="footer-note">
     <div class="container"><p>© 2024–2026 Pep Hub Science Hub — educational synthesis of public research.</p></div>

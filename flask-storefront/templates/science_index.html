@@ -56,6 +56,11 @@
         .article-card .read-more { margin-top:auto; }
         .empty { background:var(--ph-card); border:1px dashed var(--ph-border); border-radius:1rem; padding:3rem; text-align:center; color:var(--text-muted); }
         .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
+        /* dark reading panel over the animated video background */
+        .hub-shell { background:rgba(10,9,7,.74); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); padding-top:.5rem; }
+        /* per-article hero image banners */
+        .banner-art.has-img { background-size:cover !important; background-position:center !important; }
+        .banner-art.has-img::before { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.12) 45%, rgba(0,0,0,.62)); z-index:1; }
     </style>
 </head>
 <body>
@@ -74,6 +79,7 @@
     </div>
 </nav>
 
+<div class="hub-shell">
 <div class="container hub-hero">
     <h1>Science <span class="accent">Hub</span></h1>
     <p>A deep dive into the biochemistry and biology behind peptides, nutrition, bio-hacking, and longevity. Curated from current research and rewritten for the PepHub community — new articles added weekly.</p>
@@ -99,10 +105,9 @@
         <div class="col-lg-8">
             {% if featured %}
             <a class="feature-card" href="/science/{{ featured.slug }}">
-                <div class="feature-banner banner-art" style="background:{{ featured.meta.grad }};">
+                <div class="feature-banner banner-art {% if featured.image %}has-img{% endif %}" style="background:{% if featured.image %}#000 url('{{ featured.image }}'){% else %}{{ featured.meta.grad }}{% endif %};">
                     <span class="topic-chip">{{ featured.topic }}</span>
-                    <span class="watermark">{{ featured.meta.emoji }}</span>
-                    <span class="glyph">{{ featured.meta.emoji }}</span>
+                    {% if not featured.image %}<span class="watermark">{{ featured.meta.emoji }}</span><span class="glyph">{{ featured.meta.emoji }}</span>{% endif %}
                 </div>
                 <div class="feature-body">
                     <h2>{{ featured.title }}</h2>
@@ -115,9 +120,8 @@
                 {% for a in articles %}
                 <div class="col-sm-6">
                     <a class="article-card" href="/science/{{ a.slug }}">
-                        <div class="banner banner-art" style="background:{{ a.meta.grad }};">
-                            <span class="watermark">{{ a.meta.emoji }}</span>
-                            <span class="glyph">{{ a.meta.emoji }}</span>
+                        <div class="banner banner-art {% if a.image %}has-img{% endif %}" style="background:{% if a.image %}#000 url('{{ a.image }}'){% else %}{{ a.meta.grad }}{% endif %};">
+                            {% if not a.image %}<span class="watermark">{{ a.meta.emoji }}</span><span class="glyph">{{ a.meta.emoji }}</span>{% endif %}
                         </div>
                         <div class="body">
                             <div class="chip">{{ a.topic }}</div>
@@ -156,6 +160,7 @@
         </div>
     </div>
 </div>
+</div><!-- /hub-shell -->
 
 <div class="footer-note">
     <div class="container">

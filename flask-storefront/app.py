@@ -3317,6 +3317,16 @@ def coa_detail(slug):
 # ----------------------------------------------------------------------
 # Science Hub Routes
 # ----------------------------------------------------------------------
+_SCIENCE_IMG_DIR = os.path.join(basedir, 'static', 'science')
+
+def _science_image(slug):
+    """Per-article hero image if one exists at static/science/<slug>.<ext>.
+    Any source (uploaded, AI-generated, stock) can drop a file there."""
+    for ext in ('jpg', 'jpeg', 'png', 'webp'):
+        if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
+            return '/static/science/' + slug + '.' + ext
+    return None
+
 def _article_view(a):
     return {
         'slug': a.slug, 'title': a.title, 'topic': a.topic, 'excerpt': a.excerpt,
@@ -3324,6 +3334,7 @@ def _article_view(a):
         'created_at': a.created_at, 'published_at': a.published_at,
         'takeaways': json.loads(a.takeaways_json or '[]'),
         'sources': json.loads(a.sources_json or '[]'),
+        'image': _science_image(a.slug),
         'meta': SCIENCE_TOPICS.get(a.topic, {'emoji': '🔬', 'grad': 'linear-gradient(135deg,#1a1a1a,#2d2d2d)'}),
     }
 
