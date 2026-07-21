@@ -74,6 +74,7 @@ if _db_url.startswith('postgres://'):
 elif _db_url.startswith('postgresql://'):
     _db_url = _db_url.replace('postgresql://', 'postgresql+psycopg2://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 2592000  # cache /static (logo, favicon) 30 days
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Preview/test-store banner — shown site-wide while PREVIEW_MODE is truthy.
@@ -125,29 +126,36 @@ body{background-color:transparent!important;}
 <script>
 (function(){
  var c=document.getElementById('ph-bg-canvas'); if(!c||!c.getContext) return;
- var ctx=c.getContext('2d'), W=0,H=0,dpr=1,bands=[],glows=[],dust=[],t=0;
+ var ctx=c.getContext('2d'), W=0,H=0,dpr=1,bands=[],glows=[],dust=[],t=0,last=0,MIN=1000/30,sprites={};
  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var small=innerWidth<700;
  var WARM=['212,175,55','246,235,190','233,205,122','201,140,60','170,100,45'];
  function rnd(a,b){return a+Math.random()*(b-a);}
  function pick(a){return a[Math.floor(Math.random()*a.length)];}
+ function sprite(col){ if(sprites[col])return sprites[col];
+   var s=document.createElement('canvas'),S=256,g=s.getContext('2d'); s.width=s.height=S;
+   var gr=g.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+   gr.addColorStop(0,'rgba('+col+',1)'); gr.addColorStop(1,'rgba('+col+',0)');
+   g.fillStyle=gr; g.fillRect(0,0,S,S); sprites[col]=s; return s; }
  function build(){
-   var nB=reduce?3:Math.max(5,Math.min(8,Math.round(H/(120*dpr))));
+   var f=small?0.55:1;
+   var nB=reduce?3:Math.max(4,Math.min(8,Math.round(H/(120*dpr))));
    bands=[];
    for(var k=0;k<nB;k++){bands.push({
      y:rnd(-0.05,1.05)*H, amp:rnd(45,170)*dpr, amp2:rnd(12,55)*dpr,
      k1:rnd(0.6,1.7), k2:rnd(1.6,3.4),
      phase:Math.random()*6.28, sp:rnd(0.05,0.16)*(Math.random()<0.5?-1:1),
      driftX:0, drift:rnd(-0.14,0.14)*dpr, tilt:rnd(-0.16,0.16),
-     n:Math.min(150,Math.round(W/(9*dpr))), size:rnd(0.7,1.7)*dpr,
+     n:Math.max(24,Math.round(Math.min(150,W/(9*dpr))*f)), size:rnd(0.7,1.7)*dpr,
      base:rnd(0.22,0.5), col:pick(WARM)});}
-   var g=reduce?3:Math.min(9,Math.max(4,Math.round(W/240)));
+   var g=reduce?3:Math.min(8,Math.max(4,Math.round(W/260)));
    glows=[]; for(var j=0;j<g;j++)glows.push({x:Math.random()*W,y:Math.random()*H,
      rad:rnd(150,360)*dpr,vx:rnd(-0.12,0.12)*dpr,vy:rnd(-0.1,0.1)*dpr,a:rnd(0.03,0.09),col:pick(WARM)});
-   var nd=reduce?24:Math.min(70,Math.round(W*H/30000));
+   var nd=reduce?18:Math.round(Math.min(70,W*H/30000)*f);
    dust=[]; for(var d=0;d<nd;d++)dust.push({x:Math.random()*W,y:Math.random()*H,
      r:rnd(0.5,1.7)*dpr,vx:rnd(-0.07,0.07)*dpr,vy:rnd(-0.22,-0.03)*dpr,a:rnd(0.1,0.45)});
  }
- function resize(){dpr=Math.min(window.devicePixelRatio||1,2);
+ function resize(){dpr=Math.min(window.devicePixelRatio||1,1.6); small=innerWidth<700;
    W=c.width=Math.floor(innerWidth*dpr);H=c.height=Math.floor(innerHeight*dpr);
    c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';build();}
  function frame(){
@@ -155,18 +163,13 @@ body{background-color:transparent!important;}
    for(var j=0;j<glows.length;j++){var q=glows[j];q.x+=q.vx;q.y+=q.vy;
      if(q.x<-q.rad)q.x=W+q.rad;else if(q.x>W+q.rad)q.x=-q.rad;
      if(q.y<-q.rad)q.y=H+q.rad;else if(q.y>H+q.rad)q.y=-q.rad;
-     var gr=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,q.rad);
-     gr.addColorStop(0,'rgba('+q.col+','+q.a.toFixed(3)+')');gr.addColorStop(1,'rgba('+q.col+',0)');
-     ctx.fillStyle=gr;ctx.fillRect(q.x-q.rad,q.y-q.rad,q.rad*2,q.rad*2);}
+     ctx.globalAlpha=q.a; ctx.drawImage(sprite(q.col),q.x-q.rad,q.y-q.rad,q.rad*2,q.rad*2);}
    for(var b=0;b<bands.length;b++){var band=bands[b];band.phase+=band.sp*0.02;band.driftX+=band.drift;
+     ctx.fillStyle='rgba('+band.col+',1)';
      for(var i=0;i<band.n;i++){
-       var x=((i/band.n)*W+band.driftX)%W; if(x<0)x+=W;
-       var u=x/W;
-       var wy=band.amp*Math.sin(u*band.k1*6.283+band.phase)+band.amp2*Math.sin(u*band.k2*6.283+t);
-       var y=band.y+wy+(x-W/2)*band.tilt;
-       var sh=0.5+0.5*Math.sin(i*0.35+t*1.5+b);
-       ctx.globalAlpha=band.base*sh;
-       ctx.fillStyle='rgba('+band.col+',1)';
+       var x=((i/band.n)*W+band.driftX)%W; if(x<0)x+=W; var u=x/W;
+       var y=band.y+band.amp*Math.sin(u*band.k1*6.283+band.phase)+band.amp2*Math.sin(u*band.k2*6.283+t)+(x-W/2)*band.tilt;
+       ctx.globalAlpha=band.base*(0.5+0.5*Math.sin(i*0.35+t*1.5+b));
        ctx.beginPath();ctx.arc(x,y,band.size,0,6.283);ctx.fill();
      }}
    ctx.globalAlpha=1;
@@ -174,10 +177,11 @@ body{background-color:transparent!important;}
      if(p.y<-8){p.y=H+8;p.x=Math.random()*W;} if(p.x<-8)p.x=W+8;else if(p.x>W+8)p.x=-8;
      ctx.fillStyle='rgba(233,205,122,'+p.a.toFixed(3)+')';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();}
    ctx.globalCompositeOperation='source-over';
-   if(!reduce) requestAnimationFrame(frame);
  }
+ function loop(ts){ if(reduce){frame();return;} requestAnimationFrame(loop);
+   if(document.hidden||(ts-last)<MIN) return; last=ts; frame(); }
  addEventListener('resize',function(){clearTimeout(c._t);c._t=setTimeout(resize,200);},{passive:true});
- resize(); frame();
+ resize(); requestAnimationFrame(loop);
 })();
 </script>
 """
@@ -189,6 +193,18 @@ _FAST_LOADER = """
 <script id="ph-fast-loader">(function(){function h(){var l=document.getElementById('page-loader');if(!l)return;l.style.opacity='0';l.style.pointerEvents='none';setTimeout(function(){if(l)l.style.display='none';},350);}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',h);}else{h();}
 setTimeout(h,900);})();</script>
+"""
+
+# Hover/touch prefetch — quietly prefetch internal pages the moment a link is
+# hovered or touched, so navigation between screens feels instant.
+_PREFETCH = """
+<script id="ph-prefetch">(function(){var seen={};
+function pf(u){if(seen[u])return;seen[u]=1;var l=document.createElement('link');l.rel='prefetch';l.href=u;document.head.appendChild(l);}
+function on(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href');
+ if(!h||h.charAt(0)!=='/'||h.indexOf('//')===0||h.indexOf('#')===0||h.indexOf('/admin')===0||h.indexOf('/logout')>-1||a.hasAttribute('download'))return;
+ pf(h);}
+document.addEventListener('mouseover',on,{passive:true});
+document.addEventListener('touchstart',on,{passive:true});})();</script>
 """
 
 # Social-proof review toast — a small gold card that fades in from the bottom-left
@@ -467,6 +483,8 @@ def _inject_site_chrome(resp):
                 tail += _BG_CANVAS
             if 'ph-fast-loader' not in html:
                 tail += _FAST_LOADER
+            if 'ph-prefetch' not in html:
+                tail += _PREFETCH
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
