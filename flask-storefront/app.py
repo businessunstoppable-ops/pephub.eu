@@ -111,16 +111,62 @@ _COOKIE_BANNER = (
     '<script>function phCookieOk(){document.cookie="ph_consent=1;path=/;max-age=31536000;samesite=Lax";'
     'var b=document.getElementById("ph-cookie");if(b)b.remove();}</script>')
 
-# Social-proof review toast — a small orange box that slides in at the top for
-# ~3s every 45s, showing a random 4.7–5★ review with a random NL/DE name+city.
+# Ambient background — slow gold "spore" particle field drifting behind all
+# content (fixed canvas, pointer-events:none, honours prefers-reduced-motion).
+_BG_CANVAS = """
+<canvas id="ph-bg-canvas" aria-hidden="true"></canvas>
+<style>
+html{background:#0b0a07!important;}
+body{background-color:transparent!important;}
+#ph-bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block;}
+</style>
+<script>
+(function(){
+ var c=document.getElementById('ph-bg-canvas'); if(!c||!c.getContext) return;
+ var ctx=c.getContext('2d'), W=0,H=0,dpr=1,parts=[];
+ var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var COLORS=['212,175,55','233,205,122','201,162,60','246,235,190'];
+ function rnd(a,b){return a+Math.random()*(b-a);}
+ function mk(){return{x:Math.random()*W,y:Math.random()*H,r:rnd(0.5,2.6)*dpr,
+   vx:rnd(-0.10,0.10)*dpr,vy:rnd(-0.30,-0.04)*dpr,a:rnd(0.05,0.5),
+   da:rnd(0.0015,0.006)*(Math.random()<0.5?-1:1),sway:Math.random()*6.28,sw:rnd(0.002,0.009),
+   col:COLORS[Math.floor(Math.random()*COLORS.length)]};}
+ function resize(){
+   dpr=Math.min(window.devicePixelRatio||1,2);
+   W=c.width=Math.floor(innerWidth*dpr); H=c.height=Math.floor(innerHeight*dpr);
+   c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px';
+   var n=Math.min(130,Math.round(innerWidth*innerHeight/13000)); if(reduce)n=Math.round(n*0.5);
+   parts=[]; for(var i=0;i<n;i++)parts.push(mk());
+ }
+ function frame(){
+   ctx.clearRect(0,0,W,H);
+   for(var i=0;i<parts.length;i++){var p=parts[i];
+     p.sway+=p.sw; p.x+=p.vx+Math.sin(p.sway)*0.15*dpr; p.y+=p.vy;
+     p.a+=p.da; if(p.a<0.05||p.a>0.55)p.da*=-1;
+     if(p.y<-12){p.y=H+12;p.x=Math.random()*W;}
+     if(p.x<-12)p.x=W+12; else if(p.x>W+12)p.x=-12;
+     ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.283);
+     ctx.fillStyle='rgba('+p.col+','+p.a.toFixed(3)+')'; ctx.fill();
+   }
+   if(!reduce) requestAnimationFrame(frame);
+ }
+ addEventListener('resize',function(){clearTimeout(c._t);c._t=setTimeout(resize,180);},{passive:true});
+ resize(); frame();
+})();
+</script>
+"""
+
+# Social-proof review toast — a small gold card that fades in from the bottom-left
+# for a few seconds every 45s, showing a random 4.7–5★ review with an NL/DE name.
 _REVIEW_TOAST = """
 <div id="ph-review-toast" aria-live="polite"></div>
 <style>
-#ph-review-toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-160%);z-index:12500;
- background:#D4AF37;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:340px;width:calc(100% - 2rem);
- box-shadow:0 12px 34px rgba(0,0,0,.45);font-family:'Inter',system-ui,sans-serif;opacity:0;
- transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;pointer-events:none;}
-#ph-review-toast.on{transform:translate(-50%,0);opacity:1;}
+#ph-review-toast{position:fixed;left:1.25rem;bottom:1.25rem;z-index:12500;
+ background:#D4AF37;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:320px;width:calc(100% - 2.5rem);
+ box-shadow:0 14px 40px rgba(0,0,0,.5);font-family:'Inter',system-ui,sans-serif;
+ opacity:0;visibility:hidden;transform:translateY(20px);
+ transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1),visibility .9s;pointer-events:none;}
+#ph-review-toast.on{opacity:1;visibility:visible;transform:translateY(0);}
 #ph-review-toast .rt-top{display:flex;align-items:center;gap:.45rem;font-weight:900;}
 #ph-review-toast .rt-stars{letter-spacing:1px;color:#3a2600;font-size:.82rem;}
 #ph-review-toast .rt-score{background:#111;color:#D4AF37;border-radius:20px;padding:.03rem .45rem;font-size:.7rem;font-weight:900;}
@@ -168,7 +214,7 @@ _REVIEW_TOAST = """
    '<div class="rt-by">— '+pick(names)+' · '+pick(cities)+' · Verified buyer</div>';
   el.classList.add('on');
   clearTimeout(hideT);
-  hideT=setTimeout(function(){el.classList.remove('on');},3000);
+  hideT=setTimeout(function(){el.classList.remove('on');},4500);
  }
  setTimeout(show,8000);
  setInterval(show,45000);
@@ -382,6 +428,8 @@ def _inject_site_chrome(resp):
                 tail += _ACC_CSS
             if 'ph-logo-css' not in html:
                 tail += _LOGO_CSS
+            if 'ph-bg-canvas' not in html:
+                tail += _BG_CANVAS
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
