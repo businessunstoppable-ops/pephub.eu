@@ -173,6 +173,15 @@ body{background-color:transparent!important;}
 </script>
 """
 
+# Fast loader dismiss — reveal the (already server-rendered) page the moment the
+# DOM is ready instead of waiting for every image/font, and hard-cap so the
+# splash loader can never get stuck. Products appear instantly.
+_FAST_LOADER = """
+<script id="ph-fast-loader">(function(){function h(){var l=document.getElementById('page-loader');if(!l)return;l.style.opacity='0';l.style.pointerEvents='none';setTimeout(function(){if(l)l.style.display='none';},350);}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',h);}else{h();}
+setTimeout(h,900);})();</script>
+"""
+
 # Social-proof review toast — a small gold card that fades in from the bottom-left
 # for a few seconds every 45s, showing a random 4.7–5★ review with an NL/DE name.
 _REVIEW_TOAST = """
@@ -447,6 +456,8 @@ def _inject_site_chrome(resp):
                 tail += _LOGO_CSS
             if 'ph-bg-canvas' not in html:
                 tail += _BG_CANVAS
+            if 'ph-fast-loader' not in html:
+                tail += _FAST_LOADER
             if tail:
                 html = html.replace('</body>', tail + '</body>', 1)
                 changed = True
