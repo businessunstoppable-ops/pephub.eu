@@ -29,6 +29,8 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: REPLICATE_API_TOKEN     # AI article images (Flux); set in dashboard
+        sync: false
       - key: RESEND_API_KEY
         sync: false
 
