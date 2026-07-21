@@ -635,6 +635,14 @@ class ScienceSeen(db.Model):
     url = db.Column(db.String(600), unique=True, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ArticleImage(db.Model):
+    """AI-generated hero image for a Science Hub article, stored in the DB so it
+    survives Render's ephemeral filesystem. Served via /science/img/<slug>."""
+    slug = db.Column(db.String(180), primary_key=True)
+    content_type = db.Column(db.String(60), default='image/jpeg')
+    data = db.Column(db.LargeBinary, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 def _ensure_columns():
     """Add new nullable columns to pre-existing SQLite tables without a full
     migration tool. No-op when the column already exists or on non-SQLite."""
@@ -1490,6 +1498,9 @@ log = logging.getLogger('pephub.sciencehub')
 
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 SCIENCE_MODEL = os.environ.get('SCIENCE_MODEL', 'claude-opus-4-8')
+# AI image generation (Replicate / Flux) for auto article hero images.
+REPLICATE_API_TOKEN = os.environ.get('REPLICATE_API_TOKEN', '')
+REPLICATE_IMAGE_MODEL = os.environ.get('REPLICATE_IMAGE_MODEL', 'black-forest-labs/flux-schnell')
 
 # topic → display metadata for the grid / sidebar (own visuals; no scraped images)
 SCIENCE_TOPICS = {
@@ -3319,9 +3330,59 @@ def coa_detail(slug):
 # ----------------------------------------------------------------------
 _SCIENCE_IMG_DIR = os.path.join(basedir, 'static', 'science')
 
+_IMG_STYLE = ("cinematic dark scientific render, metallic gold and warm amber tones on a near-black "
+              "background, glowing molecular structures, DNA and cellular forms with subtle HUD "
+              "data-visualisation overlays, premium, high detail, volumetric light, shallow depth of "
+              "field, no text, no words, no watermark")
+
+def _img_prompt(title, topic):
+    subject = title.replace('//', '—').split(':')[0].strip()
+    return f"{subject}. Theme: {topic}. {_IMG_STYLE}."
+
+def _generate_article_image(slug, title, topic):
+    """Generate a hero image via Replicate (Flux) and store it in the DB.
+    Idempotent (skips if one exists) and best-effort (never raises)."""
+    if not REPLICATE_API_TOKEN:
+        return False
+    if db.session.query(ArticleImage.slug).filter_by(slug=slug).first():
+        return True
+    _log = logging.getLogger('pephub.sciencehub')
+    try:
+        import urllib.request
+        body = json.dumps({'input': {'prompt': _img_prompt(title, topic),
+                                     'aspect_ratio': '16:9', 'output_format': 'jpg',
+                                     'num_outputs': 1}}).encode()
+        req = urllib.request.Request(
+            'https://api.replicate.com/v1/models/%s/predictions' % REPLICATE_IMAGE_MODEL,
+            data=body, method='POST',
+            headers={'Authorization': 'Bearer ' + REPLICATE_API_TOKEN,
+                     'Content-Type': 'application/json', 'Prefer': 'wait'})
+        with urllib.request.urlopen(req, timeout=120) as r:
+            pred = json.loads(r.read().decode())
+        out = pred.get('output')
+        url = out[0] if isinstance(out, list) and out else (out if isinstance(out, str) else None)
+        if not url:
+            _log.warning('image gen: no output for %s (status %s)', slug, pred.get('status'))
+            return False
+        with urllib.request.urlopen(url, timeout=60) as im:
+            data = im.read()
+        db.session.merge(ArticleImage(slug=slug, content_type='image/jpeg', data=data))
+        db.session.commit()
+        _log.info('image gen: stored image for %s (%d bytes)', slug, len(data))
+        return True
+    except Exception:
+        db.session.rollback()
+        _log.exception('image gen failed for %s', slug)
+        return False
+
 def _science_image(slug):
-    """Per-article hero image if one exists at static/science/<slug>.<ext>.
-    Any source (uploaded, AI-generated, stock) can drop a file there."""
+    """Hero image URL for an article: DB-stored (AI-generated) first, then a
+    file at static/science/<slug>.<ext>, else None (falls back to gradient)."""
+    try:
+        if db.session.query(ArticleImage.slug).filter_by(slug=slug).first():
+            return '/science/img/' + slug
+    except Exception:
+        pass
     for ext in ('jpg', 'jpeg', 'png', 'webp'):
         if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
             return '/static/science/' + slug + '.' + ext
@@ -3355,6 +3416,15 @@ def science_index():
                            active_topic=topic if topic in SCIENCE_TOPICS else None,
                            total=Article.query.filter_by(status='PUBLISHED').count())
 
+@app.route('/science/img/<slug>')
+def science_image_file(slug):
+    row = ArticleImage.query.get(slug)
+    if not row:
+        abort(404)
+    resp = app.response_class(row.data, mimetype=row.content_type or 'image/jpeg')
+    resp.headers['Cache-Control'] = 'public, max-age=2592000'
+    return resp
+
 @app.route('/science/<slug>')
 def science_article(slug):
     a = Article.query.filter_by(slug=slug, status='PUBLISHED').first()
@@ -3368,10 +3438,44 @@ def science_article(slug):
 def admin_science():
     drafts = Article.query.filter_by(status='DRAFT').order_by(Article.created_at.desc()).all()
     published = Article.query.filter_by(status='PUBLISHED').order_by(Article.created_at.desc()).all()
+    have_img = {r[0] for r in db.session.query(ArticleImage.slug).all()}
     return render_template('admin_science.html',
                            drafts=[_article_view(a) for a in drafts],
                            published=[_article_view(a) for a in published],
-                           api_key_set=bool(ANTHROPIC_API_KEY))
+                           api_key_set=bool(ANTHROPIC_API_KEY),
+                           image_key_set=bool(REPLICATE_API_TOKEN),
+                           images_have=len(have_img),
+                           images_missing=sum(1 for a in published if a.slug not in have_img
+                                              and not _science_image_file_exists(a.slug)))
+
+def _science_image_file_exists(slug):
+    for ext in ('jpg', 'jpeg', 'png', 'webp'):
+        if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
+            return True
+    return False
+
+@app.route('/admin/science/generate-images', methods=['POST'])
+@admin_required
+def admin_science_generate_images():
+    if not REPLICATE_API_TOKEN:
+        flash('Set REPLICATE_API_TOKEN on the server first, then try again.', 'error')
+        return redirect(url_for('admin_science'))
+    targets = [(a.slug, a.title, a.topic)
+               for a in Article.query.filter_by(status='PUBLISHED').all()
+               if not db.session.query(ArticleImage.slug).filter_by(slug=a.slug).first()
+               and not _science_image_file_exists(a.slug)]
+
+    def _run():
+        with app.app_context():
+            done = 0
+            for slug, title, topic in targets:
+                if _generate_article_image(slug, title, topic):
+                    done += 1
+            logging.getLogger('pephub.sciencehub').info('backfill: generated %d/%d images', done, len(targets))
+    import threading
+    threading.Thread(target=_run, daemon=True).start()
+    flash(f'Generating {len(targets)} article image(s) in the background — refresh in a minute or two.', 'success')
+    return redirect(url_for('admin_science'))
 
 @app.route('/admin/science/generate', methods=['POST'])
 @admin_required
@@ -3417,13 +3521,13 @@ def admin_science_delete(slug):
 # ----------------------------------------------------------------------
 def _ai_publish_one(topic):
     """Best-effort: synthesise and PUBLISH one fresh article for a topic via AI.
-    Returns True on success. Never raises."""
+    Returns the new slug on success, else None. Never raises."""
     if not ANTHROPIC_API_KEY:
-        return False
+        return None
     try:
         candidates = _fetch_candidates(topic)
         if len(candidates) < MIN_SOURCES_PER_ARTICLE:
-            return False
+            return None
         art = _synthesize(topic, candidates)
         slug = _slugify(art.get('slug') or art.get('title'))
         base, n = slug, 2
@@ -3440,35 +3544,44 @@ def _ai_publish_one(topic):
         for c in candidates:
             db.session.add(ScienceSeen(url=c['link']))
         db.session.commit()
-        return True
+        return slug
     except Exception:
         db.session.rollback()
         logging.getLogger('pephub.sciencehub').exception('AI publish failed for %s', topic)
-        return False
+        return None
 
 def _publish_from_queue(topic):
-    """Promote the oldest QUEUED backlog article for a topic to PUBLISHED (dated now)."""
+    """Promote the oldest QUEUED backlog article for a topic to PUBLISHED (dated now).
+    Returns the slug, or None if the backlog is empty."""
     a = (Article.query.filter_by(topic=topic, status='QUEUED')
          .order_by(Article.id.asc()).first())
     if not a:
-        return False
+        return None
     now = datetime.utcnow()
     a.status, a.published_at, a.created_at = 'PUBLISHED', now, now
     db.session.commit()
-    return True
+    return a.slug
 
 def _weekly_science_drip():
-    """Publish one article per category each week — AI first, backlog as fallback."""
+    """Publish one article per category each week — AI first, backlog as fallback —
+    then auto-generate a hero image for each newly published piece."""
     _log = logging.getLogger('pephub.sciencehub')
     with app.app_context():
         for topic in SCIENCE_TOPICS:
             try:
-                if _ai_publish_one(topic):
+                slug = _ai_publish_one(topic)
+                if slug:
                     _log.info('weekly drip [%s]: AI-published', topic)
-                elif _publish_from_queue(topic):
-                    _log.info('weekly drip [%s]: published from backlog', topic)
                 else:
-                    _log.warning('weekly drip [%s]: nothing to publish (backlog empty)', topic)
+                    slug = _publish_from_queue(topic)
+                    if slug:
+                        _log.info('weekly drip [%s]: published from backlog', topic)
+                    else:
+                        _log.warning('weekly drip [%s]: nothing to publish (backlog empty)', topic)
+                if slug:
+                    a = Article.query.filter_by(slug=slug).first()
+                    if a:
+                        _generate_article_image(a.slug, a.title, a.topic)
             except Exception:
                 db.session.rollback()
                 _log.exception('weekly drip failed for %s', topic)

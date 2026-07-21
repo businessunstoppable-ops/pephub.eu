@@ -66,6 +66,19 @@
         </form>
     </div>
 
+    <div class="panel d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <strong>Article images (AI-generated)</strong>
+            <div style="color:var(--text-muted);font-size:.82rem;">
+                {% if not image_key_set %}⚠ Set <code>REPLICATE_API_TOKEN</code> on the server to enable auto image generation.
+                {% else %}{{ images_have }} image(s) stored · {{ images_missing }} published article(s) still need one. New weekly articles get an image automatically.{% endif %}
+            </div>
+        </div>
+        <form method="POST" action="/admin/science/generate-images" onsubmit="return confirm('Generate images for all articles that are missing one? This uses your Replicate credits.');">
+            <button class="btn-gold" type="submit" {% if not image_key_set %}disabled style="opacity:.5;cursor:not-allowed;"{% endif %}><i class="bi bi-image"></i> Generate missing images</button>
+        </form>
+    </div>
+
     <div class="panel">
         <h3 style="font-weight:800;font-size:1.15rem;">Drafts — awaiting review ({{ drafts|length }})</h3>
         <p style="color:var(--text-muted);font-size:.82rem;">Review each draft for accuracy and that it synthesises (not copies) its sources, then publish.</p>
