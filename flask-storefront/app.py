@@ -3330,26 +3330,42 @@ def coa_detail(slug):
 # ----------------------------------------------------------------------
 _SCIENCE_IMG_DIR = os.path.join(basedir, 'static', 'science')
 
-_IMG_STYLE = ("cinematic dark scientific render, metallic gold and warm amber tones on a near-black "
-              "background, glowing molecular structures, DNA and cellular forms with subtle HUD "
-              "data-visualisation overlays, premium, high detail, volumetric light, shallow depth of "
-              "field, no text, no words, no watermark")
+# Consistent house style (brand cohesion) WITHOUT dictating the subject, so each
+# image reflects its own article rather than repeating the same molecule/DNA scene.
+_IMG_STYLE = ("Editorial science illustration for a premium biotech brand. Dark near-black "
+              "background with metallic gold and warm amber accent lighting. Cinematic, elegant, "
+              "high detail, shallow depth of field. Absolutely no text, no words, no letters, "
+              "no numbers, no charts, no watermark.")
 
-def _img_prompt(title, topic):
+# Per-topic art direction — steers the model toward subject matter relevant to each
+# article's field, instead of one fixed motif.
+_IMG_TOPIC_DIR = {
+    'Peptide Science':      "Depict the specific molecule, receptor, or tissue mechanism described — molecular models or biological structures relevant to this exact compound.",
+    'Nutrition':            "Depict the specific nutrient, food source, or metabolic process described — natural close-up forms, not abstract molecules.",
+    'Bio-hacking':          "Depict the specific practice, environment, or device described (e.g. cold water immersion, sauna heat, red light, a wearable, breathwork).",
+    'Vitality & Longevity': "Depict the specific cellular or aging-biology concept described (e.g. mitochondria, senescent cells, telomeres, autophagy).",
+    'Training & Recovery':  "Depict the specific training or recovery concept described — human musculature, movement, tendons, or restorative rest.",
+    'Health & Wellbeing':   "Depict the specific physiological system or state described (e.g. sleep and the brain, the gut, hormones, the heart, circadian light).",
+}
+
+def _img_prompt(title, topic, excerpt=''):
     subject = title.replace('//', '—').split(':')[0].strip()
-    return f"{subject}. Theme: {topic}. {_IMG_STYLE}."
+    concept = (excerpt or '').strip()
+    direction = _IMG_TOPIC_DIR.get(topic, '')
+    return f"{subject}. {concept} {direction} {_IMG_STYLE}".strip()
 
-def _generate_article_image(slug, title, topic):
+def _generate_article_image(slug, title, topic, excerpt='', force=False):
     """Generate a hero image via Replicate (Flux) and store it in the DB.
-    Idempotent (skips if one exists) and best-effort (never raises)."""
+    Skips if one exists (unless force). Best-effort (never raises)."""
     if not REPLICATE_API_TOKEN:
         return False
-    if db.session.query(ArticleImage.slug).filter_by(slug=slug).first():
+    exists = db.session.query(ArticleImage.slug).filter_by(slug=slug).first()
+    if exists and not force:
         return True
     _log = logging.getLogger('pephub.sciencehub')
     try:
         import urllib.request
-        body = json.dumps({'input': {'prompt': _img_prompt(title, topic),
+        body = json.dumps({'input': {'prompt': _img_prompt(title, topic, excerpt),
                                      'aspect_ratio': '16:9', 'output_format': 'jpg',
                                      'num_outputs': 1}}).encode()
         req = urllib.request.Request(
@@ -3457,24 +3473,31 @@ def _science_image_file_exists(slug):
 @app.route('/admin/science/generate-images', methods=['POST'])
 @admin_required
 def admin_science_generate_images():
+    """force=1 regenerates ALL published articles (overwrite); otherwise only fills
+    articles that have no image yet."""
     if not REPLICATE_API_TOKEN:
         flash('Set REPLICATE_API_TOKEN on the server first, then try again.', 'error')
         return redirect(url_for('admin_science'))
-    targets = [(a.slug, a.title, a.topic)
-               for a in Article.query.filter_by(status='PUBLISHED').all()
-               if not db.session.query(ArticleImage.slug).filter_by(slug=a.slug).first()
-               and not _science_image_file_exists(a.slug)]
+    force = request.form.get('force') == '1'
+    targets = []
+    for a in Article.query.filter_by(status='PUBLISHED').all():
+        if not force and (db.session.query(ArticleImage.slug).filter_by(slug=a.slug).first()
+                          or _science_image_file_exists(a.slug)):
+            continue
+        targets.append((a.slug, a.title, a.topic, a.excerpt or ''))
 
     def _run():
         with app.app_context():
             done = 0
-            for slug, title, topic in targets:
-                if _generate_article_image(slug, title, topic):
+            for slug, title, topic, excerpt in targets:
+                if _generate_article_image(slug, title, topic, excerpt, force=force):
                     done += 1
-            logging.getLogger('pephub.sciencehub').info('backfill: generated %d/%d images', done, len(targets))
+            logging.getLogger('pephub.sciencehub').info('image backfill: generated %d/%d (force=%s)',
+                                                         done, len(targets), force)
     import threading
     threading.Thread(target=_run, daemon=True).start()
-    flash(f'Generating {len(targets)} article image(s) in the background — refresh in a minute or two.', 'success')
+    verb = 'Regenerating' if force else 'Generating'
+    flash(f'{verb} {len(targets)} article image(s) in the background — refresh in a minute or two.', 'success')
     return redirect(url_for('admin_science'))
 
 @app.route('/admin/science/generate', methods=['POST'])
@@ -3581,7 +3604,7 @@ def _weekly_science_drip():
                 if slug:
                     a = Article.query.filter_by(slug=slug).first()
                     if a:
-                        _generate_article_image(a.slug, a.title, a.topic)
+                        _generate_article_image(a.slug, a.title, a.topic, a.excerpt or '')
             except Exception:
                 db.session.rollback()
                 _log.exception('weekly drip failed for %s', topic)

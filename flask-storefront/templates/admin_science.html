@@ -74,9 +74,15 @@
                 {% else %}{{ images_have }} image(s) stored · {{ images_missing }} published article(s) still need one. New weekly articles get an image automatically.{% endif %}
             </div>
         </div>
-        <form method="POST" action="/admin/science/generate-images" onsubmit="return confirm('Generate images for all articles that are missing one? This uses your Replicate credits.');">
-            <button class="btn-gold" type="submit" {% if not image_key_set %}disabled style="opacity:.5;cursor:not-allowed;"{% endif %}><i class="bi bi-image"></i> Generate missing images</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <form method="POST" action="/admin/science/generate-images" onsubmit="return confirm('Generate images for articles that are missing one? Uses Replicate credits.');">
+            <button class="btn-gold" type="submit" {% if not image_key_set %}disabled style="opacity:.5;cursor:not-allowed;"{% endif %}><i class="bi bi-image"></i> Generate missing</button>
         </form>
+        <form method="POST" action="/admin/science/generate-images" onsubmit="return confirm('Regenerate and OVERWRITE images for ALL published articles with the latest style? Uses Replicate credits (~1-4¢ each).');">
+            <input type="hidden" name="force" value="1">
+            <button type="submit" {% if not image_key_set %}disabled{% endif %} style="background:transparent;border:1px solid var(--ph-orange);color:var(--ph-orange);border-radius:6px;padding:.55rem 1.1rem;font-weight:800;font-size:.85rem;cursor:pointer;{% if not image_key_set %}opacity:.5;cursor:not-allowed;{% endif %}"><i class="bi bi-arrow-repeat"></i> Regenerate all</button>
+        </form>
+        </div>
     </div>
 
     <div class="panel">
