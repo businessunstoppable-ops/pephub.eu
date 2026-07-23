@@ -48,7 +48,12 @@
         .site-hero h1 em { font-style: normal; color: var(--ph-orange); }
         .site-hero .tagline { color: rgba(255,255,255,0.55); font-size: 1rem; max-width: 520px; margin: 0 auto 2rem; line-height: 1.65; }
         .trust-strip { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; }
-        .trust-pill { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); border-radius: 6px; padding: 0.3rem 0.85rem; font-size: 0.78rem; font-weight: 500; }
+        .trust-pill { position: relative; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); border-radius: 6px; padding: 0.3rem 0.85rem; font-size: 0.78rem; font-weight: 500; cursor: help; transition: border-color .18s, color .18s; }
+        .trust-pill:hover, .trust-pill:focus { border-color: rgba(212,175,55,.5); color: #fff; outline: none; }
+        .trust-pill[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 11px); left: 50%; transform: translateX(-50%) translateY(5px); width: 240px; max-width: 74vw; background: #1b1b1b; color: #e9e9e9; border: 1px solid var(--ph-border); border-radius: 10px; padding: 0.65rem 0.8rem; font-size: 0.74rem; font-weight: 500; line-height: 1.5; text-align: left; box-shadow: 0 12px 34px rgba(0,0,0,.55); opacity: 0; visibility: hidden; transition: opacity .18s, transform .18s; z-index: 60; pointer-events: none; }
+        .trust-pill[data-tip]::before { content: ''; position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: #1b1b1b; opacity: 0; visibility: hidden; transition: opacity .18s; z-index: 61; }
+        .trust-pill[data-tip]:hover::after, .trust-pill[data-tip]:focus::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .trust-pill[data-tip]:hover::before, .trust-pill[data-tip]:focus::before { opacity: 1; visibility: visible; }
 
         /* ── Info panels ── */
         .info-panel { background: var(--ph-card); border-radius: 1rem; border: 1px solid var(--ph-border); padding: 1.75rem; height: 100%; }
@@ -213,10 +218,10 @@
         <div class="eyebrow">Est. 2024 · Research-Grade · Batch-Tested · EU Shipped</div>
         <h1>Pep<em>Hub</em><br>Advanced Peptide Science</h1>
         <div class="trust-strip">
-            <span class="trust-pill">✓ ≥ 99% HPLC Purity</span>
-            <span class="trust-pill">✓ Full COA per Batch</span>
-            <span class="trust-pill">✓ ISO Class 5 Filled</span>
-            <span class="trust-pill">✓ 100% UV Inspected</span>
+            <span class="trust-pill" tabindex="0" data-tip="HPLC (High-Performance Liquid Chromatography) is the lab test that measures how pure a peptide is. ≥ 99% means virtually no impurities.">✓ ≥ 99% HPLC Purity</span>
+            <span class="trust-pill" tabindex="0" data-tip="A COA (Certificate of Analysis) is the independent lab report proving each batch's identity, purity and safety — included with every batch.">✓ Full COA per Batch</span>
+            <span class="trust-pill" tabindex="0" data-tip="Filled in an ISO Class 5 cleanroom — an ultra-filtered, low-particle environment used in pharmaceutical manufacturing to prevent contamination.">✓ ISO Class 5 Filled</span>
+            <span class="trust-pill" tabindex="0" data-tip="Every single vial is inspected under UV light to catch any particles or contamination before it's shipped.">✓ 100% UV Inspected</span>
         </div>
     </div>
 </div>
