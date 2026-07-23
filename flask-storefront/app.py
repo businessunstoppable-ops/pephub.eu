@@ -726,8 +726,8 @@ def _seed_science_batch():
             _log.exception('science seed: commit failed')
 
 # ----------------------------------------------------------------------
-# Weekly-drip backlog — science_queue/*.json loaded as hidden QUEUED drafts.
-# The weekly scheduler promotes one per category to PUBLISHED each week
+# Monthly-drip backlog — science_queue/*.json loaded as hidden QUEUED drafts.
+# The monthly scheduler promotes one per category to PUBLISHED each month
 # (AI-first, this backlog as fallback). Idempotent on startup.
 # ----------------------------------------------------------------------
 _SCIENCE_QUEUE_DIR = os.path.join(basedir, 'science_queue')
@@ -1489,7 +1489,7 @@ def subscription_line_total(base_price, quantity):
     return round(subscription_unit_price(base_price) * max(0, int(quantity)), 2)
 
 # ----------------------------------------------------------------------
-# Science Hub — weekly RSS ingest → AI synthesis → human-reviewed articles
+# Science Hub — monthly RSS ingest → AI synthesis → human-reviewed articles
 # ----------------------------------------------------------------------
 import feedparser
 import anthropic
@@ -3539,7 +3539,7 @@ def admin_science_delete(slug):
     return redirect(url_for('admin_science'))
 
 # ----------------------------------------------------------------------
-# Weekly ingest scheduler — runs in-process while the server is up.
+# Monthly ingest scheduler — runs in-process while the server is up.
 # Guarded so it starts once; manual trigger also available in admin.
 # ----------------------------------------------------------------------
 def _ai_publish_one(topic):
@@ -3585,8 +3585,8 @@ def _publish_from_queue(topic):
     db.session.commit()
     return a.slug
 
-def _weekly_science_drip():
-    """Publish one article per category each week — AI first, backlog as fallback —
+def _monthly_science_drip():
+    """Publish one article per category each month — AI first, backlog as fallback —
     then auto-generate a hero image for each newly published piece."""
     _log = logging.getLogger('pephub.sciencehub')
     with app.app_context():
@@ -3594,20 +3594,20 @@ def _weekly_science_drip():
             try:
                 slug = _ai_publish_one(topic)
                 if slug:
-                    _log.info('weekly drip [%s]: AI-published', topic)
+                    _log.info('monthly drip [%s]: AI-published', topic)
                 else:
                     slug = _publish_from_queue(topic)
                     if slug:
-                        _log.info('weekly drip [%s]: published from backlog', topic)
+                        _log.info('monthly drip [%s]: published from backlog', topic)
                     else:
-                        _log.warning('weekly drip [%s]: nothing to publish (backlog empty)', topic)
+                        _log.warning('monthly drip [%s]: nothing to publish (backlog empty)', topic)
                 if slug:
                     a = Article.query.filter_by(slug=slug).first()
                     if a:
                         _generate_article_image(a.slug, a.title, a.topic, a.excerpt or '')
             except Exception:
                 db.session.rollback()
-                _log.exception('weekly drip failed for %s', topic)
+                _log.exception('monthly drip failed for %s', topic)
 
 def _start_scheduler():
     if os.environ.get('DISABLE_SCHEDULER'):
@@ -3616,12 +3616,12 @@ def _start_scheduler():
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
         sched = BackgroundScheduler(daemon=True)
-        # One fresh article per category, every Monday 09:00 UTC.
-        sched.add_job(_weekly_science_drip,
-                      CronTrigger(day_of_week='mon', hour=9, minute=0),
-                      id='science_weekly_drip', misfire_grace_time=6 * 3600, coalesce=True)
+        # One fresh article per category on the 1st of each month, 09:00 UTC.
+        sched.add_job(_monthly_science_drip,
+                      CronTrigger(day=1, hour=9, minute=0),
+                      id='science_monthly_drip', misfire_grace_time=24 * 3600, coalesce=True)
         sched.start()
-        log.info('Science Hub weekly drip scheduler started (Mondays 09:00 UTC)')
+        log.info('Science Hub monthly drip scheduler started (1st of month, 09:00 UTC)')
     except Exception:
         log.exception('could not start scheduler')
 
