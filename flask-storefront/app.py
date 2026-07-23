@@ -11,6 +11,7 @@ import json
 import logging
 import secrets
 import string
+import hashlib
 
 # Load env vars from .env (next to this file). Silent if missing.
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
@@ -3330,29 +3331,58 @@ def coa_detail(slug):
 # ----------------------------------------------------------------------
 _SCIENCE_IMG_DIR = os.path.join(basedir, 'static', 'science')
 
-# Consistent house style (brand cohesion) WITHOUT dictating the subject, so each
-# image reflects its own article rather than repeating the same molecule/DNA scene.
-_IMG_STYLE = ("Editorial science illustration for a premium biotech brand. Dark near-black "
-              "background with metallic gold and warm amber accent lighting. Cinematic, elegant, "
-              "high detail, shallow depth of field. Absolutely no text, no words, no letters, "
-              "no numbers, no charts, no watermark.")
+# Brand palette + quality cues shared by every image (cohesion), but deliberately
+# LIGHT so the article's own subject — not the boilerplate — drives the picture.
+_IMG_STYLE = ("Premium biotech editorial art. Dark near-black background, one bold "
+              "focal subject, metallic gold and warm amber accent light, cinematic, "
+              "elegant, ultra-detailed, photographic depth of field.")
+
+# Hard negatives — kill the repetitive "HUD panels + floating graphs + molecule
+# cluster" look that made every article read the same.
+_IMG_NEGATIVE = ("no text, no words, no letters, no numbers, no captions, no labels, "
+                 "no watermark, no charts, no graphs, no diagrams, no HUD, no UI panels, "
+                 "no dashboards, no data boxes, no grid overlays, no borders, no collage.")
 
 # Per-topic art direction — steers the model toward subject matter relevant to each
 # article's field, instead of one fixed motif.
 _IMG_TOPIC_DIR = {
-    'Peptide Science':      "Depict the specific molecule, receptor, or tissue mechanism described — molecular models or biological structures relevant to this exact compound.",
-    'Nutrition':            "Depict the specific nutrient, food source, or metabolic process described — natural close-up forms, not abstract molecules.",
-    'Bio-hacking':          "Depict the specific practice, environment, or device described (e.g. cold water immersion, sauna heat, red light, a wearable, breathwork).",
-    'Vitality & Longevity': "Depict the specific cellular or aging-biology concept described (e.g. mitochondria, senescent cells, telomeres, autophagy).",
-    'Training & Recovery':  "Depict the specific training or recovery concept described — human musculature, movement, tendons, or restorative rest.",
-    'Health & Wellbeing':   "Depict the specific physiological system or state described (e.g. sleep and the brain, the gut, hormones, the heart, circadian light).",
+    'Peptide Science':      "Subject: the specific molecule, receptor, or tissue mechanism this compound acts on.",
+    'Nutrition':            "Subject: the specific nutrient, whole food, or metabolic process — natural close-up forms, not abstract molecules.",
+    'Bio-hacking':          "Subject: the specific practice, environment, or device (cold plunge, sauna heat, red light, a wearable, breathwork).",
+    'Vitality & Longevity': "Subject: the specific cellular or aging-biology concept (mitochondria, senescent cells, telomeres, autophagy).",
+    'Training & Recovery':  "Subject: the specific training or recovery concept — human musculature, tendons, movement, or restorative rest.",
+    'Health & Wellbeing':   "Subject: the specific physiological system or state (the sleeping brain, the gut, hormones, the heart, circadian light).",
 }
 
-def _img_prompt(title, topic, excerpt=''):
+# Distinct visual treatments. Each article is pinned (by its slug) to ONE of these,
+# so two articles in the same topic never share the same camera/composition — this is
+# the main lever that makes the set look individual rather than templated.
+_IMG_COMPOSITIONS = [
+    "Extreme macro photograph, the subject fills the frame, razor-thin depth of field, glistening organic texture.",
+    "A single hero 3D render floating centered in deep dark space, dramatic volumetric side light.",
+    "Sweeping microscopic landscape, wide cinematic vista receding into darkness, atmospheric haze.",
+    "Anatomical cross-section cutaway, clean scientific render, soft rim lighting on the interior.",
+    "Abstract flowing signaling pathways and particle streams, long-exposure light trails, sense of motion.",
+    "Electron-microscope style close-up, richly textured organic surfaces, high micro-contrast.",
+    "Dynamic diagonal composition, the subject sweeping across frame with subtle motion blur.",
+    "Backlit silhouette of the subject with a glowing gold rim and bloom, minimalist negative space.",
+]
+
+def _slug_hash(slug):
+    """Stable non-negative int from a slug (Python's hash() is salted per-process)."""
+    return int(hashlib.md5((slug or '').encode()).hexdigest(), 16)
+
+def _img_seed(slug):
+    return _slug_hash(slug) % 2_000_000_000
+
+def _img_prompt(title, topic, excerpt='', slug=''):
     subject = title.replace('//', '—').split(':')[0].strip()
     concept = (excerpt or '').strip()
     direction = _IMG_TOPIC_DIR.get(topic, '')
-    return f"{subject}. {concept} {direction} {_IMG_STYLE}".strip()
+    composition = _IMG_COMPOSITIONS[_slug_hash(slug or title) % len(_IMG_COMPOSITIONS)]
+    # Lead with the article's own subject + a unique composition; brand style last.
+    return (f"{subject}. {concept} {direction} {composition} {_IMG_STYLE} "
+            f"Negative: {_IMG_NEGATIVE}").strip()
 
 def _generate_article_image(slug, title, topic, excerpt='', force=False):
     """Generate a hero image via Replicate (Flux) and store it in the DB.
@@ -3365,9 +3395,9 @@ def _generate_article_image(slug, title, topic, excerpt='', force=False):
     _log = logging.getLogger('pephub.sciencehub')
     try:
         import urllib.request
-        body = json.dumps({'input': {'prompt': _img_prompt(title, topic, excerpt),
+        body = json.dumps({'input': {'prompt': _img_prompt(title, topic, excerpt, slug),
                                      'aspect_ratio': '16:9', 'output_format': 'jpg',
-                                     'num_outputs': 1}}).encode()
+                                     'num_outputs': 1, 'seed': _img_seed(slug)}}).encode()
         req = urllib.request.Request(
             'https://api.replicate.com/v1/models/%s/predictions' % REPLICATE_IMAGE_MODEL,
             data=body, method='POST',
