@@ -785,7 +785,7 @@ peptide_data = {
     "BPC-157": {"dose_range": "250-500 mcg", "half_life": "4-6 hours", "storage": "Refrigerate after reconstitution"},
     "TB-500": {"dose_range": "2.5-5 mg per week", "half_life": "6-7 days", "storage": "Refrigerate after reconstitution"},
     "GHK-Cu": {"dose_range": "1-2 mg per day", "half_life": "30-60 minutes", "storage": "Refrigerate"},
-   # "CJC-1295/Ipamorelin": {"dose_range": "100-200 mcg each daily", "half_life": "6-8 hours (CJC), 2 hours (Ipa)", "storage": "Refrigerate"},
+    "CJC-1295/Ipamorelin": {"dose_range": "100-300 mcg each daily", "half_life": "CJC-1295 (no DAC) ~30 min · Ipamorelin ~2 h", "storage": "Refrigerate after reconstitution"},
     "Retatrutide": {"dose_range": "1-4 mg per week", "half_life": "6 days", "storage": "Refrigerate"},
     "MOTS-c": {"dose_range": "5-10 mg per week", "half_life": "2-3 hours", "storage": "Refrigerate"},
     "KPV": {"dose_range": "200-500 mcg per day", "half_life": "2-3 hours", "storage": "Refrigerate"},
@@ -807,6 +807,7 @@ products = [
     {"id": 3,  "name": "GHK-Cu",           "desc": "**Function:** GHK-Cu (Copper Peptide) – stimulates collagen and elastin production, accelerates wound healing, promotes skin rejuvenation and hair follicle activation. **Active peptide:** GHK-Cu (Glycyl-L-histidyl-L-lysine copper complex).", "base_price": 39.99},
     {"id": 5,  "name": "Retatrutide",      "desc": "**Function:** Retatrutide – next-generation triple agonist (GLP-1 / GIP / Glucagon). Supports weight management, glucose control, and thermogenesis. One of the most potent metabolic peptides currently in research. **Active peptide:** Retatrutide.", "base_price": 124.99},
     {"id": 6,  "name": "MOTS-c",           "desc": "**Function:** MOTS-c – a mitochondrial-derived peptide that activates AMPK, enhances insulin sensitivity, boosts metabolic flexibility and cellular energy (ATP) production, and supports exercise capacity and healthy ageing. **Active peptide:** MOTS-c (16 amino acids).", "base_price": 49.99},
+    {"id": 7,  "name": "CJC-1295 / Ipamorelin", "desc": "**Function:** CJC-1295 + Ipamorelin – a growth-hormone-releasing peptide (GHRH analogue) paired with a selective GH secretagogue (ghrelin-receptor agonist). Together they amplify the body's own pulsatile GH release to support recovery, deep sleep, lean-mass recomposition and fat metabolism — without overriding natural feedback. **Active peptides:** CJC-1295 (mod GRF 1-29) + Ipamorelin.", "base_price": 54.99},
     {"id": 21, "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 159.99},
     {"id": 22, "name": "KLOW Stack",       "desc": "**Function:** The complete four-peptide repair + anti-inflammatory protocol — KPV (10mg) + BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in one lyophilised vial. Adds KPV's potent anti-inflammatory action to the GLOW regeneration stack. **Active peptides:** KPV · BPC-157 · GHK-Cu · TB-500.", "base_price": 199.99},
     {"id": 20, "name": "Bacteriostatic Water", "desc": "**Function:** Sterile bacteriostatic water for reconstitution of lyophilised peptides. Contains 0.9% benzyl alcohol — preserves reconstituted peptide solutions for up to 28 days when refrigerated. **Essential companion** to all freeze-dried research peptides.", "base_price": 4.99},
@@ -820,9 +821,11 @@ products = [
 VARIANTS = {
     1: [   # BPC-157
         {"sku": "BPC-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 5.50, "retail_eur": 39.99},
+        {"sku": "BPC-20", "label": "20 mg / vial", "strength_mg": 20, "wholesale_usd": 9.90, "retail_eur": 71.99},
     ],
     2: [   # TB-500
         {"sku": "TB-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 6.50, "retail_eur": 49.99},
+        {"sku": "TB-20", "label": "20 mg / vial", "strength_mg": 20, "wholesale_usd": 11.70, "retail_eur": 89.99},
     ],
     9: [   # BPC-157 & TB-500
         {"sku": "BPCTB-20", "label": "20 mg / vial · 10 mg BPC-157 + 10 mg TB-500", "strength_mg": 20, "wholesale_usd": 10.80, "retail_eur": 69.99},
@@ -832,9 +835,15 @@ VARIANTS = {
     ],
     5: [   # Retatrutide
         {"sku": "RETA-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 9.90, "retail_eur": 124.99},
+        {"sku": "RETA-20", "label": "20 mg / vial", "strength_mg": 20, "wholesale_usd": 17.82, "retail_eur": 224.99},
     ],
     6: [   # MOTS-c
         {"sku": "MOTSC-10", "label": "10 mg / vial", "strength_mg": 10, "wholesale_usd": 7.50, "retail_eur": 49.99},
+        {"sku": "MOTSC-20", "label": "20 mg / vial", "strength_mg": 20, "wholesale_usd": 13.50, "retail_eur": 89.99},
+    ],
+    7: [   # CJC-1295 / Ipamorelin (1:1 GH-secretagogue blend)
+        {"sku": "CJC-10", "label": "10 mg / vial · 5 mg CJC-1295 + 5 mg Ipamorelin",   "strength_mg": 10, "wholesale_usd": 8.00,  "retail_eur": 54.99},
+        {"sku": "CJC-20", "label": "20 mg / vial · 10 mg CJC-1295 + 10 mg Ipamorelin", "strength_mg": 20, "wholesale_usd": 14.00, "retail_eur": 99.99},
     ],
     21: [  # GLOW Stack
         {"sku": "GLOW-70", "label": "70 mg / vial · BPC 10 + GHK 50 + TB 10", "strength_mg": 70, "wholesale_usd": 22.80, "retail_eur": 159.99},
@@ -1015,6 +1024,68 @@ coa_reports = {
             {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.05 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
             {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
             {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 210 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
+            {"name": "Appearance",                      "spec": "White lyophilised powder",    "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
+        ]
+    },
+    "cjc-1295-ipamorelin": {
+        "product_name": "CJC-1295 / Ipamorelin",
+        "subtitle": "Growth-Hormone Secretagogue Blend — CJC-1295 (mod GRF 1-29) + Ipamorelin (1:1)",
+        "slug": "cjc-1295-ipamorelin",
+        "batch": "PBS-CJ-2026-031",
+        "mfg_date": "12 February 2026",
+        "exp_date": "12 February 2028",
+        "appearance": "White to off-white lyophilised powder",
+        "storage": "Store at −20 °C, protected from light. After reconstitution: 2–8 °C, consume within 28 days.",
+        "overall_purity": "99.3%",
+        "components": [
+            {
+                "name": "CJC-1295 (no DAC)",
+                "full_name": "Modified GRF (1-29) — CJC-1295 without DAC · 1:1 blend component",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy); D-Ala² / Gln⁸ / Ala¹⁵ / Leu²⁷ modifications for DPP-4 resistance",
+                "cas": "863288-34-0",
+                "formula": "C₁₅₂H₂₅₂N₄₄O₄₂",
+                "mw": "3,367.90 Da",
+                "aa_count": 29,
+                "sequence": "Tyr-D-Ala-Asp-Ala-Ile-Phe-Thr-Gln-Ser-Tyr-Arg-Lys-Val-Leu-Ala-Gln-Leu-Ser-Ala-Arg-Lys-Leu-Leu-Gln-Asp-Ile-Leu-Ser-Arg-NH₂",
+                "hplc": "99.2%",
+                "ms_exp": "3367.9 Da",
+                "ms_found": "3368.0 Da",
+                "bonds": [
+                    {"pos": "1–2",   "bond": "Tyr–D-Ala (D-Ala² · DPP-4 resistance)", "type": "Amide", "integrity": "99.7"},
+                    {"pos": "11–12", "bond": "Arg–Lys",                               "type": "Amide", "integrity": "99.6"},
+                    {"pos": "28–29", "bond": "Ser–Arg (C-term amide)",                "type": "Amide/C-term", "integrity": "99.4"},
+                ]
+            },
+            {
+                "name": "Ipamorelin",
+                "full_name": "Aib-His-D-2-Nal-D-Phe-Lys-NH₂ · selective GHS-R1a agonist · 1:1 blend component",
+                "origin": "Synthetic — Solid Phase Peptide Synthesis (Fmoc/tBu SPPS strategy); C-terminal amidation",
+                "cas": "170851-70-4",
+                "formula": "C₃₈H₄₉N₉O₅",
+                "mw": "711.85 Da",
+                "aa_count": 5,
+                "sequence": "Aib-His-D-2-Nal-D-Phe-Lys-NH₂",
+                "hplc": "99.5%",
+                "ms_exp": "711.9 Da",
+                "ms_found": "711.8 Da",
+                "bonds": [
+                    {"pos": "1–2", "bond": "Aib–His",              "type": "Amide", "integrity": "99.8"},
+                    {"pos": "3–4", "bond": "D-2-Nal–D-Phe",        "type": "Amide", "integrity": "99.7"},
+                    {"pos": "4–5", "bond": "D-Phe–Lys (C-term amide)", "type": "Amide/C-term", "integrity": "99.6"},
+                ]
+            }
+        ],
+        "tests": [
+            {"name": "HPLC Purity — CJC-1295",          "spec": "≥ 99.0%",                     "result": "99.2%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "HPLC Purity — Ipamorelin",        "spec": "≥ 99.0%",                     "result": "99.5%",                          "method": "RP-HPLC (C18, 214 nm UV)",                              "status": "PASS"},
+            {"name": "Blend Ratio (CJC : Ipa)",         "spec": "1.00 : 1.00 ± 0.05",          "result": "1.00 : 0.98",                    "method": "Quantitative RP-HPLC (peak-area normalisation)",        "status": "PASS"},
+            {"name": "Mass Accuracy — CJC-1295",        "spec": "3367.9 ± 1.0 Da",             "result": "3368.0 Da",                      "method": "ESI-MS (positive mode)",                                "status": "PASS"},
+            {"name": "Mass Accuracy — Ipamorelin",      "spec": "711.9 ± 0.5 Da",              "result": "711.8 Da",                       "method": "ESI-MS (positive mode)",                                "status": "PASS"},
+            {"name": "Water Content (Karl Fischer)",    "spec": "< 5.0%",                      "result": "3.2%",                           "method": "Karl Fischer Titration (USP ⟨921⟩)",                    "status": "PASS"},
+            {"name": "Residual Solvents (ICH Q3C)",     "spec": "Below Class 2 limits",        "result": "< LOQ for all solvents",         "method": "GC Headspace Analysis",                                 "status": "PASS"},
+            {"name": "Endotoxin Content (LAL)",         "spec": "< 0.10 EU/mg",                "result": "0.04 EU/mg",                     "method": "Limulus Amebocyte Lysate — chromogenic method",         "status": "PASS"},
+            {"name": "Sterility (USP ⟨71⟩)",            "spec": "No microbial growth",         "result": "No growth at 14 days",           "method": "Membrane Filtration, SCDM + Fluid Thioglycollate",      "status": "PASS"},
+            {"name": "Particulate Matter (USP ⟨788⟩)",  "spec": "< 6,000 particles ≥10 μm",    "result": "< 190 particles/unit",           "method": "Light Obscuration (HIAC 9703+)",                        "status": "PASS"},
             {"name": "Appearance",                      "spec": "White lyophilised powder",    "result": "Confirmed ✓",                    "method": "Visual / macroscopic inspection",                       "status": "PASS"},
         ]
     },
@@ -2662,6 +2733,35 @@ product_details = {
             ("Preclinical Evidence", "Improved insulin sensitivity, enhanced exercise capacity, and protection against diet-induced obesity in rodent models."),
             ("Longevity Interest", "Mitochondrial-derived peptides such as MOTS-c are studied as markers and modulators of metabolic health and biological ageing."),
             ("Storage Note", "Lyophilised form stable at −20 °C. After reconstitution with bacteriostatic water, refrigerate and use within 28 days."),
+        ],
+    },
+    7: {  # CJC-1295 / Ipamorelin
+        "subtitle": "GHRH Analogue + GH Secretagogue — Pulsatile GH Support",
+        "eyebrow": "Growth & Recovery",
+        "icon": "bi-moon-stars",
+        "tagline": "Amplifies your own growth-hormone pulses — recovery, deep sleep and lean recomposition.",
+        "coa_slug": "cjc-1295-ipamorelin",
+        "half_life": "CJC-1295 (no DAC) ~30 min · Ipamorelin ~2 h",
+        "dose_range": "100–300 mcg each/day (research context)",
+        "form": "Lyophilised two-peptide vial (1:1 CJC-1295 : Ipamorelin)",
+        "storage": "Refrigerate (2–8 °C) after reconstitution. Use within 28 days.",
+        "aa_count": "CJC-1295: 29 AA (mod GRF 1-29) · Ipamorelin: 5 AA",
+        "cas": "CJC-1295: 863288-34-0 · Ipamorelin: 170851-70-4",
+        "purity": "Each component ≥ 99% (HPLC verified — full COA available)",
+        "chips": [
+            ("GH Pulse Amplification", True), ("Recovery", False),
+            ("Deep Sleep", False), ("Lean Recomposition", False), ("Fat Metabolism", False),
+        ],
+        "description": """
+            <p>CJC-1295 with Ipamorelin is the most widely researched growth-hormone-secretagogue pairing. It combines two complementary mechanisms: CJC-1295 (modified GRF 1-29) is a GHRH analogue that raises the amount of growth hormone released per pulse, while Ipamorelin is a selective ghrelin-receptor agonist that triggers a clean GH pulse without meaningfully affecting cortisol or prolactin.</p>
+            <p>Because both peptides work <em>through</em> the pituitary rather than replacing GH directly, they preserve the body's natural pulsatile rhythm and negative-feedback safety — a key reason the pairing is favoured in research over exogenous growth hormone.</p>
+            <p>In research contexts the combination is studied for tissue recovery, sleep architecture (slow-wave sleep), body-composition shifts toward lean mass, and fat metabolism. The two are supplied together in a single 1:1 lyophilised vial for convenience and dosing consistency.</p>
+        """,
+        "research_notes": [
+            ("Mechanism", "CJC-1295 (mod GRF 1-29) activates pituitary GHRH receptors to increase GH released per pulse; Ipamorelin activates the ghrelin/GHS-R1a receptor to initiate a selective GH pulse — synergistic amplitude + frequency."),
+            ("Selectivity", "Ipamorelin is prized for its selectivity: minimal impact on cortisol and prolactin compared with older secretagogues such as GHRP-6 / GHRP-2."),
+            ("Preclinical Evidence", "Secretagogue pairings of this type are studied for increased IGF-1, improved slow-wave sleep, connective-tissue recovery, and favourable lean-mass/fat-mass shifts in research models."),
+            ("Storage Note", "Lyophilised form stable at −20 °C. After reconstitution with bacteriostatic water, refrigerate (2–8 °C) and use within 28 days."),
         ],
     },
     22: {  # KLOW Stack
