@@ -415,7 +415,7 @@ _LOGO_CSS = """<style id="ph-logo-css">
 /* Loading screen: show the logo (pulsing) instead of text/icon. */
 #page-loader{background:#000!important;}
 #page-loader>*{display:none!important;}
-#page-loader::before{content:"";display:block;width:220px;max-width:64vw;height:74px;background:url('/static/pephub-logo.jpg') center/contain no-repeat;animation:phLogoPulse 1.35s ease-in-out infinite;}
+#page-loader::before{content:"";display:block;width:190px;height:190px;max-width:52vw;background:url('/static/pephub-loader.png') center/contain no-repeat;animation:phLogoPulse 1.35s ease-in-out infinite;}
 @keyframes phLogoPulse{0%,100%{opacity:.5;transform:scale(.98)}50%{opacity:1;transform:scale(1.04)}}
 /* Stamp the real logo onto every vial label (brand authenticity / clarity). */
 .vial-label .ph-brand{background:url('/static/pephub-logo.jpg') center/contain no-repeat!important;font-size:0!important;height:15px!important;margin-bottom:6px!important;}
