@@ -429,14 +429,49 @@ _BG_VIDEO = """
 <source src="/static/background.mp4" type="video/mp4">
 </video>
 <div id="ph-bg-scrim" aria-hidden="true"></div>
+<button id="ph-audio-toggle" type="button" aria-label="Toggle background sound" aria-pressed="false" title="Background sound">
+  <svg class="ph-a-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
+  <svg class="ph-a-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm18.5 3-2.5-2.5-1.5 1.5L20 13.5 17.5 16l1.5 1.5L21.5 15 24 17.5 22.5 19 20 16.5 17.5 19 16 17.5 18.5 15 16 12.5l1.5-1.5L20 13.5 22.5 11 21 9.5z"/></svg>
+</button>
 <style>
 html{background:#0b0a07!important;}
 body{background-color:transparent!important;}
 #ph-bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;pointer-events:none;}
 #ph-bg-scrim{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 38%, rgba(11,10,7,.12) 0%, rgba(11,10,7,.5) 68%, rgba(11,10,7,.74) 100%);}
 .site-hero,.product-hero,.hub-hero,.page-hero,.report-header{background:transparent!important;}
+#ph-audio-toggle{position:fixed;right:1.1rem;bottom:1.1rem;z-index:9998;width:44px;height:44px;border-radius:50%;border:1px solid rgba(212,175,55,.55);background:rgba(11,10,7,.72);color:#D4AF37;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.45);transition:transform .15s ease,border-color .15s ease,opacity .3s ease;}
+#ph-audio-toggle:hover{transform:scale(1.08);border-color:#D4AF37;}
+#ph-audio-toggle svg{width:20px;height:20px;fill:currentColor;pointer-events:none;}
+#ph-audio-toggle .ph-a-off{display:none;}
+#ph-audio-toggle.is-muted{color:#8a8578;border-color:rgba(138,133,120,.5);}
+#ph-audio-toggle.is-muted .ph-a-on{display:none;}
+#ph-audio-toggle.is-muted .ph-a-off{display:block;}
+@media (max-width:600px){#ph-audio-toggle{width:40px;height:40px;right:.8rem;bottom:.8rem;}}
 </style>
-<script>(function(){var v=document.getElementById('ph-bg-video');if(!v)return;v.muted=true;try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}})();</script>
+<script>
+(function(){
+  var v=document.getElementById('ph-bg-video'),btn=document.getElementById('ph-audio-toggle');
+  if(!v)return;
+  v.muted=true;v.volume=0.35;
+  // Resume playback position across page loads (visual + audio continuity).
+  function resume(){var t=parseFloat(sessionStorage.getItem('ph_bg_pos')||'0');if(t>0&&isFinite(t)){try{v.currentTime=t;}catch(e){}}}
+  v.addEventListener('loadedmetadata',resume);resume();
+  try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+  function save(){try{sessionStorage.setItem('ph_bg_pos',v.currentTime||0);}catch(e){}}
+  setInterval(save,1000);window.addEventListener('pagehide',save);window.addEventListener('beforeunload',save);
+  if(!btn)return;
+  // Sound ON by default; browsers block unmuted autoplay, so we unmute on the
+  // first user interaction. Respect a persisted mute preference.
+  var soundOff=localStorage.getItem('ph_audio_muted')==='1';
+  function ui(){btn.classList.toggle('is-muted',v.muted);btn.setAttribute('aria-pressed',v.muted?'false':'true');}
+  function enableSound(){if(soundOff)return;v.muted=false;var pp=v.play();if(pp&&pp.catch)pp.catch(function(){v.muted=true;ui();});ui();}
+  function onFirst(e){['click','touchstart','keydown','scroll'].forEach(function(ev){document.removeEventListener(ev,onFirst,true);});if(e&&e.target&&btn.contains(e.target))return;enableSound();}
+  ['click','touchstart','keydown','scroll'].forEach(function(ev){document.addEventListener(ev,onFirst,true);});
+  btn.addEventListener('click',function(e){e.stopPropagation();if(v.muted){soundOff=false;localStorage.setItem('ph_audio_muted','0');v.muted=false;v.play().catch(function(){});}else{soundOff=true;localStorage.setItem('ph_audio_muted','1');v.muted=true;}ui();});
+  v.addEventListener('volumechange',ui);
+  ui();
+})();
+</script>
 """
 
 
