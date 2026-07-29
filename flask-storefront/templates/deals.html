@@ -39,8 +39,9 @@
         .deal-card .tagline { color:var(--ph-orange); font-weight:700; font-size:.9rem; margin-bottom:.5rem; }
         .deal-card p { color:var(--text-muted); font-size:.88rem; margin:0; }
 
-        .table-wrap { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; overflow:hidden; }
+        .table-wrap { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; overflow-x:auto; -webkit-overflow-scrolling:touch; }
         table.deals { width:100%; border-collapse:collapse; }
+        .swipe-hint { display:none; }
         table.deals thead th { background:#1A1A1A; color:var(--text-muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; padding:.85rem 1rem; text-align:right; border-bottom:1px solid var(--ph-border); transition:color .15s,background .15s; }
         table.deals thead th:first-child { text-align:left; }
         table.deals thead th.col-active { color:var(--ph-orange); background:rgba(212, 175, 55,.08); }
@@ -68,7 +69,12 @@
 
         .note { color:var(--text-muted); font-size:.8rem; margin-top:1rem; }
         .footer-note { border-top:1px solid var(--ph-border); font-size:.75rem; color:var(--text-muted); text-align:center; padding:2rem 0; margin-top:3rem; background:#0D0D0D; }
-        @media (max-width:820px){ .hide-sm { display:none; } .add-form { flex-direction:column; align-items:stretch; } .v-pick{max-width:none;} }
+        @media (max-width:820px){ .hide-sm { display:none; } .add-form { flex-direction:column; align-items:stretch; } .v-pick{max-width:none;}
+            table.deals { min-width:600px; }
+            .swipe-hint { display:flex; align-items:center; justify-content:center; gap:.4rem; color:var(--ph-orange); font-size:.75rem; font-weight:700; margin:.2rem 0 .6rem; }
+            .swipe-hint .sh-arrow { animation:shNudge 1.4s ease-in-out infinite; }
+        }
+        @keyframes shNudge { 0%,100%{transform:translateX(0);} 50%{transform:translateX(4px);} }
     </style>
 </head>
 <body>
@@ -119,6 +125,7 @@
     </div>
 
     <div class="step-label"><span class="num">2</span> Pick a product &amp; add it</div>
+    <div class="swipe-hint"><span class="sh-arrow">↔</span> Swipe the table sideways to see every price</div>
     <div class="table-wrap">
         <table class="deals">
             <thead>

@@ -425,9 +425,7 @@ _LOGO_CSS = """<style id="ph-logo-css">
 # Video background — a looping, muted, compressed clip behind all content, with
 # a dark scrim so text stays readable. Poster shows instantly / as fallback.
 _BG_VIDEO = """
-<video id="ph-bg-video" autoplay muted loop playsinline preload="auto" poster="/static/background-poster.jpg" aria-hidden="true">
-<source src="/static/background.mp4" type="video/mp4">
-</video>
+<video id="ph-bg-video" autoplay muted loop playsinline preload="auto" poster="/static/background-poster.jpg" data-full="/static/background.mp4" data-lite="/static/background-lite.mp4" aria-hidden="true"></video>
 <div id="ph-bg-scrim" aria-hidden="true"></div>
 <button id="ph-audio-toggle" type="button" aria-label="Toggle background sound" aria-pressed="false" title="Background sound">
   <svg class="ph-a-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
@@ -453,13 +451,21 @@ body{background-color:transparent!important;}
   var v=document.getElementById('ph-bg-video'),btn=document.getElementById('ph-audio-toggle');
   if(!v)return;
   v.muted=true;v.volume=0.35;
+  // Low-network / Save-Data devices get the lightweight silent clip (~6MB) instead
+  // of the full clip with audio (~15MB). No audio track -> hide the sound toggle.
+  var c=navigator.connection||navigator.webkitConnection||navigator.mozConnection||{};
+  var et=(c.effectiveType||'');
+  var lite = c.saveData===true || et==='slow-2g' || et==='2g' || et==='3g';
+  v.src = lite ? v.getAttribute('data-lite') : v.getAttribute('data-full');
+  v.load();
+  if(lite && btn){ btn.style.display='none'; }
   // Resume playback position across page loads (visual + audio continuity).
   function resume(){var t=parseFloat(sessionStorage.getItem('ph_bg_pos')||'0');if(t>0&&isFinite(t)){try{v.currentTime=t;}catch(e){}}}
   v.addEventListener('loadedmetadata',resume);resume();
   try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
   function save(){try{sessionStorage.setItem('ph_bg_pos',v.currentTime||0);}catch(e){}}
   setInterval(save,1000);window.addEventListener('pagehide',save);window.addEventListener('beforeunload',save);
-  if(!btn)return;
+  if(!btn||lite)return;
   // Sound ON by default; browsers block unmuted autoplay, so we unmute on the
   // first user interaction. Respect a persisted mute preference.
   var soundOff=localStorage.getItem('ph_audio_muted')==='1';
@@ -473,6 +479,16 @@ body{background-color:transparent!important;}
 })();
 </script>
 """
+
+
+# Zoom lock: touch-action disables pinch + double-tap zoom while keeping scroll
+# (pan-x preserves the bulk-table side-swipe). gesturestart prevention covers iOS
+# Safari, which ignores viewport user-scalable=no.
+_ZOOM_LOCK = (
+    '<style id="ph-zoom-lock">html{touch-action:pan-x pan-y;-ms-touch-action:pan-x pan-y;}</style>'
+    '<script id="ph-zoom-lock-js">["gesturestart","gesturechange","gestureend"].forEach(function(g){'
+    'document.addEventListener(g,function(e){e.preventDefault();},{passive:false});});</script>'
+)
 
 
 def _inject_csrf_tokens(html, token):
@@ -503,6 +519,20 @@ def _inject_site_chrome(resp):
             fav = ('<link id="ph-favicon" rel="icon" type="image/png" href="/static/favicon.png">'
                    '<link rel="apple-touch-icon" href="/static/favicon.png">')
             html = html.replace('</head>', fav + '</head>', 1)
+            changed = True
+
+        # 0b. Lock zoom site-wide: force a non-scalable viewport + inject the
+        # touch-action / iOS-gesture zoom lock (once, into <head>).
+        if '<meta' in html and 'user-scalable=no' not in html:
+            new_html = re.sub(r'<meta\s+name=["\']viewport["\'][^>]*>',
+                              '<meta name="viewport" content="width=device-width, initial-scale=1.0, '
+                              'maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">',
+                              html, count=1, flags=re.I)
+            if new_html != html:
+                html = new_html
+                changed = True
+        if '</head>' in html and 'ph-zoom-lock' not in html:
+            html = html.replace('</head>', _ZOOM_LOCK + '</head>', 1)
             changed = True
 
         # 1. CSRF token into every POST form (skip if none / already present)
