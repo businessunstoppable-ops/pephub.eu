@@ -3654,16 +3654,21 @@ def _generate_article_image(slug, title, topic, excerpt='', force=False):
         return False
 
 def _science_image(slug):
-    """Hero image URL for an article: DB-stored (AI-generated) first, then a
-    file at static/science/<slug>.<ext>, else None (falls back to gradient)."""
+    """Hero image URL for an article: a hand-placed file at
+    static/science/<slug>.<ext> wins, then the DB-stored (AI-generated) one,
+    else None (falls back to gradient).
+
+    Files take precedence deliberately: dropping one in is the way to override
+    bad generated art (e.g. Flux baking a misspelt title into the picture)
+    without needing DB access, and it survives a later image regeneration."""
+    for ext in ('jpg', 'jpeg', 'png', 'webp'):
+        if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
+            return '/static/science/' + slug + '.' + ext
     try:
         if db.session.query(ArticleImage.slug).filter_by(slug=slug).first():
             return '/science/img/' + slug
     except Exception:
         pass
-    for ext in ('jpg', 'jpeg', 'png', 'webp'):
-        if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
-            return '/static/science/' + slug + '.' + ext
     return None
 
 def _article_view(a):
