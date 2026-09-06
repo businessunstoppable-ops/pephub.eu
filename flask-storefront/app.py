@@ -9,9 +9,14 @@ import re
 import os
 import json
 import logging
+import mimetypes
 import secrets
 import string
 import hashlib
+
+# Python guesses "audio/mp4a-latm" for .m4a, which Safari refuses to play.
+# Pin the correct container type so the background soundtrack loads everywhere.
+mimetypes.add_type('audio/mp4', '.m4a')
 
 # Load env vars from .env (next to this file). Silent if missing.
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
@@ -422,10 +427,68 @@ _LOGO_CSS = """<style id="ph-logo-css">
 .vial-label .ph-brand .hub-tag{background:none!important;padding:0!important;margin:0!important;}
 </style>"""
 
-# Video background — a looping, muted, compressed clip behind all content, with
-# a dark scrim so text stays readable. Poster shows instantly / as fallback.
+# Background soundtrack — kept in its own <audio> element rather than the video's
+# audio track, and started from <head> so it resumes *before* the rest of the page
+# parses. That is what makes the sound continuous across navigations: the clip is
+# only ~1.4MB (vs. re-fetching a 15MB video for its audio), the playhead is carried
+# in sessionStorage, and once the visitor has interacted with the site the browser
+# grants autoplay-with-sound, so every later page picks up where the last left off.
+_BG_AUDIO = """
+<link rel="preload" as="audio" href="/static/background-audio.m4a">
+<script id="ph-bg-audio">
+(function(){
+  var SRC='/static/background-audio.m4a',POS='ph_snd_pos',MUTE='ph_audio_muted';
+  // Save-Data / 2G visitors get silence — never spend their bandwidth on ambience.
+  var c=navigator.connection||navigator.webkitConnection||navigator.mozConnection||{};
+  var et=c.effectiveType||'';
+  if(c.saveData===true||et==='slow-2g'||et==='2g')return;
+  var a=new Audio();a.loop=true;a.preload='auto';a.volume=0.35;a.src=SRC;
+  var want=true;try{want=localStorage.getItem(MUTE)!=='1';}catch(e){}   // sound on by default
+
+  // Resume the playhead where the previous page stopped.
+  function seek(){
+    var t=0;try{t=parseFloat(sessionStorage.getItem(POS)||'0');}catch(e){}
+    if(t>0&&isFinite(t)&&a.duration&&t<a.duration){try{a.currentTime=t;}catch(e){}}
+  }
+  a.addEventListener('loadedmetadata',seek);
+
+  // Start as early as the browser allows; if autoplay is still blocked (very first
+  // visit), arm a one-shot gesture listener and start on the first interaction.
+  var armed=false;
+  function start(){if(!want)return;var p=a.play();if(p&&p.catch)p.catch(arm);}
+  function arm(){
+    if(armed)return;armed=true;
+    var evs=['pointerdown','touchstart','keydown','scroll'];
+    function go(){armed=false;evs.forEach(function(ev){document.removeEventListener(ev,go,true);});start();}
+    evs.forEach(function(ev){document.addEventListener(ev,go,true);});
+  }
+  start();
+
+  function save(){try{if(a.currentTime>0)sessionStorage.setItem(POS,a.currentTime);}catch(e){}}
+  setInterval(save,1000);
+  ['pagehide','beforeunload','visibilitychange'].forEach(function(ev){window.addEventListener(ev,save);});
+  // Stamp the exact playhead the instant an internal link is clicked, so the next
+  // page resumes in place instead of up to a second behind.
+  document.addEventListener('click',function(e){
+    var t=e.target,l=(t&&t.closest)?t.closest('a[href]'):null;
+    if(l&&l.host===location.host)save();
+  },true);
+
+  window.__phAudio={
+    el:a,
+    wants:function(){return want;},
+    on:function(){want=true;try{localStorage.setItem(MUTE,'0');}catch(e){}start();},
+    off:function(){want=false;try{localStorage.setItem(MUTE,'1');}catch(e){}save();a.pause();}
+  };
+})();
+</script>
+"""
+
+# Video background — a looping, always-muted clip behind all content, with a dark
+# scrim so text stays readable. Poster shows instantly / as fallback. Sound is
+# handled entirely by _BG_AUDIO above, so the video can autoplay unconditionally.
 _BG_VIDEO = """
-<video id="ph-bg-video" autoplay muted loop playsinline preload="auto" poster="/static/background-poster.jpg" data-full="/static/background.mp4" data-lite="/static/background-lite.mp4" aria-hidden="true"></video>
+<video id="ph-bg-video" autoplay muted loop playsinline preload="auto" poster="/static/golden-bg-poster.jpg" data-full="/static/golden-bg.mp4" data-lite="/static/golden-bg-lite.mp4" aria-hidden="true"></video>
 <div id="ph-bg-scrim" aria-hidden="true"></div>
 <button id="ph-audio-toggle" type="button" aria-label="Toggle background sound" aria-pressed="false" title="Background sound">
   <svg class="ph-a-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
@@ -449,32 +512,29 @@ body{background-color:transparent!important;}
 <script>
 (function(){
   var v=document.getElementById('ph-bg-video'),btn=document.getElementById('ph-audio-toggle');
-  if(!v)return;
-  v.muted=true;v.volume=0.35;
-  // Low-network / Save-Data devices get the lightweight silent clip (~6MB) instead
-  // of the full clip with audio (~15MB). No audio track -> hide the sound toggle.
-  var c=navigator.connection||navigator.webkitConnection||navigator.mozConnection||{};
-  var et=(c.effectiveType||'');
-  var lite = c.saveData===true || et==='slow-2g' || et==='2g' || et==='3g';
-  v.src = lite ? v.getAttribute('data-lite') : v.getAttribute('data-full');
-  v.load();
-  if(lite && btn){ btn.style.display='none'; }
-  // Resume playback position across page loads (visual + audio continuity).
-  function resume(){var t=parseFloat(sessionStorage.getItem('ph_bg_pos')||'0');if(t>0&&isFinite(t)){try{v.currentTime=t;}catch(e){}}}
-  v.addEventListener('loadedmetadata',resume);resume();
-  try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-  function save(){try{sessionStorage.setItem('ph_bg_pos',v.currentTime||0);}catch(e){}}
-  setInterval(save,1000);window.addEventListener('pagehide',save);window.addEventListener('beforeunload',save);
-  if(!btn||lite)return;
-  // Sound ON by default; browsers block unmuted autoplay, so we unmute on the
-  // first user interaction. Respect a persisted mute preference.
-  var soundOff=localStorage.getItem('ph_audio_muted')==='1';
-  function ui(){btn.classList.toggle('is-muted',v.muted);btn.setAttribute('aria-pressed',v.muted?'false':'true');}
-  function enableSound(){if(soundOff)return;v.muted=false;var pp=v.play();if(pp&&pp.catch)pp.catch(function(){v.muted=true;ui();});ui();}
-  function onFirst(e){['click','touchstart','keydown','scroll'].forEach(function(ev){document.removeEventListener(ev,onFirst,true);});if(e&&e.target&&btn.contains(e.target))return;enableSound();}
-  ['click','touchstart','keydown','scroll'].forEach(function(ev){document.addEventListener(ev,onFirst,true);});
-  btn.addEventListener('click',function(e){e.stopPropagation();if(v.muted){soundOff=false;localStorage.setItem('ph_audio_muted','0');v.muted=false;v.play().catch(function(){});}else{soundOff=true;localStorage.setItem('ph_audio_muted','1');v.muted=true;}ui();});
-  v.addEventListener('volumechange',ui);
+  if(v){
+    v.muted=true;   // the visual layer is always silent — sound lives in _BG_AUDIO
+    // Low-network / Save-Data devices get the lightweight clip (~4MB) instead of
+    // the full one. Both are silent, so this no longer affects the sound toggle.
+    var c=navigator.connection||navigator.webkitConnection||navigator.mozConnection||{};
+    var et=(c.effectiveType||'');
+    var lite = c.saveData===true || et==='slow-2g' || et==='2g' || et==='3g';
+    v.src = lite ? v.getAttribute('data-lite') : v.getAttribute('data-full');
+    v.load();
+    // Resume the playhead across page loads so the visuals stay continuous too.
+    function resume(){var t=parseFloat(sessionStorage.getItem('ph_bg_pos')||'0');if(t>0&&isFinite(t)&&v.duration&&t<v.duration){try{v.currentTime=t;}catch(e){}}}
+    v.addEventListener('loadedmetadata',resume);resume();
+    try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    function save(){try{sessionStorage.setItem('ph_bg_pos',v.currentTime||0);}catch(e){}}
+    setInterval(save,1000);window.addEventListener('pagehide',save);window.addEventListener('beforeunload',save);
+  }
+  // Sound toggle drives the standalone audio element created up in <head>.
+  var A=window.__phAudio;
+  if(!btn)return;
+  if(!A){btn.style.display='none';return;}
+  function ui(){var on=A.wants();btn.classList.toggle('is-muted',!on);btn.setAttribute('aria-pressed',on?'true':'false');}
+  btn.addEventListener('click',function(e){e.stopPropagation();if(A.wants()){A.off();}else{A.on();}ui();});
+  A.el.addEventListener('play',ui);A.el.addEventListener('pause',ui);
   ui();
 })();
 </script>
@@ -533,6 +593,13 @@ def _inject_site_chrome(resp):
                 changed = True
         if '</head>' in html and 'ph-zoom-lock' not in html:
             html = html.replace('</head>', _ZOOM_LOCK + '</head>', 1)
+            changed = True
+
+        # 0c. Background soundtrack — must go into <head> (not before </body>) so
+        # playback resumes before the page finishes parsing, keeping the sound
+        # continuous across navigations instead of restarting on each page.
+        if '</head>' in html and 'ph-bg-audio' not in html:
+            html = html.replace('</head>', _BG_AUDIO + '</head>', 1)
             changed = True
 
         # 1. CSRF token into every POST form (skip if none / already present)

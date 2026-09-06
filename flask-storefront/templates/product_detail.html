@@ -115,6 +115,9 @@
         .qty-input { width: 76px; background:#1A1A1A; border: 1px solid var(--ph-border); border-radius: 6px; padding: 0.45rem 0.75rem; font-size: 0.95rem; text-align: center; color:#fff; }
         .btn-addcart { width: 100%; background: var(--ph-orange); color: #000; border: none; border-radius: 6px; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.02em; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
         .btn-addcart:hover { background: #fff; color: #000; }
+        /* Flash the order form when a choice was carried in from the bulk-deal table. */
+        @keyframes phPicked { 0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } 30%,70% { box-shadow: 0 0 0 2px var(--ph-orange); } }
+        .ph-picked { border-radius: 10px; animation: phPicked 1.6s ease-in-out 1; }
         .coa-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; margin-top: 1rem; margin-bottom: 0.9rem; }
         .coa-link:hover { color: var(--ph-orange); }
         .coa-link i { color: var(--ph-orange); }
@@ -563,6 +566,44 @@
                     });
 
                     refresh();
+
+                    // Deep-link preselection: /product/<id>?sku=…&qty=…&mode=…
+                    // The mobile bulk table is comparison-only, so it sends the visitor
+                    // here with the option they tapped already applied. We replay real
+                    // clicks on the controls so all the existing state stays in sync.
+                    (function(){
+                        const p = new URLSearchParams(location.search);
+                        const wSku = p.get('sku');
+                        const wQty = parseInt(p.get('qty') || '', 10);
+                        const wMode = p.get('mode');
+                        let applied = false;
+
+                        if (wSku) {
+                            const hit = Array.from(form.querySelectorAll('.variant-row input[type=radio]'))
+                                             .find(i => i.value === wSku);
+                            if (hit && hit.closest('.variant-row')) { hit.closest('.variant-row').click(); applied = true; }
+                        }
+                        if (wMode === 'sub') {
+                            const sb = form.querySelector('.mode-btn[data-mode="sub"]');
+                            if (sb) { sb.click(); applied = true; }
+                        }
+                        if (wQty > 0 && wQty < 100) {
+                            const pack = packPicker.querySelector('.pack-row[data-units="' + wQty + '"]');
+                            if (mode === 'once' && pack) {
+                                pack.click();
+                            } else {
+                                // Not a pack size (or subscribing) — let the existing
+                                // input handler resync the pack highlight and price.
+                                qtyEl.value = wQty;
+                                qtyEl.dispatchEvent(new Event('input'));
+                            }
+                            applied = true;
+                        }
+                        if (applied) {
+                            form.classList.add('ph-picked');
+                            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    })();
                 })();
                 </script>
 
