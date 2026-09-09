@@ -776,6 +776,19 @@ class ArticleImage(db.Model):
     data = db.Column(db.LargeBinary, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ArticleSocial(db.Model):
+    """9:16 social asset for a Science Hub article — a portrait image plus the
+    caption/hashtags to post with it. Stored in the DB for the same reason as
+    ArticleImage: Render's filesystem is ephemeral. Served via
+    /science/social/<slug>. Kept in its own table so adding it needs no migration
+    on the existing Postgres tables."""
+    slug = db.Column(db.String(180), primary_key=True)
+    content_type = db.Column(db.String(60), default='image/jpeg')
+    data = db.Column(db.LargeBinary)                   # nullable: caption may land first
+    caption = db.Column(db.Text)
+    hashtags = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class ProductStatus(db.Model):
     """Stock state for a catalogue product, set from the admin Products page.
 
@@ -3847,17 +3860,22 @@ def coa_detail(slug):
 # ----------------------------------------------------------------------
 _SCIENCE_IMG_DIR = os.path.join(basedir, 'static', 'science')
 
-# Brand palette + quality cues shared by every image (cohesion), but deliberately
-# LIGHT so the article's own subject — not the boilerplate — drives the picture.
-_IMG_STYLE = ("Premium biotech editorial art. Dark near-black background, one bold "
-              "focal subject, metallic gold and warm amber accent light, cinematic, "
-              "elegant, ultra-detailed, photographic depth of field.")
+# The house style every Science Hub image shares. Weighted toward "research
+# photography" rather than "biotech art" so the set reads as one scientific
+# publication — that consistency is the point of the hub.
+_IMG_STYLE = ("Scientific research photography for a peer-reviewed journal. "
+              "Deep near-black background, one clear focal subject, precise clinical "
+              "key light with a single warm gold accent, shallow depth of field, "
+              "high micro-detail, photorealistic, restrained and serious. "
+              "A purely photographic image with no graphic overlays.")
 
-# Hard negatives — kill the repetitive "HUD panels + floating graphs + molecule
-# cluster" look that made every article read the same.
-_IMG_NEGATIVE = ("no text, no words, no letters, no numbers, no captions, no labels, "
-                 "no watermark, no charts, no graphs, no diagrams, no HUD, no UI panels, "
-                 "no dashboards, no data boxes, no grid overlays, no borders, no collage.")
+# NOTE — there is deliberately no negative prompt here any more.
+# flux-schnell has no negative_prompt input, so the old 'Negative: no text, no
+# words, no letters...' string was appended to the *positive* prompt. Diffusion
+# text encoders handle negation poorly, so naming "text/words/letters" made
+# lettering MORE likely, not less — that is how "DELOAY WEEKS" ended up baked
+# into the deload article's hero image. The reliable lever is to never give the
+# model anything headline-shaped to render (see _img_prompt).
 
 # Per-topic art direction — steers the model toward subject matter relevant to each
 # article's field, instead of one fixed motif.
@@ -3870,19 +3888,21 @@ _IMG_TOPIC_DIR = {
     'Health & Wellbeing':   "Subject: the specific physiological system or state (the sleeping brain, the gut, hormones, the heart, circadian light).",
 }
 
-# Distinct visual treatments. Each article is pinned (by its slug) to ONE of these,
-# so two articles in the same topic never share the same camera/composition — this is
-# the main lever that makes the set look individual rather than templated.
+# Camera treatments. These used to be eight wildly different looks (3D render,
+# anatomical cutaway, long-exposure light trails, backlit silhouette...), which is
+# exactly why the hub read as a jumble — every article looked like it came from a
+# different publication. They are now four variations on ONE laboratory-photography
+# language, so the *subject* varies per article while the treatment stays constant.
 _IMG_COMPOSITIONS = [
-    "Extreme macro photograph, the subject fills the frame, razor-thin depth of field, glistening organic texture.",
-    "A single hero 3D render floating centered in deep dark space, dramatic volumetric side light.",
-    "Sweeping microscopic landscape, wide cinematic vista receding into darkness, atmospheric haze.",
-    "Anatomical cross-section cutaway, clean scientific render, soft rim lighting on the interior.",
-    "Abstract flowing signaling pathways and particle streams, long-exposure light trails, sense of motion.",
-    "Electron-microscope style close-up, richly textured organic surfaces, high micro-contrast.",
-    "Dynamic diagonal composition, the subject sweeping across frame with subtle motion blur.",
-    "Backlit silhouette of the subject with a glowing gold rim and bloom, minimalist negative space.",
+    "Extreme macro photograph, the subject filling the frame, razor-thin depth of field.",
+    "Clean scientific close-up on a dark seamless surface, the subject centred.",
+    "Tight research-photography detail, the subject slightly off-centre with deep negative space.",
+    "High-magnification microscopy-style detail, fine organic texture in sharp relief.",
 ]
+
+# 9:16 social crops need the subject stacked vertically or it gets cropped badly.
+_IMG_PORTRAIT_FRAME = ("Vertical portrait composition, the subject centred in the upper two thirds, "
+                       "clean empty dark space in the lower third.")
 
 def _slug_hash(slug):
     """Stable non-negative int from a slug (Python's hash() is salted per-process)."""
@@ -3891,14 +3911,42 @@ def _slug_hash(slug):
 def _img_seed(slug):
     return _slug_hash(slug) % 2_000_000_000
 
-def _img_prompt(title, topic, excerpt='', slug=''):
-    subject = title.replace('//', '—').split(':')[0].strip()
+def _img_prompt(title, topic, excerpt='', slug='', portrait=False):
+    """Build the image prompt for an article.
+
+    Deliberately does NOT include the article title. Feeding a short title in as
+    the leading subject makes Flux treat the brief as a poster and render the
+    words into the picture — usually misspelt. The excerpt carries the same
+    meaning as descriptive prose, which the model illustrates instead of typesets.
+    """
     concept = (excerpt or '').strip()
     direction = _IMG_TOPIC_DIR.get(topic, '')
     composition = _IMG_COMPOSITIONS[_slug_hash(slug or title) % len(_IMG_COMPOSITIONS)]
-    # Lead with the article's own subject + a unique composition; brand style last.
-    return (f"{subject}. {concept} {direction} {composition} {_IMG_STYLE} "
-            f"Negative: {_IMG_NEGATIVE}").strip()
+    frame = _IMG_PORTRAIT_FRAME if portrait else ''
+    parts = [direction, concept, composition, frame, _IMG_STYLE]
+    return ' '.join(p.strip() for p in parts if p and p.strip())
+
+def _replicate_image(prompt, seed, aspect='16:9'):
+    """POST one prediction to Replicate and return the rendered JPEG bytes.
+    Raises on failure so callers can log the real reason."""
+    import urllib.request
+    body = json.dumps({'input': {'prompt': prompt, 'aspect_ratio': aspect,
+                                 'output_format': 'jpg', 'num_outputs': 1,
+                                 'seed': seed}}).encode()
+    req = urllib.request.Request(
+        'https://api.replicate.com/v1/models/%s/predictions' % REPLICATE_IMAGE_MODEL,
+        data=body, method='POST',
+        headers={'Authorization': 'Bearer ' + REPLICATE_API_TOKEN,
+                 'Content-Type': 'application/json', 'Prefer': 'wait'})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        pred = json.loads(r.read().decode())
+    out = pred.get('output')
+    url = out[0] if isinstance(out, list) and out else (out if isinstance(out, str) else None)
+    if not url:
+        raise RuntimeError('replicate returned no output (status=%s, error=%s)'
+                           % (pred.get('status'), pred.get('error')))
+    with urllib.request.urlopen(url, timeout=60) as im:
+        return im.read()
 
 def _generate_article_image(slug, title, topic, excerpt='', force=False):
     """Generate a hero image via Replicate (Flux) and store it in the DB.
@@ -3910,32 +3958,113 @@ def _generate_article_image(slug, title, topic, excerpt='', force=False):
         return True
     _log = logging.getLogger('pephub.sciencehub')
     try:
-        import urllib.request
-        body = json.dumps({'input': {'prompt': _img_prompt(title, topic, excerpt, slug),
-                                     'aspect_ratio': '16:9', 'output_format': 'jpg',
-                                     'num_outputs': 1, 'seed': _img_seed(slug)}}).encode()
-        req = urllib.request.Request(
-            'https://api.replicate.com/v1/models/%s/predictions' % REPLICATE_IMAGE_MODEL,
-            data=body, method='POST',
-            headers={'Authorization': 'Bearer ' + REPLICATE_API_TOKEN,
-                     'Content-Type': 'application/json', 'Prefer': 'wait'})
-        with urllib.request.urlopen(req, timeout=120) as r:
-            pred = json.loads(r.read().decode())
-        out = pred.get('output')
-        url = out[0] if isinstance(out, list) and out else (out if isinstance(out, str) else None)
-        if not url:
-            _log.warning('image gen: no output for %s (status %s)', slug, pred.get('status'))
-            return False
-        with urllib.request.urlopen(url, timeout=60) as im:
-            data = im.read()
-        db.session.merge(ArticleImage(slug=slug, content_type='image/jpeg', data=data))
+        # A regenerate must use a NEW seed. The per-slug seed is deterministic, so
+        # re-running with the same prompt returned a byte-identical picture — the
+        # credits were spent and the image genuinely never changed.
+        seed = secrets.randbelow(2_000_000_000) if force else _img_seed(slug)
+        data = _replicate_image(_img_prompt(title, topic, excerpt, slug), seed)
+        # created_at doubles as the cache-buster in the image URL, so it must move
+        # on every regeneration.
+        db.session.merge(ArticleImage(slug=slug, content_type='image/jpeg',
+                                      data=data, created_at=datetime.utcnow()))
         db.session.commit()
-        _log.info('image gen: stored image for %s (%d bytes)', slug, len(data))
+        _log.info('image gen: stored hero for %s (%d bytes, seed=%s, force=%s)',
+                  slug, len(data), seed, force)
         return True
     except Exception:
         db.session.rollback()
         _log.exception('image gen failed for %s', slug)
         return False
+
+# ----------------------------------------------------------------------
+# Social assets — a 9:16 image + caption per article, ready for Instagram.
+# ----------------------------------------------------------------------
+SOCIAL_MODEL = os.environ.get('SOCIAL_MODEL', 'claude-opus-5')
+
+_SOCIAL_SYSTEM = """You write Instagram captions for Pep Hub, a European research-peptide supplier whose Science Hub publishes evidence-informed articles.
+
+House rules, all mandatory:
+- Research and education framing only. These are research compounds, not medicines.
+- Never promise a health outcome, never give dosing advice, never imply treatment,
+  cure or diagnosis of any condition. No before/after or transformation claims.
+- Hedge like the articles do: "research describes", "studies suggest", "may".
+- Confident and precise, never hypey. No emoji spam — at most two, or none.
+- Sound like a lab that writes well, not a supplement brand.
+
+Return a caption of 40-90 words: a hook line that earns the scroll-stop, two or
+three lines of the actual substance from the article, then a soft close pointing
+to the full article in the Science Hub. Do not include hashtags in the caption —
+they go in the separate field. Give 8-12 lowercase hashtags, relevant and not
+spammy, as a list of strings without the leading '#'."""
+
+_SOCIAL_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'caption':  {'type': 'string'},
+        'hashtags': {'type': 'array', 'items': {'type': 'string'}},
+    },
+    'required': ['caption', 'hashtags'],
+    'additionalProperties': False,
+}
+
+def _generate_social_caption(title, topic, excerpt='', takeaways=None):
+    """Write an IG caption + hashtags for one article. Returns (caption, hashtags)."""
+    if not ANTHROPIC_API_KEY:
+        raise RuntimeError('ANTHROPIC_API_KEY is not set')
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    points = '\n'.join('- %s' % t for t in (takeaways or [])[:5])
+    resp = client.messages.create(
+        model=SOCIAL_MODEL,
+        max_tokens=2000,
+        system=_SOCIAL_SYSTEM,
+        output_config={'format': {'type': 'json_schema', 'schema': _SOCIAL_SCHEMA}},
+        messages=[{'role': 'user', 'content':
+                   'Topic: %s\nArticle title: %s\nSummary: %s\n\nKey points:\n%s'
+                   % (topic, title, excerpt or '', points or '(none supplied)')}],
+    )
+    text = next(b.text for b in resp.content if b.type == 'text')
+    data = json.loads(text)
+    tags = [t.lstrip('#').strip() for t in data.get('hashtags', []) if t and t.strip()]
+    return data.get('caption', '').strip(), ' '.join('#' + t for t in tags)
+
+def _generate_article_social(slug, title, topic, excerpt='', takeaways=None, force=False):
+    """Generate the 9:16 image and the caption for one article. Best-effort per
+    half: a caption failure does not throw away a good image, or vice versa."""
+    _log = logging.getLogger('pephub.sciencehub')
+    row = ArticleSocial.query.get(slug)
+    if row and not force and row.data and row.caption:
+        return True
+    if row is None:
+        row = ArticleSocial(slug=slug)
+        db.session.add(row)
+    did_any = False
+
+    if REPLICATE_API_TOKEN and (force or not row.data):
+        try:
+            # Offset seed so the portrait crop isn't a rerun of the hero shot.
+            seed = secrets.randbelow(2_000_000_000) if force else (_img_seed(slug) + 7) % 2_000_000_000
+            row.data = _replicate_image(
+                _img_prompt(title, topic, excerpt, slug, portrait=True), seed, aspect='9:16')
+            row.content_type = 'image/jpeg'
+            did_any = True
+        except Exception:
+            _log.exception('social image failed for %s', slug)
+
+    if ANTHROPIC_API_KEY and (force or not row.caption):
+        try:
+            row.caption, row.hashtags = _generate_social_caption(title, topic, excerpt, takeaways)
+            did_any = True
+        except Exception:
+            _log.exception('social caption failed for %s', slug)
+
+    if not did_any:
+        db.session.rollback()
+        return False
+    row.created_at = datetime.utcnow()
+    db.session.commit()
+    _log.info('social: stored for %s (image=%s caption=%s)',
+              slug, bool(row.data), bool(row.caption))
+    return True
 
 def _science_image(slug):
     """Hero image URL for an article: a hand-placed file at
@@ -3949,8 +4078,14 @@ def _science_image(slug):
         if os.path.exists(os.path.join(_SCIENCE_IMG_DIR, slug + '.' + ext)):
             return '/static/science/' + slug + '.' + ext
     try:
-        if db.session.query(ArticleImage.slug).filter_by(slug=slug).first():
-            return '/science/img/' + slug
+        row = db.session.query(ArticleImage.created_at).filter_by(slug=slug).first()
+        if row:
+            # ?v=<generated-at> is load-bearing, not decoration. The image response
+            # is cached for 30 days, and the URL used to be identical forever — so a
+            # regenerated image stayed invisible in any browser that had already
+            # loaded the old one (i.e. the admin's). Changing the URL busts that.
+            stamp = int(row[0].timestamp()) if row[0] else 0
+            return '/science/img/%s?v=%d' % (slug, stamp)
     except Exception:
         pass
     return None
@@ -3989,7 +4124,22 @@ def science_image_file(slug):
     if not row:
         abort(404)
     resp = app.response_class(row.data, mimetype=row.content_type or 'image/jpeg')
+    # Safe to cache hard because _science_image() stamps ?v=<generated-at> onto the
+    # URL, so a regenerated image is a different URL. Without that stamp this
+    # header is what hid every regeneration for 30 days.
     resp.headers['Cache-Control'] = 'public, max-age=2592000'
+    return resp
+
+@app.route('/science/social/<slug>')
+def science_social_image(slug):
+    """The 9:16 social image. ?dl=1 forces a download for posting by hand."""
+    row = ArticleSocial.query.get(slug)
+    if not row or not row.data:
+        abort(404)
+    resp = app.response_class(row.data, mimetype=row.content_type or 'image/jpeg')
+    resp.headers['Cache-Control'] = 'public, max-age=2592000'
+    if request.args.get('dl'):
+        resp.headers['Content-Disposition'] = 'attachment; filename="%s-9x16.jpg"' % slug
     return resp
 
 @app.route('/science/<slug>')
@@ -4006,6 +4156,16 @@ def admin_science():
     drafts = Article.query.filter_by(status='DRAFT').order_by(Article.created_at.desc()).all()
     published = Article.query.filter_by(status='PUBLISHED').order_by(Article.created_at.desc()).all()
     have_img = {r[0] for r in db.session.query(ArticleImage.slug).all()}
+    # Social state per slug: whether the 9:16 image and the caption exist, plus the
+    # caption itself so it can be reviewed and copied straight from this page.
+    social = {}
+    for r in ArticleSocial.query.all():
+        social[r.slug] = {'has_image': bool(r.data), 'caption': r.caption,
+                          'hashtags': r.hashtags, 'created_at': r.created_at,
+                          'stamp': int(r.created_at.timestamp()) if r.created_at else 0}
+    social_missing = sum(1 for a in published
+                         if not (social.get(a.slug, {}).get('has_image')
+                                 and social.get(a.slug, {}).get('caption')))
     return render_template('admin_science.html',
                            drafts=[_article_view(a) for a in drafts],
                            published=[_article_view(a) for a in published],
@@ -4013,7 +4173,9 @@ def admin_science():
                            image_key_set=bool(REPLICATE_API_TOKEN),
                            images_have=len(have_img),
                            images_missing=sum(1 for a in published if a.slug not in have_img
-                                              and not _science_image_file_exists(a.slug)))
+                                              and not _science_image_file_exists(a.slug)),
+                           social=social, social_missing=social_missing,
+                           social_have=sum(1 for v in social.values() if v['has_image'] and v['caption']))
 
 def _science_image_file_exists(slug):
     for ext in ('jpg', 'jpeg', 'png', 'webp'):
@@ -4037,16 +4199,14 @@ def admin_science_generate_images():
             continue
         targets.append((a.slug, a.title, a.topic, a.excerpt or ''))
 
-    def _run():
-        with app.app_context():
-            done = 0
-            for slug, title, topic, excerpt in targets:
-                if _generate_article_image(slug, title, topic, excerpt, force=force):
-                    done += 1
-            logging.getLogger('pephub.sciencehub').info('image backfill: generated %d/%d (force=%s)',
-                                                         done, len(targets), force)
-    import threading
-    threading.Thread(target=_run, daemon=True).start()
+    def _run_all():
+        done = 0
+        for slug, title, topic, excerpt in targets:
+            if _generate_article_image(slug, title, topic, excerpt, force=force):
+                done += 1
+        logging.getLogger('pephub.sciencehub').info('image backfill: generated %d/%d (force=%s)',
+                                                     done, len(targets), force)
+    _spawn(_run_all)
     verb = 'Regenerating' if force else 'Generating'
     flash(f'{verb} {len(targets)} article image(s) in the background — refresh in a minute or two.', 'success')
     return redirect(url_for('admin_science'))
@@ -4061,6 +4221,66 @@ def admin_science_generate():
         flash('No new drafts created. ' + ('; '.join(notes) if notes else ''), 'warning')
     return redirect(url_for('admin_science'))
 
+def _spawn(fn, *args, **kwargs):
+    """Run a slow best-effort job off the request thread, inside an app context."""
+    import threading
+
+    def _run():
+        with app.app_context():
+            try:
+                fn(*args, **kwargs)
+            except Exception:
+                logging.getLogger('pephub.sciencehub').exception('background job failed')
+    threading.Thread(target=_run, daemon=True).start()
+
+@app.route('/admin/science/generate-social', methods=['POST'])
+@admin_required
+def admin_science_generate_social():
+    """force=1 regenerates social assets for ALL published articles; otherwise
+    only fills the ones missing an image or a caption."""
+    if not (REPLICATE_API_TOKEN or ANTHROPIC_API_KEY):
+        flash('Set REPLICATE_API_TOKEN (image) and/or ANTHROPIC_API_KEY (caption) first.', 'error')
+        return redirect(url_for('admin_science'))
+    force = request.form.get('force') == '1'
+    have = {r.slug: r for r in ArticleSocial.query.all()}
+    targets = []
+    for a in Article.query.filter_by(status='PUBLISHED').all():
+        row = have.get(a.slug)
+        if not force and row is not None and row.data and row.caption:
+            continue
+        targets.append((a.slug, a.title, a.topic, a.excerpt or '',
+                        json.loads(a.takeaways_json or '[]')))
+
+    def _run_all():
+        for slug, title, topic, excerpt, takeaways in targets:
+            _generate_article_social(slug, title, topic, excerpt, takeaways, force=force)
+    _spawn(_run_all)
+    flash(f'{"Regenerating" if force else "Generating"} social assets for '
+          f'{len(targets)} article(s) in the background — refresh in a minute or two.', 'success')
+    return redirect(url_for('admin_science'))
+
+@app.route('/admin/science/<slug>/social', methods=['POST'])
+@admin_required
+def admin_science_social_one(slug):
+    """Regenerate the social asset for a single article."""
+    a = Article.query.filter_by(slug=slug).first_or_404()
+    _spawn(_generate_article_social, a.slug, a.title, a.topic, a.excerpt or '',
+           json.loads(a.takeaways_json or '[]'), force=True)
+    flash(f'Regenerating social asset for "{a.title[:40]}" — refresh in a moment.', 'success')
+    return redirect(url_for('admin_science'))
+
+@app.route('/admin/science/<slug>/image', methods=['POST'])
+@admin_required
+def admin_science_image_one(slug):
+    """Regenerate the hero image for a single article, with a fresh seed."""
+    a = Article.query.filter_by(slug=slug).first_or_404()
+    if not REPLICATE_API_TOKEN:
+        flash('Set REPLICATE_API_TOKEN on the server first.', 'error')
+        return redirect(url_for('admin_science'))
+    _spawn(_generate_article_image, a.slug, a.title, a.topic, a.excerpt or '', force=True)
+    flash(f'Regenerating hero image for "{a.title[:40]}" — refresh in a moment.', 'success')
+    return redirect(url_for('admin_science'))
+
 @app.route('/admin/science/<slug>/publish', methods=['POST'])
 @admin_required
 def admin_science_publish(slug):
@@ -4068,7 +4288,12 @@ def admin_science_publish(slug):
     a.status = 'PUBLISHED'
     a.published_at = datetime.utcnow()
     db.session.commit()
-    flash(f'Published "{a.title[:48]}".', 'success')
+    # Every published article gets its hero image and social asset without anyone
+    # having to remember to press a button. Backgrounded so publishing stays instant.
+    _spawn(_generate_article_image, a.slug, a.title, a.topic, a.excerpt or '')
+    _spawn(_generate_article_social, a.slug, a.title, a.topic, a.excerpt or '',
+           json.loads(a.takeaways_json or '[]'))
+    flash(f'Published "{a.title[:48]}" — generating image + social asset in the background.', 'success')
     return redirect(url_for('admin_science'))
 
 @app.route('/admin/science/<slug>/unpublish', methods=['POST'])
@@ -4156,6 +4381,8 @@ def _monthly_science_drip():
                     a = Article.query.filter_by(slug=slug).first()
                     if a:
                         _generate_article_image(a.slug, a.title, a.topic, a.excerpt or '')
+                        _generate_article_social(a.slug, a.title, a.topic, a.excerpt or '',
+                                                 json.loads(a.takeaways_json or '[]'))
             except Exception:
                 db.session.rollback()
                 _log.exception('monthly drip failed for %s', topic)
