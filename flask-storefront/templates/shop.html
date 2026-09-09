@@ -51,6 +51,13 @@
         .badge-cat { font-size:.6rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; padding:.18rem .5rem; border-radius:5px; }
         .badge-stack { background:var(--ph-orange); color:#000; }
         .badge-ess { background:#2E7D32; color:#fff; }
+        .badge-out { background:#C62828; color:#fff; }
+        .badge-upd { background:#1565C0; color:#fff; }
+        /* Sold-out cards stay browsable but read as unavailable. */
+        .sc-btn-out { background:#2D2D2D; color:#888; }
+        .shop-card:hover .sc-btn-out { background:#2D2D2D; color:#888; }
+        .shop-card.is-out { opacity:.72; }
+        .shop-card.is-out:hover { opacity:1; }
 
         .trust-strip { display:flex; flex-wrap:wrap; gap:1.25rem; justify-content:center; margin:2.5rem 0 .5rem; color:var(--text-muted); font-size:.82rem; }
         .trust-strip span { display:inline-flex; align-items:center; gap:.4rem; }
@@ -155,8 +162,10 @@
 
     <div class="shop-grid" id="grid">
         {% for r in rows %}
-        <a class="shop-card" href="/product/{{ r.id }}" data-cat="{{ r.cat }}">
+        <a class="shop-card{% if not r.buyable %} is-out{% endif %}" href="/product/{{ r.id }}" data-cat="{{ r.cat }}">
             <div class="sc-tags-top">
+                {% if r.status == 'UPDATED' %}<span class="badge-cat badge-upd">Updated</span>{% endif %}
+                {% if not r.buyable %}<span class="badge-cat badge-out">Sold out</span>{% endif %}
                 {% if r.cat == 'stack' %}<span class="badge-cat badge-stack">Stack</span>{% endif %}
                 {% if r.cat == 'essential' %}<span class="badge-cat badge-ess">Essential</span>{% endif %}
             </div>
@@ -169,9 +178,10 @@
             <div class="sc-spacer"></div>
             <div class="sc-foot">
                 <div class="sc-price">{% if r.multi %}<span class="from">from</span>{% endif %}€{{ "%.2f"|format(r.price) }}</div>
-                <span class="sc-btn">View &amp; Order →</span>
+                {% if r.buyable %}<span class="sc-btn">View &amp; Order →</span>
+                {% else %}<span class="sc-btn sc-btn-out">Sold out</span>{% endif %}
             </div>
-            {% if r.sub_ok %}<div class="sc-sub"><i class="bi bi-arrow-repeat"></i> Subscribe from €{{ "%.2f"|format(r.sub_price) }} · save {{ sub_pct }}%</div>{% endif %}
+            {% if r.sub_ok and r.buyable %}<div class="sc-sub"><i class="bi bi-arrow-repeat"></i> Subscribe from €{{ "%.2f"|format(r.sub_price) }} · save {{ sub_pct }}%</div>{% endif %}
         </a>
         {% endfor %}
     </div>

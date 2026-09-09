@@ -115,6 +115,10 @@
         .qty-input { width: 76px; background:#1A1A1A; border: 1px solid var(--ph-border); border-radius: 6px; padding: 0.45rem 0.75rem; font-size: 0.95rem; text-align: center; color:#fff; }
         .btn-addcart { width: 100%; background: var(--ph-orange); color: #000; border: none; border-radius: 6px; padding: 0.8rem 1.5rem; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.02em; transition: all 0.2s; cursor: pointer; text-transform: uppercase; }
         .btn-addcart:hover { background: #fff; color: #000; }
+        /* Shown in place of the add-to-cart button when stock is set to sold out. */
+        .sold-out-box { border:1px solid rgba(198,40,40,.55); background:rgba(198,40,40,.12); border-radius:8px; padding:0.8rem 1rem; text-align:center; }
+        .sold-out-box .so-title { font-weight:900; font-size:0.95rem; color:#E57373; text-transform:uppercase; letter-spacing:0.05em; }
+        .sold-out-box .so-sub { font-size:0.78rem; color:#bbb; margin-top:0.15rem; }
         /* Flash the order form when a choice was carried in from the bulk-deal table. */
         @keyframes phPicked { 0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } 30%,70% { box-shadow: 0 0 0 2px var(--ph-orange); } }
         .ph-picked { border-radius: 10px; animation: phPicked 1.6s ease-in-out 1; }
@@ -314,6 +318,9 @@
                 </div>
             </details>
 
+            {# Per-unit pack deals don't apply when the variants already are pack sizes —
+               the variant list above carries the volume pricing instead. #}
+            {% if bulk_ok is not defined or bulk_ok %}
             <details class="detail-acc">
                 <summary><i class="bi bi-tags lead-ic"></i> Bulk Deals <span class="acc-hint">save up to 30%</span><span class="acc-toggle"></span></summary>
                 <div class="acc-body">
@@ -353,6 +360,7 @@
                     </table>
                 </div>
             </details>
+            {% endif %}
 
         </div>
 
@@ -391,12 +399,15 @@
             <div class="order-card">
                 <div class="purity-pill"><i class="bi bi-shield-fill-check"></i> {{ detail.purity.split('(')[0].strip() }}</div>
                 <div class="price-main" id="price-display">€{{ "%.2f"|format(product.base_price) }}</div>
-                <div class="price-sub" id="price-sub">Per vial · bulk deals up to 30% off</div>
+                {% set unit = detail.unit or 'vial' %}
+                {% set unit_plural = detail.unit_plural or (unit ~ 's') %}
+                <div class="price-sub" id="price-sub">Per {{ unit }}{% if bulk_ok is not defined or bulk_ok %} · bulk deals up to 30% off{% endif %}</div>
                 <div class="vat-tag">VAT (21%) included</div>
 
                 {% set subbable = subscription_allowed(product.id) %}
                 <form method="POST" action="/add-to-cart/{{ product.id }}" id="addToCartForm"
-                      data-subbable="{{ 1 if subbable else 0 }}" data-subdisc="{{ SUBSCRIPTION_DISCOUNT }}">
+                      data-subbable="{{ 1 if subbable else 0 }}" data-subdisc="{{ SUBSCRIPTION_DISCOUNT }}"
+                      data-bulkok="{{ 0 if (bulk_ok is defined and not bulk_ok) else 1 }}">
                     <input type="hidden" name="mode" id="modeInput" value="once">
 
                     {% set vlist = variants_for(product.id) %}
@@ -424,8 +435,10 @@
                     </div>
                     {% endif %}
 
-                    <!-- One-time pack quick-picks -->
+                    <!-- One-time pack quick-picks. Omitted when the variants above
+                         already are the pack sizes (e.g. sachet multipacks). -->
                     <div id="packPicker">
+                        {% if bulk_ok is not defined or bulk_ok %}
                         <div class="sec-label">Choose Your Pack</div>
                         <div class="pack-row selected" data-units="1" data-pay="1">
                             <div><div class="p-label">Single vial</div><div class="p-sub">1 vial</div></div>
@@ -439,6 +452,7 @@
                             <div><div class="p-label">10-Pack <span class="pack-badge">PAY FOR 7</span></div><div class="p-sub">10 vials · save 30%</div></div>
                             <div><div class="p-was" data-was>—</div><div class="p-total" data-total>—</div></div>
                         </div>
+                        {% endif %}
                     </div>
 
                     <!-- Subscription detail (hidden unless subscribing) -->
@@ -456,7 +470,14 @@
                         <label for="qty-{{ product.id }}" id="qtyLabel">Quantity</label>
                         <input id="qty-{{ product.id }}" type="number" name="quantity" value="1" min="1" max="99" class="qty-input">
                     </div>
+                    {% if buyable is not defined or buyable %}
                     <button type="submit" class="btn-addcart" id="addBtn">Add to Cart →</button>
+                    {% else %}
+                    <div class="sold-out-box">
+                        <div class="so-title">Sold out</div>
+                        <div class="so-sub">{{ stock_note or 'Temporarily out of stock — check back soon.' }}</div>
+                    </div>
+                    {% endif %}
                 </form>
 
                 <script>
@@ -480,8 +501,14 @@
                         return sel ? parseFloat(sel.dataset.price) : {{ product.base_price }};
                     }
                     // Mirror server-side bulk_paid_units: 10s first, then 5s, then singles.
+                    // Products sold in fixed pack sizes are excluded from pack deals.
+                    const bulkOk = form.dataset.bulkok !== '0';
+                    // Unit noun — "vial" for the peptide range, "pack" for sachet multipacks.
+                    const UNIT = {{ unit|tojson }}, UNIT_PLURAL = {{ unit_plural|tojson }};
+                    const noun = q => (q > 1 ? UNIT_PLURAL : UNIT);
                     function paidUnits(q){
                         q = Math.max(0, Math.floor(q));
+                        if (!bulkOk) return q;
                         const tens = Math.floor(q/10), rem = q%10;
                         const fives = Math.floor(rem/5), ones = rem%5;
                         return tens*7 + fives*4 + ones;
@@ -506,7 +533,7 @@
                             const unit = b * (1 - subDisc);
                             const total = unit * q;
                             priceEl.textContent = money(total);
-                            subEl.textContent = q + ' vial' + (q>1?'s':'') + '/mo · ' + money(unit) + '/vial';
+                            subEl.textContent = q + ' ' + noun(q) + '/mo · ' + money(unit) + '/' + UNIT;
                             if (subPanel){
                                 subPanel.querySelector('[data-sub-total]').textContent = money(total) + '/mo';
                                 subPanel.querySelector('[data-sub-was]').textContent = money(b * q);
@@ -515,7 +542,7 @@
                             const total = b * paidUnits(q);
                             const perVial = total / q;
                             priceEl.textContent = money(total);
-                            subEl.textContent = q + ' vial' + (q>1?'s':'') + ' · ' + money(perVial) + '/vial';
+                            subEl.textContent = q + ' ' + noun(q) + ' · ' + money(perVial) + '/' + UNIT;
                         }
                     }
 
@@ -558,8 +585,11 @@
                             const sub = (mode === 'sub');
                             if (subPanel) subPanel.style.display = sub ? 'block' : 'none';
                             packPicker.style.display = sub ? 'none' : 'block';
-                            qtyLabel.textContent = sub ? 'Vials per delivery' : 'Quantity';
-                            addBtn.textContent = sub ? 'Subscribe →' : 'Add to Cart →';
+                            qtyLabel.textContent = sub
+                                ? UNIT_PLURAL.charAt(0).toUpperCase() + UNIT_PLURAL.slice(1) + ' per delivery'
+                                : 'Quantity';
+                            // addBtn is absent when the product is sold out.
+                            if (addBtn) addBtn.textContent = sub ? 'Subscribe →' : 'Add to Cart →';
                             if (sub) qtyEl.value = Math.max(1, parseInt(qtyEl.value) || 1);
                             refresh();
                         });

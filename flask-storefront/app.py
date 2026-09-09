@@ -776,6 +776,18 @@ class ArticleImage(db.Model):
     data = db.Column(db.LargeBinary, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ProductStatus(db.Model):
+    """Stock state for a catalogue product, set from the admin Products page.
+
+    The catalogue itself stays in code (`products` / `VARIANTS`); this table only
+    overlays availability, so a product with no row here is simply AVAILABLE and
+    nothing about the storefront changes until someone sets a status.
+    """
+    product_id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(20), nullable=False, default='AVAILABLE')
+    note = db.Column(db.String(255))                  # optional "back in 2 weeks" line
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 def _ensure_columns():
     """Add new nullable columns to pre-existing SQLite tables without a full
     migration tool. No-op when the column already exists or on non-SQLite."""
@@ -943,6 +955,7 @@ products = [
     {"id": 21, "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 159.99},
     {"id": 22, "name": "KLOW Stack",       "desc": "**Function:** The complete four-peptide repair + anti-inflammatory protocol — KPV (10mg) + BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in one lyophilised vial. Adds KPV's potent anti-inflammatory action to the GLOW regeneration stack. **Active peptides:** KPV · BPC-157 · GHK-Cu · TB-500.", "base_price": 199.99},
     {"id": 20, "name": "Bacteriostatic Water", "desc": "**Function:** Sterile bacteriostatic water for reconstitution of lyophilised peptides. Contains 0.9% benzyl alcohol — preserves reconstituted peptide solutions for up to 28 days when refrigerated. **Essential companion** to all freeze-dried research peptides.", "base_price": 4.99},
+    {"id": 23, "name": "Electrolyte Sachets", "desc": "**Function:** A balanced sodium / potassium / magnesium electrolyte blend in single-serve sachets. Supports hydration status, fluid balance and nerve-muscle signalling — the daily foundation that training, heat exposure, fasting and low-carb protocols all draw down. Zero sugar. **Actives:** sodium chloride, potassium citrate, magnesium malate.", "base_price": 2.49},
 ]
 
 # ----------------------------------------------------------------------
@@ -987,6 +1000,11 @@ VARIANTS = {
         {"sku": "BAC-3",  "label": "3 ml / vial",  "strength_mg": 3,  "wholesale_usd": 1.00, "retail_eur": 4.99},
         {"sku": "BAC-10", "label": "10 ml / vial", "strength_mg": 10, "wholesale_usd": 1.50, "retail_eur": 7.99},
     ],
+    23: [  # Electrolyte Sachets — priced per sachet: 2.49 → 2.14 → 1.83
+        {"sku": "ELYTE-1",  "label": "1 sachet · single serve",  "strength_mg": 1,  "wholesale_usd": 0.55,  "retail_eur": 2.49},
+        {"sku": "ELYTE-7",  "label": "7 sachets · 1 week",       "strength_mg": 7,  "wholesale_usd": 3.40,  "retail_eur": 14.99},
+        {"sku": "ELYTE-30", "label": "30 sachets · 1 month",     "strength_mg": 30, "wholesale_usd": 12.60, "retail_eur": 54.99},
+    ],
 }
 
 # Flat lookup: sku → (product, variant)
@@ -1009,6 +1027,47 @@ def default_sku(product_id):
 
 def wholesale_eur(usd):
     return round(usd * USD_EUR_RATE, 2)
+
+# ----------------------------------------------------------------------
+# Stock control — availability overlay on the code-defined catalogue.
+# AVAILABLE / UPDATED sell normally (UPDATED just flags a changed formula or
+# spec so it can be badged); SOLD_OUT still shows but cannot be bought;
+# DISCONTINUED is pulled from every listing.
+# ----------------------------------------------------------------------
+STACK_IDS = {9, 21, 22}
+ESSENTIAL_IDS = {20, 23}                # BAC water, electrolyte sachets
+
+def product_category(product_id):
+    if product_id in ESSENTIAL_IDS:
+        return 'essential'
+    return 'stack' if product_id in STACK_IDS else 'peptide'
+
+PRODUCT_STATUSES = ('AVAILABLE', 'SOLD_OUT', 'DISCONTINUED', 'UPDATED')
+PRODUCT_STATUS_LABELS = {
+    'AVAILABLE':    'Available',
+    'SOLD_OUT':     'Sold out',
+    'DISCONTINUED': 'Discontinued',
+    'UPDATED':      'Updated',
+}
+_BUYABLE_STATUSES = ('AVAILABLE', 'UPDATED')
+
+def product_status_map():
+    """{product_id: status} for every product with a row; missing → AVAILABLE."""
+    try:
+        return {r.product_id: (r.status or 'AVAILABLE') for r in ProductStatus.query.all()}
+    except Exception:
+        return {}                      # table not created yet → treat all as available
+
+def product_status(product_id, smap=None):
+    smap = product_status_map() if smap is None else smap
+    return smap.get(product_id, 'AVAILABLE')
+
+def product_buyable(product_id, smap=None):
+    return product_status(product_id, smap) in _BUYABLE_STATUSES
+
+def product_listed(product_id, smap=None):
+    """Discontinued products disappear from browse/deal listings."""
+    return product_status(product_id, smap) != 'DISCONTINUED'
 
 # Make available in templates
 @app.context_processor
@@ -1658,16 +1717,26 @@ BULK_PACKS = [
     {'units': 10, 'pay': 7, 'label': '10-Pack',     'save_pct': 30},
 ]
 
-def bulk_paid_units(quantity):
+# Products sold in pack sizes already (the variants *are* the bulk tiers) must not
+# also get per-unit pack deals — stacking both lets 10 single sachets undercut the
+# 30-sachet month pack, which defeats the pack pricing.
+BULK_EXCLUDED_PIDS = {23}               # Electrolyte Sachets
+
+def bulk_allowed(product_id):
+    return product_id not in BULK_EXCLUDED_PIDS
+
+def bulk_paid_units(quantity, product_id=None):
     """Number of vials actually charged after applying bulk deals."""
     qty = max(0, int(quantity))
+    if product_id is not None and not bulk_allowed(product_id):
+        return qty
     tens, rem = divmod(qty, 10)
     fives, ones = divmod(rem, 5)
     return tens * 7 + fives * 4 + ones
 
-def bulk_line_total(base_price, quantity):
+def bulk_line_total(base_price, quantity, product_id=None):
     """Line total for `quantity` vials at `base_price` each, after bulk deals."""
-    return round(base_price * bulk_paid_units(quantity), 2)
+    return round(base_price * bulk_paid_units(quantity, product_id), 2)
 
 # ----------------------------------------------------------------------
 # Subscription — monthly auto-refill, 15% off the single-vial price.
@@ -2502,6 +2571,7 @@ tr:hover td{background:#1F1F1F;}
 <div class="navbar">
     <a href="/admin" class="brand">Pep<span class="h">Hub</span> · Admin</a>
     <div style="display:flex;gap:1.25rem;align-items:center;">
+        <a href="/admin/products" class="logout">📦 Products</a>
         <a href="/admin/subscriptions" class="logout">🔁 Subscriptions</a>
         <a href="/admin/science" class="logout">🔬 Science Hub</a>
         <a href="/admin/logout" class="logout">Sign out</a>
@@ -2574,7 +2644,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
 </style></head><body>
 <div class="navbar">
     <a href="/admin" class="brand">Pep<span class="h">Hub</span> · Admin</a>
-    <div><a href="/admin" class="lnk">← Orders</a><a href="/admin/logout" class="lnk">Sign out</a></div>
+    <div><a href="/admin" class="lnk">← Orders</a><a href="/admin/products" class="lnk">📦 Products</a><a href="/admin/logout" class="lnk">Sign out</a></div>
 </div>
 <div class="kpi-row">
     <div class="kpi"><div class="label">Active subscriptions</div><div class="val">{{ active }}</div></div>
@@ -2602,6 +2672,119 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
         </tbody>
     </table>
     {% else %}<div class="empty">No subscriptions yet.</div>{% endif %}
+</div>
+</body></html>
+"""
+
+ADMIN_PRODUCTS_HTML = """
+<!DOCTYPE html><html><head><title>Products · PepHub Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{background:#141414;color:#F5F5F5;font-family:'Inter',sans-serif;margin:0;}
+.navbar{background:#000;border-bottom:1px solid #2D2D2D;padding:0.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
+.navbar a.brand{font-weight:800;color:#fff;font-size:1.4rem;text-decoration:none;} .navbar a.brand .h{background:#D4AF37;color:#000;border-radius:6px;padding:0 0.3em;}
+.navbar a.lnk{color:#999;font-size:0.85rem;text-decoration:none;margin-left:1.25rem;} .navbar a.lnk:hover{color:#D4AF37;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;padding:1.5rem;}
+.kpi{background:#242424;border:1px solid #2D2D2D;border-radius:0.85rem;padding:1rem 1.2rem;}
+.kpi .label{font-size:0.7rem;font-weight:800;color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;}
+.kpi .val{font-size:1.5rem;font-weight:900;color:#fff;}
+.kpi .sub{font-size:0.72rem;color:#888;margin-top:0.2rem;}
+.section{padding:0 1.5rem 2rem;}
+h2{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:0.35rem;}
+.hint{color:#888;font-size:0.8rem;margin-bottom:1rem;}
+table{width:100%;background:#242424;border-collapse:collapse;border:1px solid #2D2D2D;border-radius:0.7rem;overflow:hidden;font-size:0.85rem;}
+th{background:#1A1A1A;color:#D4AF37;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid #2D2D2D;}
+td{padding:0.75rem 0.85rem;border-bottom:1px solid #2D2D2D;color:#E0E0E0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
+.pname{font-weight:700;color:#fff;} .pname a{color:#fff;text-decoration:none;} .pname a:hover{color:#D4AF37;}
+.muted{color:#888;font-size:0.78rem;}
+.vlist{font-size:0.76rem;color:#bbb;line-height:1.55;}
+.vlist .sku{font-family:'Courier New',monospace;color:#D4AF37;font-weight:700;}
+.status{display:inline-block;border-radius:4px;padding:0.15rem 0.55rem;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;}
+.status-AVAILABLE{background:rgba(46,125,50,0.2);color:#81C784;}
+.status-SOLD_OUT{background:rgba(212,175,55,0.16);color:#D4AF37;}
+.status-DISCONTINUED{background:rgba(198,40,40,0.18);color:#E57373;}
+.status-UPDATED{background:rgba(33,150,243,0.18);color:#64B5F6;}
+.cat{font-size:0.62rem;font-weight:900;letter-spacing:0.05em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:4px;background:#2D2D2D;color:#D4AF37;}
+form.setf{display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;}
+select,input[type=text]{background:#0F0F0F;border:1px solid #2D2D2D;color:#eee;border-radius:5px;padding:0.35rem 0.5rem;font-size:0.78rem;}
+input[type=text]{width:150px;}
+select:focus,input:focus{outline:none;border-color:#D4AF37;}
+button{background:#D4AF37;color:#000;border:none;border-radius:5px;padding:0.35rem 0.7rem;font-size:0.72rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
+button:hover{background:#fff;}
+.flash{margin:0 1.5rem 1rem;padding:0.7rem 1rem;border-radius:0.5rem;font-size:0.85rem;}
+.flash.success{background:rgba(46,125,50,0.18);color:#A5D6A7;border:1px solid rgba(46,125,50,0.4);}
+.flash.error,.flash.warning{background:rgba(198,40,40,0.15);color:#E57373;border:1px solid rgba(198,40,40,0.35);}
+</style></head>
+<body>
+<div class="navbar">
+    <a href="/admin" class="brand">Pep<span class="h">Hub</span> · Admin</a>
+    <div>
+        <a href="/admin" class="lnk">📋 Orders</a>
+        <a href="/admin/products" class="lnk">📦 Products</a>
+        <a href="/admin/science" class="lnk">🔬 Science Hub</a>
+        <a href="/admin/logout" class="lnk">Sign out</a>
+    </div>
+</div>
+
+{% with msgs = get_flashed_messages(with_categories=true) %}{% for cat, m in msgs %}
+<div class="flash {{ cat }}">{{ m }}</div>
+{% endfor %}{% endwith %}
+
+<div class="kpi-row">
+    <div class="kpi"><div class="label">Products</div><div class="val">{{ rows|length }}</div><div class="sub">{{ total_skus }} SKUs in total</div></div>
+    <div class="kpi"><div class="label">Available</div><div class="val">{{ counts.AVAILABLE }}</div><div class="sub">on sale now</div></div>
+    <div class="kpi"><div class="label">Sold out</div><div class="val">{{ counts.SOLD_OUT }}</div><div class="sub">listed, cannot be bought</div></div>
+    <div class="kpi"><div class="label">Discontinued</div><div class="val">{{ counts.DISCONTINUED }}</div><div class="sub">hidden from the store</div></div>
+    <div class="kpi"><div class="label">Updated</div><div class="val">{{ counts.UPDATED }}</div><div class="sub">flagged as changed</div></div>
+</div>
+
+<div class="section">
+    <h2>Stock control</h2>
+    <p class="hint">
+        <strong>Available</strong> and <strong>Updated</strong> sell normally.
+        <strong>Sold out</strong> stays listed but cannot be added to a cart.
+        <strong>Discontinued</strong> is removed from the shop, bulk deals and its product page.
+        Prices and variants live in the catalogue in code — this page controls availability.
+    </p>
+    <table>
+        <thead><tr>
+            <th>Product</th><th>Variants &amp; price</th><th>Margin</th>
+            <th>Status</th><th>Note</th><th>Last change</th><th>Set status</th>
+        </tr></thead>
+        <tbody>
+        {% for r in rows %}
+        <tr>
+            <td>
+                <div class="pname"><a href="/product/{{ r.id }}" target="_blank">{{ r.name }}</a></div>
+                <div class="muted">#{{ r.id }} · <span class="cat">{{ r.cat }}</span></div>
+            </td>
+            <td class="vlist">
+                {% for v in r.variants %}
+                <div><span class="sku">{{ v.sku }}</span> · {{ v.label }} — €{{ "%.2f"|format(v.retail_eur) }}</div>
+                {% endfor %}
+            </td>
+            <td class="muted">
+                {% if r.margin_pct is not none %}{{ r.margin_pct }}%<br>
+                <span style="font-size:0.7rem;">cost €{{ "%.2f"|format(r.cost_eur) }}</span>{% else %}—{% endif %}
+            </td>
+            <td><span class="status status-{{ r.status }}">{{ r.status_label }}</span></td>
+            <td class="muted">{{ r.note or '—' }}</td>
+            <td class="muted">{{ r.updated_at.strftime('%Y-%m-%d %H:%M') if r.updated_at else '—' }}</td>
+            <td>
+                <form class="setf" method="POST" action="/admin/products/{{ r.id }}/status">
+                    <select name="status">
+                        {% for s in statuses %}
+                        <option value="{{ s }}"{% if s == r.status %} selected{% endif %}>{{ status_labels[s] }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="note" value="{{ r.note or '' }}" placeholder="note (optional)">
+                    <button type="submit">Save</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 </body></html>
 """
@@ -3074,6 +3257,36 @@ product_details = {
             ("Storage", "Lyophilised vial stable at −20 °C for up to 24 months. After bacteriostatic water reconstitution, refrigerate and use within 28 days."),
         ],
     },
+    23: {  # Electrolyte Sachets
+        "subtitle": "Sodium · Potassium · Magnesium Hydration Blend",
+        "eyebrow": "Hydration & Daily Foundation",
+        "icon": "bi-droplet-half",
+        "unit": "pack",          # sold as sachet packs, not vials
+        "unit_plural": "packs",
+        "tagline": "Zero-sugar electrolyte sachets — fluid balance and nerve-muscle signalling, one sachet at a time.",
+        "half_life": "n/a — replenished daily",
+        "dose_range": "1 sachet in 500 ml water; up to 2–3 on heavy training or heat days",
+        "form": "Single-serve powder sachet (5.2 g)",
+        "storage": "Cool, dry place. Sachets sealed until use — no refrigeration needed.",
+        "aa_count": "n/a — mineral blend, not a peptide",
+        "cas": "7647-14-5 (sodium chloride) · 866-84-2 (potassium citrate)",
+        "purity": "Food-grade minerals, batch-tested for heavy metals",
+        "chips": [
+            ("Hydration & Fluid Balance", True), ("Zero Sugar", False),
+            ("1000 mg Sodium", False), ("200 mg Potassium", False), ("60 mg Magnesium", False),
+        ],
+        "description": """
+            <p>Electrolytes are the charged minerals that govern fluid distribution, nerve conduction and muscle contraction. Sweat, heat exposure, fasting and low-carbohydrate diets all accelerate their loss — and because water alone dilutes what remains, drinking more without replacing minerals can leave hydration status worse, not better.</p>
+            <p>Each sachet delivers 1000 mg sodium, 200 mg potassium and 60 mg magnesium in a zero-sugar powder that dissolves in 500 ml of water. The ratio is weighted toward sodium, which is the electrolyte lost in the largest quantity through sweat and the one most often under-replaced.</p>
+            <p><strong>Choose the right size:</strong> a single sachet is there to try the taste. The 7-sachet week covers a training block or a trip; the 30-sachet month is the standing supply and the best per-sachet price. Subscribe to the monthly pack and it arrives on its own.</p>
+        """,
+        "research_notes": [
+            ("Why sodium leads", "Sweat sodium concentration ranges roughly 400–1500 mg/L, far exceeding potassium and magnesium losses. Replacement blends weighted toward sodium reflect that gradient."),
+            ("When it matters most", "Prolonged or heat-stressed training, fasting protocols, low-carbohydrate diets and high plain-water intake all increase the case for deliberate electrolyte replacement."),
+            ("Fluid balance", "Sodium drives extracellular fluid retention; without it, additional water is more readily excreted rather than retained where it is useful."),
+            ("Not a peptide", "This is a mineral supplement and the essential daily companion to the research range — no reconstitution, no cold chain."),
+        ],
+    },
 }
 
 @app.route('/product/<int:pid>')
@@ -3081,29 +3294,33 @@ def product_detail(pid):
     p = next((x for x in products if x['id'] == pid), None)
     if not p:
         return "Product not found", 404
+    smap = product_status_map()
+    if not product_listed(pid, smap):          # discontinued — gone, not just unbuyable
+        return "Product not found", 404
+    st = product_status(pid, smap)
     detail = product_details.get(pid, {})
-    return render_template('product_detail.html', product=p, detail=detail)
+    row = ProductStatus.query.get(pid)
+    return render_template('product_detail.html', product=p, detail=detail,
+                           stock_status=st, buyable=product_buyable(pid, smap),
+                           stock_note=(row.note if row else None),
+                           bulk_ok=bulk_allowed(pid))
 
 @app.route('/shop')
 def shop():
     """Dedicated browse page — every product, generated from the catalog so it
     always stays in sync. Cards link through to each product's detail page."""
-    STACK_IDS = {9, 21, 22}
-    ESSENTIAL_IDS = {20}
+    smap = product_status_map()
     rows = []
     for p in products:
         vs = variants_for(p['id'])
-        if not vs:
+        if not vs or not product_listed(p['id'], smap):
             continue
         base = vs[0]['retail_eur']
         d = product_details.get(p['id'], {})
-        if p['id'] in ESSENTIAL_IDS:
-            cat = 'essential'
-        elif p['id'] in STACK_IDS:
-            cat = 'stack'
-        else:
-            cat = 'peptide'
+        cat = product_category(p['id'])
         rows.append({
+            'status': product_status(p['id'], smap),
+            'buyable': product_buyable(p['id'], smap),
             'id': p['id'],
             'name': p['name'],
             'eyebrow': d.get('eyebrow', ''),
@@ -3124,19 +3341,25 @@ def shop():
 @app.route('/deals')
 def deals():
     """Bulk-deal & subscription overview, with per-product pack pricing."""
+    smap = product_status_map()
     rows = []
     for p in products:
         vs = variants_for(p['id'])
-        if not vs:
+        # Only things you can actually buy belong on a deals page.
+        if not vs or not product_buyable(p['id'], smap):
             continue
         base = vs[0]['retail_eur']
+        bulk_ok = bulk_allowed(p['id'])
         rows.append({
             'id': p['id'],
             'name': p['name'],
             'from_label': vs[0]['label'],
             'single': base,
-            'five': round(base * 4, 2),  'five_each': round(base * 4 / 5, 2),
-            'ten':  round(base * 7, 2),  'ten_each':  round(base * 7 / 10, 2),
+            'bulk_ok': bulk_ok,
+            'five': round(base * 4, 2) if bulk_ok else None,
+            'five_each': round(base * 4 / 5, 2) if bulk_ok else None,
+            'ten':  round(base * 7, 2) if bulk_ok else None,
+            'ten_each':  round(base * 7 / 10, 2) if bulk_ok else None,
             'sub': subscription_unit_price(base) if subscription_allowed(p['id']) else None,
             'sub_ok': subscription_allowed(p['id']),
             'variants': [{'sku': v['sku'], 'label': v['label'], 'price': v['retail_eur']} for v in vs],
@@ -3152,6 +3375,15 @@ def add_to_cart(pid):
     if not sku or not get_variant(sku):
         flash('Please choose a variant.', 'warning')
         return redirect(url_for('product_detail', pid=pid))
+    # Stock gate — sold-out / discontinued items cannot be added, even by a
+    # stale form or a hand-crafted POST.
+    smap = product_status_map()
+    if not product_buyable(pid, smap):
+        if product_listed(pid, smap):
+            flash('That product is sold out right now — we can not add it to your cart.', 'warning')
+            return redirect(url_for('product_detail', pid=pid))
+        flash('That product is no longer available.', 'warning')
+        return redirect(url_for('shop'))
     # Purchase mode: 'once' (bulk packs) or 'sub' (monthly subscription)
     mode = request.form.get('mode', 'once')
     if mode == 'sub' and not subscription_allowed(pid):
@@ -3192,7 +3424,7 @@ def _build_cart_items():
             unit_price = subscription_unit_price(v['retail_eur'])
             subtotal = round(unit_price * qty, 2)
         else:
-            subtotal = bulk_line_total(v['retail_eur'], qty)
+            subtotal = bulk_line_total(v['retail_eur'], qty, p['id'])
             unit_price = round(subtotal / qty, 2) if qty else v['retail_eur']
         items.append({
             'sku': v['sku'],
@@ -3470,6 +3702,58 @@ def admin_subscriptions():
     mrr = round(sum((s.unit_price_eur or 0) * (s.quantity or 1) for s in subs if s.status == 'ACTIVE'), 2)
     return render_template_string(ADMIN_SUBS_HTML, subs=subs, active=active, mrr=mrr,
                                   now=datetime.utcnow())
+
+@app.route('/admin/products')
+@admin_required
+def admin_products():
+    """Stock control — every catalogue product with its variants and availability."""
+    smap = product_status_map()
+    meta = {r.product_id: r for r in ProductStatus.query.all()}
+    rows, total_skus = [], 0
+    counts = {s: 0 for s in PRODUCT_STATUSES}
+    for p in products:
+        vs = variants_for(p['id'])
+        total_skus += len(vs)
+        st = smap.get(p['id'], 'AVAILABLE')
+        counts[st] = counts.get(st, 0) + 1
+        # Margin on the base variant, the same figure the order maths uses.
+        margin_pct = cost_eur = None
+        if vs:
+            net = vs[0]['retail_eur'] / (1 + VAT_RATE)
+            cost_eur = wholesale_eur(vs[0]['wholesale_usd'])
+            margin_pct = round((net - cost_eur) / net * 100, 1) if net else None
+        m = meta.get(p['id'])
+        rows.append({
+            'id': p['id'], 'name': p['name'], 'cat': product_category(p['id']),
+            'variants': vs, 'status': st, 'status_label': PRODUCT_STATUS_LABELS.get(st, st),
+            'note': m.note if m else None, 'updated_at': m.updated_at if m else None,
+            'margin_pct': margin_pct, 'cost_eur': cost_eur,
+        })
+    return render_template_string(ADMIN_PRODUCTS_HTML, rows=rows, counts=counts,
+                                  total_skus=total_skus, statuses=PRODUCT_STATUSES,
+                                  status_labels=PRODUCT_STATUS_LABELS)
+
+@app.route('/admin/products/<int:pid>/status', methods=['POST'])
+@admin_required
+def admin_product_set_status(pid):
+    if not any(p['id'] == pid for p in products):
+        abort(404)
+    status = (request.form.get('status') or '').strip().upper()
+    if status not in PRODUCT_STATUSES:
+        flash('Unknown status.', 'error')
+        return redirect(url_for('admin_products'))
+    note = (request.form.get('note') or '').strip()[:255] or None
+    row = ProductStatus.query.get(pid)
+    if row is None:
+        row = ProductStatus(product_id=pid)
+        db.session.add(row)
+    row.status = status
+    row.note = note
+    row.updated_at = datetime.utcnow()
+    db.session.commit()
+    name = next((p['name'] for p in products if p['id'] == pid), '#%d' % pid)
+    flash('%s set to %s.' % (name, PRODUCT_STATUS_LABELS[status]), 'success')
+    return redirect(url_for('admin_products'))
 
 @app.route('/admin/order/<order_number>')
 @admin_required

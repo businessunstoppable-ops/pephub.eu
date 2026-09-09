@@ -172,14 +172,21 @@
                         <div class="pfrom">from {{ r.from_label }}</div>
                     </td>
                     <td class="col-single"><a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=1&amp;mode=once"><span class="price">€{{ "%.2f"|format(r.single) }}</span></a></td>
-                    <td class="col-five"><a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=5&amp;mode=once"><span class="price">€{{ "%.2f"|format(r.five) }}<span class="each">€{{ "%.2f"|format(r.five_each) }}/vial</span></span></a></td>
-                    <td class="col-ten"><a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=10&amp;mode=once"><span class="price">€{{ "%.2f"|format(r.ten) }}<span class="each">€{{ "%.2f"|format(r.ten_each) }}/vial</span></span></a></td>
+                    {# Pack columns are blank for products whose variants already ARE pack sizes. #}
+                    <td class="col-five">
+                        {% if r.bulk_ok %}<a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=5&amp;mode=once"><span class="price">€{{ "%.2f"|format(r.five) }}<span class="each">€{{ "%.2f"|format(r.five_each) }}/vial</span></span></a>
+                        {% else %}<span class="muted">—</span>{% endif %}
+                    </td>
+                    <td class="col-ten">
+                        {% if r.bulk_ok %}<a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=10&amp;mode=once"><span class="price">€{{ "%.2f"|format(r.ten) }}<span class="each">€{{ "%.2f"|format(r.ten_each) }}/vial</span></span></a>
+                        {% else %}<span class="muted">—</span>{% endif %}
+                    </td>
                     <td class="col-sub">
                         {% if r.sub %}<a class="cell-link" href="/product/{{ r.id }}?sku={{ base_sku|urlencode }}&amp;qty=1&amp;mode=sub"><span class="sub-cell">€{{ "%.2f"|format(r.sub) }}<span class="each" style="color:#b07a2e;">/vial · mo</span></span></a>
                         {% else %}<span class="muted">—</span>{% endif %}
                     </td>
                     <td class="add-cell">
-                        <form method="POST" action="/add-to-cart/{{ r.id }}" class="add-form" data-sub-ok="{{ 1 if r.sub_ok else 0 }}">
+                        <form method="POST" action="/add-to-cart/{{ r.id }}" class="add-form" data-sub-ok="{{ 1 if r.sub_ok else 0 }}" data-bulk-ok="{{ 1 if r.bulk_ok else 0 }}">
                             <input type="hidden" name="quantity" value="5" class="q-field">
                             <input type="hidden" name="mode" value="once" class="m-field">
                             <select name="variant_sku" class="v-pick">
@@ -223,12 +230,19 @@
         cards.forEach(c => c.classList.toggle('selected', c.dataset.deal === key));
         forms.forEach(f => {
             const subOk = f.dataset.subOk === '1';
+            const bulkOk = f.dataset.bulkOk !== '0';
             const btn = f.querySelector('.add-btn');
             if (d.mode === 'sub' && !subOk){
                 f.querySelector('.q-field').value = 1;
                 f.querySelector('.m-field').value = 'sub';
                 btn.disabled = true;
                 btn.textContent = 'No subscription';
+            } else if (d.mode === 'once' && d.qty > 1 && !bulkOk){
+                // Sold in fixed pack sizes — per-unit pack deals don't apply.
+                f.querySelector('.q-field').value = 1;
+                f.querySelector('.m-field').value = 'once';
+                btn.disabled = true;
+                btn.textContent = 'Pack sizes only';
             } else {
                 f.querySelector('.q-field').value = d.qty;
                 f.querySelector('.m-field').value = d.mode;
