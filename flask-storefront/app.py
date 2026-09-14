@@ -1,4 +1,4 @@
-from flask import Flask, session, request, redirect, url_for, render_template_string, render_template, flash, abort
+from flask import Flask, session, request, redirect, url_for, render_template_string, render_template, flash, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, CSRFError, generate_csrf
 from dotenv import load_dotenv
@@ -541,6 +541,142 @@ body{background-color:transparent!important;}
 """
 
 
+# Quick-add cart — a persistent cart button that flashes when something is added
+# and links straight to checkout, plus the fetch() handler behind every
+# `form.js-quickadd` on the site. Injected globally so the shop grid, home page
+# cards and product pages all behave the same. Count is seeded server-side so the
+# badge is correct on first paint (no flash of an empty cart).
+_QUICK_CART = """
+<a id="ph-qcart" href="/checkout" aria-label="Go to checkout" title="Go to checkout">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.2 14.8l.03-.12.9-1.68h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49L19.16 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.44c-.16.28-.25.61-.25.97 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.22-.2z"/></svg>
+  <span id="ph-qcart-n">0</span>
+</a>
+<div id="ph-qcart-toast" role="status" aria-live="polite">
+  <div id="ph-qcart-msg"></div>
+  <div class="ph-qcart-acts">
+    <a id="ph-qcart-go" href="/checkout">Checkout &rarr;</a>
+    <a id="ph-qcart-view" href="/cart">View cart</a>
+  </div>
+</div>
+<style>
+#ph-qcart{position:fixed;left:1.1rem;bottom:1.1rem;z-index:9997;width:56px;height:56px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;text-decoration:none;
+  background:rgba(11,10,7,.86);border:1px solid rgba(212,175,55,.55);color:#D4AF37;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 6px 20px rgba(0,0,0,.5);transition:transform .15s ease,border-color .15s ease;}
+#ph-qcart.is-active{display:flex;animation:phCartIdle 2.6s ease-in-out infinite;}
+#ph-qcart:hover{transform:scale(1.08);border-color:#D4AF37;}
+#ph-qcart svg{width:24px;height:24px;fill:currentColor;pointer-events:none;}
+#ph-qcart-n{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;
+  background:#D4AF37;color:#000;font:800 12px/22px 'Inter',system-ui,sans-serif;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.45);}
+/* Strong attention flash the moment an item lands in the cart. */
+#ph-qcart.is-flashing{animation:phCartFlash .5s ease-in-out 3;}
+@keyframes phCartFlash{
+  0%,100%{transform:scale(1);border-color:rgba(212,175,55,.55);box-shadow:0 6px 20px rgba(0,0,0,.5);}
+  50%{transform:scale(1.18);border-color:#fff;box-shadow:0 0 0 6px rgba(212,175,55,.28),0 6px 24px rgba(0,0,0,.55);}
+}
+/* Gentle idle pulse so a non-empty cart keeps drawing the eye. */
+@keyframes phCartIdle{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.5);}50%{box-shadow:0 0 0 5px rgba(212,175,55,.16),0 6px 20px rgba(0,0,0,.5);}}
+#ph-qcart-toast{position:fixed;left:1.1rem;bottom:5.2rem;z-index:9997;max-width:270px;
+  background:rgba(17,15,11,.96);border:1px solid rgba(212,175,55,.5);border-radius:10px;padding:.7rem .85rem;
+  color:#eee;font:600 .82rem/1.35 'Inter',system-ui,sans-serif;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 10px 28px rgba(0,0,0,.55);
+  opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .22s ease,transform .22s ease,visibility .22s;}
+#ph-qcart-toast.is-open{opacity:1;visibility:visible;transform:translateY(0);}
+#ph-qcart-toast.is-err{border-color:rgba(229,115,115,.7);}
+#ph-qcart-msg strong{color:#fff;}
+.ph-qcart-acts{display:flex;gap:.6rem;align-items:center;margin-top:.5rem;}
+#ph-qcart-go{background:#D4AF37;color:#000;border-radius:6px;padding:.32rem .6rem;font-weight:800;
+  font-size:.78rem;text-decoration:none;white-space:nowrap;}
+#ph-qcart-go:hover{background:#fff;}
+#ph-qcart-view{color:#bda45f;font-size:.75rem;text-decoration:underline;white-space:nowrap;}
+/* The quick-add control that sits on product cards. */
+.ph-qadd{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;cursor:pointer;
+  background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.55);color:#D4AF37;border-radius:8px;
+  padding:.45rem .6rem;font:800 .78rem/1 'Inter',system-ui,sans-serif;transition:all .15s ease;}
+.ph-qadd:hover:not(:disabled){background:#D4AF37;color:#000;border-color:#D4AF37;}
+.ph-qadd:disabled{opacity:.6;cursor:default;}
+.ph-qadd svg{width:15px;height:15px;fill:currentColor;}
+.ph-qadd.is-done{background:#2E7D32;border-color:#2E7D32;color:#fff;}
+@media (max-width:600px){
+  #ph-qcart{width:50px;height:50px;left:.8rem;bottom:.8rem;}
+  #ph-qcart svg{width:21px;height:21px;}
+  #ph-qcart-toast{bottom:4.4rem;left:.8rem;right:.8rem;max-width:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  #ph-qcart.is-active,#ph-qcart.is-flashing{animation:none;}
+  #ph-qcart-toast{transition:none;}
+}
+</style>
+<script>
+(function(){
+  var cart=document.getElementById('ph-qcart'), num=document.getElementById('ph-qcart-n'),
+      toast=document.getElementById('ph-qcart-toast'), msg=document.getElementById('ph-qcart-msg'),
+      go=document.getElementById('ph-qcart-go'), view=document.getElementById('ph-qcart-view');
+  if(!cart||!num)return;
+  var hideT=null;
+
+  function paint(n,flash){
+    num.textContent=n;
+    cart.classList.toggle('is-active',n>0);
+    if(n>0&&flash){
+      cart.classList.remove('is-flashing');
+      void cart.offsetWidth;            // restart the animation
+      cart.classList.add('is-flashing');
+      setTimeout(function(){cart.classList.remove('is-flashing');},1600);
+    }
+  }
+  function say(html,isErr){
+    if(!toast)return;
+    msg.innerHTML=html;
+    toast.classList.toggle('is-err',!!isErr);
+    toast.classList.add('is-open');
+    clearTimeout(hideT);
+    hideT=setTimeout(function(){toast.classList.remove('is-open');},5000);
+  }
+  paint(parseInt(cart.getAttribute('data-count')||'0',10),false);
+
+  // Delegated: any form.js-quickadd posts through fetch and stays on the page.
+  document.addEventListener('submit',function(e){
+    var f=e.target;
+    if(!f||!f.classList||!f.classList.contains('js-quickadd'))return;
+    e.preventDefault();
+    var btn=f.querySelector('button,[type=submit]'), label=btn?btn.innerHTML:'';
+    if(btn){btn.disabled=true;}
+    fetch(f.action,{method:'POST',body:new FormData(f),credentials:'same-origin',
+                    headers:{'X-Requested-With':'fetch','Accept':'application/json'}})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(res){
+        var j=res.j||{};
+        if(!res.ok||!j.ok){
+          if(btn){btn.disabled=false;btn.innerHTML=label;}
+          say(j.error||'Could not add that to your cart.',true);
+          if(typeof j.count==='number')paint(j.count,false);
+          return;
+        }
+        paint(j.count,true);
+        if(go&&j.checkout_url)go.href=j.checkout_url;
+        if(view&&j.cart_url)view.href=j.cart_url;
+        say('<strong>'+(j.name||'Item')+'</strong> added'+(j.variant?' &middot; '+j.variant:'')+'.');
+        if(btn){
+          btn.classList.add('is-done');
+          btn.innerHTML='Added \\u2713';
+          setTimeout(function(){btn.disabled=false;btn.classList.remove('is-done');btn.innerHTML=label;},1600);
+        }
+      })
+      .catch(function(){
+        if(btn){btn.disabled=false;btn.innerHTML=label;}
+        // Network/JS trouble — fall back to a normal submit so the click still works.
+        f.classList.remove('js-quickadd');
+        f.submit();
+      });
+  },false);
+})();
+</script>
+"""
+
+
 # Zoom lock: touch-action disables pinch + double-tap zoom while keeping scroll
 # (pan-x preserves the bulk-table side-swipe). gesturestart prevention covers iOS
 # Safari, which ignores viewport user-scalable=no.
@@ -631,6 +767,11 @@ def _inject_site_chrome(resp):
                 tail += _LOGO_CSS
             if 'ph-bg-video' not in html:
                 tail += _BG_VIDEO
+            if 'ph-qcart' not in html:
+                # Seed the badge with the real count so it is right on first paint.
+                tail += _QUICK_CART.replace(
+                    '<a id="ph-qcart" href="/checkout"',
+                    '<a id="ph-qcart" data-count="%d" href="/checkout"' % cart_unit_count(), 1)
             if 'ph-fast-loader' not in html:
                 tail += _FAST_LOADER
             if 'ph-prefetch' not in html:
@@ -1082,6 +1223,14 @@ def product_listed(product_id, smap=None):
     """Discontinued products disappear from browse/deal listings."""
     return product_status(product_id, smap) != 'DISCONTINUED'
 
+def cart_unit_count():
+    """Total vials/packs in the cart — the number worth badging. session.cart
+    length only counts distinct lines, so 10 of one item used to read as '1'."""
+    try:
+        return sum(int(q) for q in (session.get('cart') or {}).values())
+    except Exception:
+        return 0
+
 # Make available in templates
 @app.context_processor
 def _inject():
@@ -1092,6 +1241,7 @@ def _inject():
         'subscription_allowed': subscription_allowed,
         'SUBSCRIPTION_DISCOUNT': SUBSCRIPTION_DISCOUNT,
         'SUBSCRIPTION_INTERVAL': SUBSCRIPTION_INTERVAL,
+        'cart_unit_count': cart_unit_count,
     }
 
 # ----------------------------------------------------------------------
@@ -3334,6 +3484,7 @@ def shop():
         rows.append({
             'status': product_status(p['id'], smap),
             'buyable': product_buyable(p['id'], smap),
+            'default_sku': vs[0]['sku'],          # what a one-click quick-add buys
             'id': p['id'],
             'name': p['name'],
             'eyebrow': d.get('eyebrow', ''),
@@ -3381,22 +3532,38 @@ def deals():
                            sub_pct=int(SUBSCRIPTION_DISCOUNT * 100),
                            sub_interval=SUBSCRIPTION_INTERVAL)
 
+def _wants_json():
+    """True for the quick-add fetch() calls, false for a plain form post — so the
+    same endpoint serves both and the buttons still work with JS disabled."""
+    return (request.headers.get('X-Requested-With') == 'fetch'
+            or 'application/json' in (request.headers.get('Accept') or ''))
+
 @app.route('/add-to-cart/<int:pid>', methods=['POST'])
 def add_to_cart(pid):
-    qty = max(1, int(request.form.get('quantity', 1)))
+    ajax = _wants_json()
+
+    def fail(msg, fallback):
+        if ajax:
+            return jsonify(ok=False, error=msg, count=cart_unit_count()), 400
+        flash(msg, 'warning')
+        return redirect(fallback)
+
+    try:
+        qty = max(1, int(request.form.get('quantity', 1)))
+    except (TypeError, ValueError):
+        qty = 1
     sku = request.form.get('variant_sku') or default_sku(pid)
-    if not sku or not get_variant(sku):
-        flash('Please choose a variant.', 'warning')
-        return redirect(url_for('product_detail', pid=pid))
+    ref = get_variant(sku) if sku else None
+    if not ref:
+        return fail('Please choose a variant.', url_for('product_detail', pid=pid))
     # Stock gate — sold-out / discontinued items cannot be added, even by a
     # stale form or a hand-crafted POST.
     smap = product_status_map()
     if not product_buyable(pid, smap):
         if product_listed(pid, smap):
-            flash('That product is sold out right now — we can not add it to your cart.', 'warning')
-            return redirect(url_for('product_detail', pid=pid))
-        flash('That product is no longer available.', 'warning')
-        return redirect(url_for('shop'))
+            return fail('That product is sold out right now — we can not add it to your cart.',
+                        url_for('product_detail', pid=pid))
+        return fail('That product is no longer available.', url_for('shop'))
     # Purchase mode: 'once' (bulk packs) or 'sub' (monthly subscription)
     mode = request.form.get('mode', 'once')
     if mode == 'sub' and not subscription_allowed(pid):
@@ -3405,6 +3572,10 @@ def add_to_cart(pid):
     cart = session.get('cart', {})
     cart[cart_key] = cart.get(cart_key, 0) + qty
     session['cart'] = cart
+    if ajax:
+        return jsonify(ok=True, count=cart_unit_count(), added=qty,
+                       name=ref['product']['name'], variant=ref['variant']['label'],
+                       checkout_url=url_for('checkout'), cart_url=url_for('cart'))
     return redirect(url_for('cart'))
 
 def _build_cart_items():

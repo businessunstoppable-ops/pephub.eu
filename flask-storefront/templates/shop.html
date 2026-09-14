@@ -34,6 +34,11 @@
         @media (max-width:600px){ .shop-grid { grid-template-columns:1fr; } }
 
         .shop-card { background:var(--ph-card); border:1px solid var(--ph-border); border-radius:1rem; padding:1.5rem; display:flex; flex-direction:column; text-decoration:none; color:inherit; transition:all .18s; position:relative; overflow:hidden; }
+        /* Stretched overlay keeps the whole card clickable now that it is a div. */
+        .sc-link { position:absolute; inset:0; z-index:1; }
+        /* ...and the CTA row sits above it so the quick-add button stays clickable. */
+        .sc-foot .sc-cta { position:relative; z-index:2; display:flex; align-items:center; gap:.5rem; }
+        .sc-cta form { margin:0; }
         .shop-card:hover { border-color:rgba(212, 175, 55,.55); transform:translateY(-4px); box-shadow:0 18px 40px -22px rgba(212, 175, 55,.4); }
         .sc-eyebrow { font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ph-orange); margin-bottom:.35rem; }
         .shop-card h3 { font-weight:800; font-size:1.25rem; color:#fff; margin:0 0 .35rem; }
@@ -44,7 +49,7 @@
         .sc-foot { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-top:auto; }
         .sc-price { font-weight:900; font-size:1.35rem; color:#fff; }
         .sc-price .from { display:block; color:#888; font-weight:600; font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; }
-        .sc-btn { background:var(--ph-orange); color:#000; border-radius:8px; padding:.5rem .95rem; font-weight:800; font-size:.82rem; white-space:nowrap; transition:all .15s; }
+        .sc-btn { background:var(--ph-orange); color:#000; border-radius:8px; padding:.5rem .95rem; font-weight:800; font-size:.82rem; white-space:nowrap; transition:all .15s; text-decoration:none; display:inline-block; }
         .shop-card:hover .sc-btn { background:#fff; }
         .sc-sub { margin-top:.85rem; padding-top:.7rem; border-top:1px dashed var(--ph-border); font-size:.75rem; color:var(--ph-orange); font-weight:700; }
         .sc-tags-top { position:absolute; top:1rem; right:1rem; display:flex; gap:.35rem; }
@@ -162,7 +167,10 @@
 
     <div class="shop-grid" id="grid">
         {% for r in rows %}
-        <a class="shop-card{% if not r.buyable %} is-out{% endif %}" href="/product/{{ r.id }}" data-cat="{{ r.cat }}">
+        {# A div, not an <a>: the quick-add form cannot legally nest inside a link,
+           so navigation is handled by the stretched .sc-link overlay instead. #}
+        <div class="shop-card{% if not r.buyable %} is-out{% endif %}" data-cat="{{ r.cat }}">
+            <a class="sc-link" href="/product/{{ r.id }}" aria-label="View {{ r.name }}"></a>
             <div class="sc-tags-top">
                 {% if r.status == 'UPDATED' %}<span class="badge-cat badge-upd">Updated</span>{% endif %}
                 {% if not r.buyable %}<span class="badge-cat badge-out">Sold out</span>{% endif %}
@@ -178,11 +186,25 @@
             <div class="sc-spacer"></div>
             <div class="sc-foot">
                 <div class="sc-price">{% if r.multi %}<span class="from">from</span>{% endif %}€{{ "%.2f"|format(r.price) }}</div>
-                {% if r.buyable %}<span class="sc-btn">View &amp; Order →</span>
+                {% if r.buyable %}
+                <div class="sc-cta">
+                    {# A real link, not a span: .sc-cta is raised above the card's
+                       click overlay, so a decorative span here would be dead. #}
+                    <a class="sc-btn" href="/product/{{ r.id }}">View →</a>
+                    <form class="js-quickadd" method="POST" action="/add-to-cart/{{ r.id }}">
+                        <input type="hidden" name="variant_sku" value="{{ r.default_sku }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <input type="hidden" name="mode" value="once">
+                        <button class="ph-qadd" type="submit" title="Quick add {{ r.name }} to cart" aria-label="Quick add {{ r.name }} to cart">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.2 14.8l.03-.12.9-1.68h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49L19.16 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.44c-.16.28-.25.61-.25.97 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.22-.2z"/></svg>
+                            Add
+                        </button>
+                    </form>
+                </div>
                 {% else %}<span class="sc-btn sc-btn-out">Sold out</span>{% endif %}
             </div>
             {% if r.sub_ok and r.buyable %}<div class="sc-sub"><i class="bi bi-arrow-repeat"></i> Subscribe from €{{ "%.2f"|format(r.sub_price) }} · save {{ sub_pct }}%</div>{% endif %}
-        </a>
+        </div>
         {% endfor %}
     </div>
 
