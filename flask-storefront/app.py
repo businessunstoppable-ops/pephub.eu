@@ -215,10 +215,17 @@ document.addEventListener('touchstart',on,{passive:true});})();</script>
 
 # Social-proof review toast — a small gold card that fades in from the bottom-left
 # for a few seconds every 45s, showing a random 4.7–5★ review with an NL/DE name.
+#
+# PAUSED. Off unless SHOW_REVIEW_TOAST is set to 1/true/yes/on, so it can be
+# switched back on from the Render dashboard without a redeploy. The markup is
+# kept intact rather than deleted so nothing has to be rebuilt to resume it.
+SHOW_REVIEW_TOAST = os.environ.get('SHOW_REVIEW_TOAST', '').lower() in ('1', 'true', 'yes', 'on')
+
 _REVIEW_TOAST = """
 <div id="ph-review-toast" aria-live="polite"></div>
 <style>
-#ph-review-toast{position:fixed;left:1.25rem;bottom:1.25rem;z-index:12500;
+/* Sits above the quick-add cart button, which also lives bottom-left. */
+#ph-review-toast{position:fixed;left:1.25rem;bottom:5.6rem;z-index:12500;
  background:#D4AF37;color:#111;border-radius:12px;padding:.55rem .9rem;max-width:320px;width:calc(100% - 2.5rem);
  box-shadow:0 14px 40px rgba(0,0,0,.5);font-family:'Inter',system-ui,sans-serif;
  opacity:0;visibility:hidden;transform:translateY(20px);
@@ -229,6 +236,7 @@ _REVIEW_TOAST = """
 #ph-review-toast .rt-score{background:#111;color:#D4AF37;border-radius:20px;padding:.03rem .45rem;font-size:.7rem;font-weight:900;}
 #ph-review-toast .rt-text{font-size:.82rem;font-weight:600;line-height:1.3;margin:.25rem 0 .18rem;}
 #ph-review-toast .rt-by{font-size:.7rem;font-weight:800;opacity:.72;}
+@media (max-width:600px){#ph-review-toast{left:.8rem;bottom:5rem;}}
 </style>
 <script>
 (function(){
@@ -755,7 +763,7 @@ def _inject_site_chrome(resp):
                 tail += _LEGAL_FOOTER
             if 'ph-cookie' not in html and not request.cookies.get('ph_consent'):
                 tail += _COOKIE_BANNER
-            if 'ph-review-toast' not in html:
+            if SHOW_REVIEW_TOAST and 'ph-review-toast' not in html:
                 tail += _REVIEW_TOAST
             if 'ph-mnav' not in html:
                 tail += _MOBILE_NAV
