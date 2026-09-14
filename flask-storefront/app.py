@@ -2924,7 +2924,23 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
 .vrow .vlab{color:#999;flex:1 1 130px;min-width:110px;}
 .vrow select{padding:.22rem .35rem;font-size:.72rem;}
 .vrow input[type=text]{width:96px;padding:.22rem .35rem;font-size:.72rem;}
-.vrow button{padding:.24rem .5rem;font-size:.66rem;}
+.allbtn{margin-top:.4rem;background:#2D2D2D;color:#bbb;border:1px solid #3a3a3a;border-radius:5px;
+  padding:.2rem .45rem;font-size:.64rem;font-weight:700;cursor:pointer;letter-spacing:0;text-transform:none;}
+.allbtn:hover{background:#D4AF37;color:#000;border-color:#D4AF37;}
+/* A field the operator has touched but not yet saved. */
+.is-dirty{border-color:#D4AF37!important;background:#1d1a12!important;}
+tr.row-dirty td{background:rgba(212,175,55,.06);}
+/* Sticky commit bar — a bulk edit can be long, so the button follows you down. */
+#saveBar{position:sticky;bottom:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;margin:0 -1.5rem;padding:.8rem 1.5rem;background:rgba(14,14,14,.97);
+  border-top:1px solid #2D2D2D;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+#saveCount{font-size:.82rem;font-weight:700;color:#888;}
+#saveCount.on{color:#D4AF37;}
+.sb-acts{display:flex;gap:.5rem;align-items:center;}
+#saveBar button{padding:.5rem 1.1rem;font-size:.75rem;}
+#saveBar button.ghost{background:#2D2D2D;color:#ccc;}
+#saveBar button.ghost:hover{background:#3a3a3a;}
+#saveAllBtn:disabled{background:#2D2D2D;color:#666;cursor:default;}
 .status{display:inline-block;border-radius:4px;padding:0.15rem 0.55rem;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;}
 .status-AVAILABLE{background:rgba(46,125,50,0.2);color:#81C784;}
 .status-SOLD_OUT{background:rgba(212,175,55,0.16);color:#D4AF37;}
@@ -2981,57 +2997,127 @@ button:hover{background:#fff;}
         cheapest size that <em>is</em> in stock. If every size of a product is out, the product
         reads as sold out automatically.
     </p>
+    {# One form over the whole table so a bulk edit is a single submit. Per-row
+       forms cannot be nested inside it, hence the namespaced field names. #}
+    <form id="stockForm" method="POST" action="/admin/products/save-all">
     <table>
         <thead><tr>
-            <th>Product</th><th>Variants &amp; price</th><th>Margin</th>
-            <th>Status</th><th>Note</th><th>Last change</th><th>Set status</th>
+            <th>Product</th><th>Variants &amp; price · per-SKU stock</th><th>Margin</th>
+            <th>Product status</th><th>Product note</th><th>Last change</th>
         </tr></thead>
         <tbody>
         {% for r in rows %}
-        <tr>
+        <tr data-row>
             <td>
                 <div class="pname"><a href="/product/{{ r.id }}" target="_blank">{{ r.name }}</a></div>
                 <div class="muted">#{{ r.id }} · <span class="cat">{{ r.cat }}</span></div>
+                <button type="button" class="allbtn" data-all="{{ r.id }}" title="Apply this product's status to all of its sizes">↧ to all sizes</button>
             </td>
             <td class="vlist">
                 {% for v in r.variants %}
-                <form class="vrow" method="POST" action="/admin/products/variant/{{ v.sku }}/status">
+                <div class="vrow">
                     <span class="status status-{{ v.status }} vtag">{{ v.status_label }}</span>
                     <span class="sku">{{ v.sku }}</span>
                     <span class="vlab">{{ v.label }} — €{{ "%.2f"|format(v.price) }}</span>
-                    <select name="status" aria-label="Stock status for {{ v.sku }}">
+                    <select name="v_status_{{ v.sku }}" data-orig="{{ v.status }}" data-vsel="{{ r.id }}"
+                            aria-label="Stock status for {{ v.sku }}">
                         {% for s in statuses %}
                         <option value="{{ s }}"{% if s == v.status %} selected{% endif %}>{{ status_labels[s] }}</option>
                         {% endfor %}
                     </select>
-                    <input type="text" name="note" value="{{ v.note or '' }}" placeholder="note">
-                    <button type="submit">Save</button>
-                </form>
+                    <input type="text" name="v_note_{{ v.sku }}" value="{{ v.note or '' }}"
+                           data-orig="{{ v.note or '' }}" placeholder="note">
+                </div>
                 {% endfor %}
             </td>
             <td class="muted">
                 {% if r.margin_pct is not none %}{{ r.margin_pct }}%<br>
                 <span style="font-size:0.7rem;">cost €{{ "%.2f"|format(r.cost_eur) }}</span>{% else %}—{% endif %}
             </td>
-            <td><span class="status status-{{ r.status }}">{{ r.status_label }}</span></td>
-            <td class="muted">{{ r.note or '—' }}</td>
-            <td class="muted">{{ r.updated_at.strftime('%Y-%m-%d %H:%M') if r.updated_at else '—' }}</td>
             <td>
-                <form class="setf" method="POST" action="/admin/products/{{ r.id }}/status">
-                    <select name="status">
-                        {% for s in statuses %}
-                        <option value="{{ s }}"{% if s == r.status %} selected{% endif %}>{{ status_labels[s] }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="text" name="note" value="{{ r.note or '' }}" placeholder="note (optional)">
-                    <button type="submit">Save</button>
-                </form>
+                <div><span class="status status-{{ r.status }}">{{ r.status_label }}</span></div>
+                <select name="p_status_{{ r.id }}" data-orig="{{ r.status }}" data-psel="{{ r.id }}"
+                        style="margin-top:.35rem;" aria-label="Status for {{ r.name }}">
+                    {% for s in statuses %}
+                    <option value="{{ s }}"{% if s == r.status %} selected{% endif %}>{{ status_labels[s] }}</option>
+                    {% endfor %}
+                </select>
             </td>
+            <td>
+                <input type="text" name="p_note_{{ r.id }}" value="{{ r.note or '' }}"
+                       data-orig="{{ r.note or '' }}" placeholder="note (optional)">
+            </td>
+            <td class="muted">{{ r.updated_at.strftime('%Y-%m-%d %H:%M') if r.updated_at else '—' }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
+    </form>
+    <div id="saveBar">
+        <span id="saveCount">No unsaved changes</span>
+        <div class="sb-acts">
+            <button type="button" id="revertBtn" class="ghost">Revert</button>
+            <button type="submit" form="stockForm" id="saveAllBtn" disabled>Save all</button>
+        </div>
+    </div>
 </div>
+<script>
+(function(){
+  var form=document.getElementById('stockForm');
+  if(!form)return;
+  var bar=document.getElementById('saveCount'), save=document.getElementById('saveAllBtn'),
+      revert=document.getElementById('revertBtn');
+  var fields=[].slice.call(form.querySelectorAll('[data-orig]'));
+
+  function dirtyOf(el){ return (el.value||'') !== (el.getAttribute('data-orig')||''); }
+
+  function recount(){
+    var n=0;
+    fields.forEach(function(el){
+      var d=dirtyOf(el);
+      el.classList.toggle('is-dirty',d);
+      if(d)n++;
+      var tr=el.closest('tr');
+      if(tr){
+        // A row is dirty if any of its own fields are.
+        var any=[].slice.call(tr.querySelectorAll('[data-orig]')).some(dirtyOf);
+        tr.classList.toggle('row-dirty',any);
+      }
+    });
+    save.disabled = n===0;
+    bar.classList.toggle('on',n>0);
+    bar.textContent = n===0 ? 'No unsaved changes'
+      : n+' unsaved change'+(n>1?'s':'')+' — nothing is written until you press Save all';
+  }
+
+  form.addEventListener('input',recount);
+  form.addEventListener('change',recount);
+
+  // "to all sizes" — copy a product's chosen status down onto every one of its SKUs.
+  form.addEventListener('click',function(e){
+    var b=e.target.closest ? e.target.closest('.allbtn') : null;
+    if(!b)return;
+    var pid=b.getAttribute('data-all');
+    var src=form.querySelector('[data-psel="'+pid+'"]');
+    if(!src)return;
+    form.querySelectorAll('[data-vsel="'+pid+'"]').forEach(function(sel){ sel.value=src.value; });
+    recount();
+  });
+
+  revert.addEventListener('click',function(){
+    fields.forEach(function(el){ el.value=el.getAttribute('data-orig')||''; });
+    recount();
+  });
+
+  // Don't let a long bulk edit get lost to a stray click.
+  window.addEventListener('beforeunload',function(ev){
+    if(!save.disabled){ ev.preventDefault(); ev.returnValue=''; return ''; }
+  });
+  form.addEventListener('submit',function(){ save.disabled=true; save.textContent='Saving…'; });
+
+  recount();
+})();
+</script>
 </body></html>
 """
 
@@ -4055,6 +4141,75 @@ def admin_product_set_status(pid):
     db.session.commit()
     name = next((p['name'] for p in products if p['id'] == pid), '#%d' % pid)
     flash('%s set to %s.' % (name, PRODUCT_STATUS_LABELS[status]), 'success')
+    return redirect(url_for('admin_products'))
+
+@app.route('/admin/products/save-all', methods=['POST'])
+@admin_required
+def admin_products_save_all():
+    """Commit the whole stock table in one submit. Only rows whose status or note
+    actually changed are written, so `updated_at` stays meaningful instead of
+    every product showing the same timestamp after a bulk save."""
+    smap, vmap = product_status_map(), variant_status_map()
+    pmeta = {r.product_id: r for r in ProductStatus.query.all()}
+    vmeta = {r.sku: r for r in VariantStatus.query.all()}
+    now = datetime.utcnow()
+    changed_p = changed_v = 0
+    bad = []
+
+    def clean(raw):
+        return (raw or '').strip()[:255] or None
+
+    for p in products:
+        pid = p['id']
+        # Product-level status. Note this must NOT short-circuit the variant pass
+        # below — changing only a SKU is the common case.
+        if ('p_status_%d' % pid) in request.form:
+            st = (request.form.get('p_status_%d' % pid) or '').strip().upper()
+            note = clean(request.form.get('p_note_%d' % pid))
+            if st not in PRODUCT_STATUSES:
+                bad.append(p['name'])
+            else:
+                row = pmeta.get(pid)
+                cur_st = smap.get(pid, 'AVAILABLE')
+                cur_note = row.note if row else None
+                if st != cur_st or note != cur_note:
+                    if row is None:
+                        row = ProductStatus(product_id=pid)
+                        db.session.add(row)
+                    row.status, row.note, row.updated_at = st, note, now
+                    changed_p += 1
+
+        # Per-SKU statuses, always evaluated.
+        for v in variants_for(pid):
+            sku = v['sku']
+            if ('v_status_%s' % sku) not in request.form:
+                continue
+            vst = (request.form.get('v_status_%s' % sku) or '').strip().upper()
+            vnote = clean(request.form.get('v_note_%s' % sku))
+            if vst not in PRODUCT_STATUSES:
+                bad.append(sku)
+                continue
+            vrow = vmeta.get(sku)
+            if vst == vmap.get(sku, 'AVAILABLE') and vnote == (vrow.note if vrow else None):
+                continue
+            if vrow is None:
+                vrow = VariantStatus(sku=sku)
+                db.session.add(vrow)
+            vrow.status, vrow.note, vrow.updated_at = vst, vnote, now
+            changed_v += 1
+
+    db.session.commit()
+    if bad:
+        flash('Skipped %d field(s) with an unknown status: %s' % (len(bad), ', '.join(bad[:6])), 'error')
+    if changed_p or changed_v:
+        bits = []
+        if changed_p:
+            bits.append('%d product%s' % (changed_p, '' if changed_p == 1 else 's'))
+        if changed_v:
+            bits.append('%d SKU%s' % (changed_v, '' if changed_v == 1 else 's'))
+        flash('Saved — updated %s.' % ' and '.join(bits), 'success')
+    elif not bad:
+        flash('Nothing to save — no values changed.', 'warning')
     return redirect(url_for('admin_products'))
 
 @app.route('/admin/products/variant/<sku>/status', methods=['POST'])
