@@ -374,6 +374,10 @@
                 .variant-row .v-label { font-size:0.85rem; font-weight:700; color:#fff; }
                 .variant-row .v-sku { font-size:0.68rem; font-weight:600; color:#777; margin-left:0.35rem; }
                 .variant-row .v-price { font-size:0.92rem; font-weight:800; color:#D4AF37; }
+                /* A size that is out of stock stays visible but unpickable. */
+                .variant-row.is-out { opacity:.5; cursor:not-allowed; }
+                .variant-row.is-out:hover { border-color:#2D2D2D; }
+                .variant-row .v-out { font-size:0.62rem; font-weight:900; text-transform:uppercase; letter-spacing:0.04em; color:#fff; background:#C62828; border-radius:4px; padding:0.05rem 0.35rem; margin-left:0.35rem; }
                 .vat-tag { font-size:0.66rem; color:#888; margin-top:0.3rem; }
                 .sec-label { margin:0.85rem 0 0.4rem; font-size:0.68rem; font-weight:800; color:#D4AF37; text-transform:uppercase; letter-spacing:0.06em; }
                 /* Purchase-mode toggle */
@@ -410,13 +414,19 @@
                       data-bulkok="{{ 0 if (bulk_ok is defined and not bulk_ok) else 1 }}">
                     <input type="hidden" name="mode" id="modeInput" value="once">
 
-                    {% set vlist = variants_for(product.id) %}
+                    {# vlist comes from the route with discontinued SKUs already removed.
+                       Sold-out sizes stay visible but cannot be selected, and the first
+                       *in-stock* size is the one pre-selected. #}
+                    {% set vlist = vlist if vlist is defined else variants_for(product.id) %}
+                    {% set first_ok = first_sku %}
                     {% if vlist %}
                     <div class="sec-label">Select Variant</div>
                     {% for v in vlist %}
-                    <label class="variant-row{% if loop.first %} selected{% endif %}" data-price="{{ v.retail_eur }}">
-                        <input type="radio" name="variant_sku" value="{{ v.sku }}"{% if loop.first %} checked{% endif %}>
-                        <div class="v-label">{{ v.label }} <span class="v-sku">{{ v.sku }}</span></div>
+                    {% set v_ok = variant_buyable(v.sku, vmap) %}
+                    <label class="variant-row{% if v.sku == first_ok %} selected{% endif %}{% if not v_ok %} is-out{% endif %}"
+                           data-price="{{ v.retail_eur }}" data-instock="{{ 1 if v_ok else 0 }}">
+                        <input type="radio" name="variant_sku" value="{{ v.sku }}"{% if v.sku == first_ok %} checked{% endif %}{% if not v_ok %} disabled{% endif %}>
+                        <div class="v-label">{{ v.label }} <span class="v-sku">{{ v.sku }}</span>{% if not v_ok %} <span class="v-out">Sold out</span>{% endif %}</div>
                         <div class="v-price">€{{ "%.2f"|format(v.retail_eur) }}</div>
                     </label>
                     {% endfor %}
@@ -546,9 +556,10 @@
                         }
                     }
 
-                    // Variant selection
+                    // Variant selection (out-of-stock sizes are not selectable)
                     form.querySelectorAll('.variant-row').forEach(row => {
                         row.addEventListener('click', () => {
+                            if (row.dataset.instock === '0') return;
                             form.querySelectorAll('.variant-row').forEach(r => r.classList.remove('selected'));
                             row.classList.add('selected');
                             row.querySelector('input[type=radio]').checked = true;

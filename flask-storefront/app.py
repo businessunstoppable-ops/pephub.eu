@@ -938,6 +938,16 @@ class ArticleSocial(db.Model):
     hashtags = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class VariantStatus(db.Model):
+    """Stock state for a single SKU — the 10mg vial can be out while the 20mg is
+    fine, and each sachet pack size moves independently. Sits *under*
+    ProductStatus: a discontinued product hides every variant regardless.
+    A SKU with no row here is AVAILABLE, so nothing changes until it is set."""
+    sku = db.Column(db.String(60), primary_key=True)
+    status = db.Column(db.String(20), nullable=False, default='AVAILABLE')
+    note = db.Column(db.String(255))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class ProductStatus(db.Model):
     """Stock state for a catalogue product, set from the admin Products page.
 
@@ -1231,6 +1241,40 @@ def product_listed(product_id, smap=None):
     """Discontinued products disappear from browse/deal listings."""
     return product_status(product_id, smap) != 'DISCONTINUED'
 
+# --- per-SKU layer -----------------------------------------------------
+def variant_status_map():
+    """{sku: status} for every SKU with a row; missing → AVAILABLE."""
+    try:
+        return {r.sku: (r.status or 'AVAILABLE') for r in VariantStatus.query.all()}
+    except Exception:
+        return {}                      # table not created yet → treat all as available
+
+def variant_status(sku, vmap=None):
+    vmap = variant_status_map() if vmap is None else vmap
+    return vmap.get(sku, 'AVAILABLE')
+
+def variant_buyable(sku, vmap=None):
+    return variant_status(sku, vmap) in _BUYABLE_STATUSES
+
+def variant_listed(sku, vmap=None):
+    """Discontinued SKUs vanish from the variant picker entirely."""
+    return variant_status(sku, vmap) != 'DISCONTINUED'
+
+def listed_variants(product_id, vmap=None):
+    """Variants a customer should see at all (discontinued SKUs removed)."""
+    vmap = variant_status_map() if vmap is None else vmap
+    return [v for v in variants_for(product_id) if variant_listed(v['sku'], vmap)]
+
+def buyable_variants(product_id, vmap=None):
+    """Variants that can actually be added to a cart right now."""
+    vmap = variant_status_map() if vmap is None else vmap
+    return [v for v in variants_for(product_id) if variant_buyable(v['sku'], vmap)]
+
+def product_sellable(product_id, smap=None, vmap=None):
+    """A product is sellable only if the product itself is buyable AND at least
+    one of its SKUs is. Prevents an 'in stock' card with nothing to buy."""
+    return bool(product_buyable(product_id, smap) and buyable_variants(product_id, vmap))
+
 def cart_unit_count():
     """Total vials/packs in the cart — the number worth badging. session.cart
     length only counts distinct lines, so 10 of one item used to read as '1'."""
@@ -1250,6 +1294,9 @@ def _inject():
         'SUBSCRIPTION_DISCOUNT': SUBSCRIPTION_DISCOUNT,
         'SUBSCRIPTION_INTERVAL': SUBSCRIPTION_INTERVAL,
         'cart_unit_count': cart_unit_count,
+        'variant_buyable': variant_buyable,
+        'variant_listed': variant_listed,
+        'listed_variants': listed_variants,
     }
 
 # ----------------------------------------------------------------------
@@ -2870,6 +2917,14 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#1F1F1F;}
 .muted{color:#888;font-size:0.78rem;}
 .vlist{font-size:0.76rem;color:#bbb;line-height:1.55;}
 .vlist .sku{font-family:'Courier New',monospace;color:#D4AF37;font-weight:700;}
+/* One row per SKU so 10 mg and 20 mg can be flipped independently. */
+.vrow{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.28rem 0;border-bottom:1px dashed #262626;}
+.vrow:last-child{border-bottom:none;}
+.vrow .vtag{min-width:74px;text-align:center;}
+.vrow .vlab{color:#999;flex:1 1 130px;min-width:110px;}
+.vrow select{padding:.22rem .35rem;font-size:.72rem;}
+.vrow input[type=text]{width:96px;padding:.22rem .35rem;font-size:.72rem;}
+.vrow button{padding:.24rem .5rem;font-size:.66rem;}
 .status{display:inline-block;border-radius:4px;padding:0.15rem 0.55rem;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;}
 .status-AVAILABLE{background:rgba(46,125,50,0.2);color:#81C784;}
 .status-SOLD_OUT{background:rgba(212,175,55,0.16);color:#D4AF37;}
@@ -2907,6 +2962,7 @@ button:hover{background:#fff;}
     <div class="kpi"><div class="label">Sold out</div><div class="val">{{ counts.SOLD_OUT }}</div><div class="sub">listed, cannot be bought</div></div>
     <div class="kpi"><div class="label">Discontinued</div><div class="val">{{ counts.DISCONTINUED }}</div><div class="sub">hidden from the store</div></div>
     <div class="kpi"><div class="label">Updated</div><div class="val">{{ counts.UPDATED }}</div><div class="sub">flagged as changed</div></div>
+    <div class="kpi"><div class="label">SKUs out of stock</div><div class="val">{{ vcounts.SOLD_OUT + vcounts.DISCONTINUED }}</div><div class="sub">{{ vcounts.SOLD_OUT }} sold out · {{ vcounts.DISCONTINUED }} discontinued</div></div>
 </div>
 
 <div class="section">
@@ -2916,6 +2972,14 @@ button:hover{background:#fff;}
         <strong>Sold out</strong> stays listed but cannot be added to a cart.
         <strong>Discontinued</strong> is removed from the shop, bulk deals and its product page.
         Prices and variants live in the catalogue in code — this page controls availability.
+    </p>
+    <p class="hint">
+        The <strong>Product</strong> status column covers the whole product; each row in
+        <strong>Variants</strong> has its own status, so you can take the 10&nbsp;mg vial out of
+        stock while the 20&nbsp;mg keeps selling, or pause one sachet pack size. A sold-out size
+        still shows on the product page but cannot be selected, and the shop card quotes the
+        cheapest size that <em>is</em> in stock. If every size of a product is out, the product
+        reads as sold out automatically.
     </p>
     <table>
         <thead><tr>
@@ -2931,7 +2995,18 @@ button:hover{background:#fff;}
             </td>
             <td class="vlist">
                 {% for v in r.variants %}
-                <div><span class="sku">{{ v.sku }}</span> · {{ v.label }} — €{{ "%.2f"|format(v.retail_eur) }}</div>
+                <form class="vrow" method="POST" action="/admin/products/variant/{{ v.sku }}/status">
+                    <span class="status status-{{ v.status }} vtag">{{ v.status_label }}</span>
+                    <span class="sku">{{ v.sku }}</span>
+                    <span class="vlab">{{ v.label }} — €{{ "%.2f"|format(v.price) }}</span>
+                    <select name="status" aria-label="Stock status for {{ v.sku }}">
+                        {% for s in statuses %}
+                        <option value="{{ s }}"{% if s == v.status %} selected{% endif %}>{{ status_labels[s] }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="note" value="{{ v.note or '' }}" placeholder="note">
+                    <button type="submit">Save</button>
+                </form>
                 {% endfor %}
             </td>
             <td class="muted">
@@ -3465,39 +3540,50 @@ def product_detail(pid):
     p = next((x for x in products if x['id'] == pid), None)
     if not p:
         return "Product not found", 404
-    smap = product_status_map()
+    smap, vmap = product_status_map(), variant_status_map()
     if not product_listed(pid, smap):          # discontinued — gone, not just unbuyable
         return "Product not found", 404
     st = product_status(pid, smap)
     detail = product_details.get(pid, {})
     row = ProductStatus.query.get(pid)
+    vlist = listed_variants(pid, vmap)
+    # Sold out if the product is, or if every remaining size is.
+    sellable = [v for v in vlist if variant_buyable(v['sku'], vmap)]
     return render_template('product_detail.html', product=p, detail=detail,
-                           stock_status=st, buyable=product_buyable(pid, smap),
+                           stock_status=st,
+                           buyable=bool(product_buyable(pid, smap) and sellable),
                            stock_note=(row.note if row else None),
-                           bulk_ok=bulk_allowed(pid))
+                           bulk_ok=bulk_allowed(pid),
+                           vlist=vlist, vmap=vmap,
+                           # Pre-select the first size that is actually in stock.
+                           first_sku=(sellable[0]['sku'] if sellable else None))
 
 @app.route('/shop')
 def shop():
     """Dedicated browse page — every product, generated from the catalog so it
     always stays in sync. Cards link through to each product's detail page."""
-    smap = product_status_map()
+    smap, vmap = product_status_map(), variant_status_map()
     rows = []
     for p in products:
-        vs = variants_for(p['id'])
+        vs = listed_variants(p['id'], vmap)
         if not vs or not product_listed(p['id'], smap):
             continue
-        base = vs[0]['retail_eur']
+        # Quote and quick-add the cheapest size that is actually in stock, so a
+        # card never advertises a price you cannot buy.
+        sellable = [v for v in vs if variant_buyable(v['sku'], vmap)]
+        quote = (sellable or vs)[0]
+        base = quote['retail_eur']
         d = product_details.get(p['id'], {})
         cat = product_category(p['id'])
         rows.append({
             'status': product_status(p['id'], smap),
-            'buyable': product_buyable(p['id'], smap),
-            'default_sku': vs[0]['sku'],          # what a one-click quick-add buys
+            'buyable': bool(product_buyable(p['id'], smap) and sellable),
+            'default_sku': quote['sku'],          # what a one-click quick-add buys
             'id': p['id'],
             'name': p['name'],
             'eyebrow': d.get('eyebrow', ''),
             'tagline': d.get('tagline', ''),
-            'from_label': vs[0]['label'],
+            'from_label': quote['label'],
             'price': base,
             'multi': len(vs) > 1,
             'chips': [c[0] for c in d.get('chips', [])][:3],
@@ -3513,11 +3599,12 @@ def shop():
 @app.route('/deals')
 def deals():
     """Bulk-deal & subscription overview, with per-product pack pricing."""
-    smap = product_status_map()
+    smap, vmap = product_status_map(), variant_status_map()
     rows = []
     for p in products:
-        vs = variants_for(p['id'])
-        # Only things you can actually buy belong on a deals page.
+        # Only sizes you can actually buy belong on a deals page — the whole
+        # table is add-to-cart, so an out-of-stock SKU here is a dead end.
+        vs = buyable_variants(p['id'], vmap)
         if not vs or not product_buyable(p['id'], smap):
             continue
         base = vs[0]['retail_eur']
@@ -3572,6 +3659,14 @@ def add_to_cart(pid):
             return fail('That product is sold out right now — we can not add it to your cart.',
                         url_for('product_detail', pid=pid))
         return fail('That product is no longer available.', url_for('shop'))
+    # ...and the specific size has to be in stock, not just the product.
+    vmap = variant_status_map()
+    if not variant_buyable(sku, vmap):
+        label = ref['variant']['label']
+        if variant_listed(sku, vmap):
+            return fail('%s is sold out right now — please choose another size.' % label,
+                        url_for('product_detail', pid=pid))
+        return fail('%s is no longer available.' % label, url_for('product_detail', pid=pid))
     # Purchase mode: 'once' (bulk packs) or 'sub' (monthly subscription)
     mode = request.form.get('mode', 'once')
     if mode == 'sub' and not subscription_allowed(pid):
@@ -3900,14 +3995,28 @@ def admin_subscriptions():
 def admin_products():
     """Stock control — every catalogue product with its variants and availability."""
     smap = product_status_map()
+    vmap = variant_status_map()
     meta = {r.product_id: r for r in ProductStatus.query.all()}
+    vmeta = {r.sku: r for r in VariantStatus.query.all()}
     rows, total_skus = [], 0
     counts = {s: 0 for s in PRODUCT_STATUSES}
+    vcounts = {s: 0 for s in PRODUCT_STATUSES}
     for p in products:
         vs = variants_for(p['id'])
         total_skus += len(vs)
         st = smap.get(p['id'], 'AVAILABLE')
         counts[st] = counts.get(st, 0) + 1
+        vrows = []
+        for v in vs:
+            vst = vmap.get(v['sku'], 'AVAILABLE')
+            vcounts[vst] = vcounts.get(vst, 0) + 1
+            vm = vmeta.get(v['sku'])
+            vrows.append({
+                'sku': v['sku'], 'label': v['label'], 'price': v['retail_eur'],
+                'status': vst, 'status_label': PRODUCT_STATUS_LABELS.get(vst, vst),
+                'note': vm.note if vm else None,
+                'updated_at': vm.updated_at if vm else None,
+            })
         # Margin on the base variant, the same figure the order maths uses.
         margin_pct = cost_eur = None
         if vs:
@@ -3917,11 +4026,12 @@ def admin_products():
         m = meta.get(p['id'])
         rows.append({
             'id': p['id'], 'name': p['name'], 'cat': product_category(p['id']),
-            'variants': vs, 'status': st, 'status_label': PRODUCT_STATUS_LABELS.get(st, st),
+            'variants': vrows, 'status': st, 'status_label': PRODUCT_STATUS_LABELS.get(st, st),
             'note': m.note if m else None, 'updated_at': m.updated_at if m else None,
             'margin_pct': margin_pct, 'cost_eur': cost_eur,
         })
     return render_template_string(ADMIN_PRODUCTS_HTML, rows=rows, counts=counts,
+                                  vcounts=vcounts,
                                   total_skus=total_skus, statuses=PRODUCT_STATUSES,
                                   status_labels=PRODUCT_STATUS_LABELS)
 
@@ -3945,6 +4055,30 @@ def admin_product_set_status(pid):
     db.session.commit()
     name = next((p['name'] for p in products if p['id'] == pid), '#%d' % pid)
     flash('%s set to %s.' % (name, PRODUCT_STATUS_LABELS[status]), 'success')
+    return redirect(url_for('admin_products'))
+
+@app.route('/admin/products/variant/<sku>/status', methods=['POST'])
+@admin_required
+def admin_variant_set_status(sku):
+    """Per-SKU stock control — e.g. 10 mg out while 20 mg is fine."""
+    ref = get_variant(sku)
+    if not ref:
+        abort(404)
+    status = (request.form.get('status') or '').strip().upper()
+    if status not in PRODUCT_STATUSES:
+        flash('Unknown status.', 'error')
+        return redirect(url_for('admin_products'))
+    note = (request.form.get('note') or '').strip()[:255] or None
+    row = VariantStatus.query.get(sku)
+    if row is None:
+        row = VariantStatus(sku=sku)
+        db.session.add(row)
+    row.status = status
+    row.note = note
+    row.updated_at = datetime.utcnow()
+    db.session.commit()
+    flash('%s · %s set to %s.' % (ref['product']['name'], ref['variant']['label'],
+                                  PRODUCT_STATUS_LABELS[status]), 'success')
     return redirect(url_for('admin_products'))
 
 @app.route('/admin/order/<order_number>')
