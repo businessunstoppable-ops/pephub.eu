@@ -1117,17 +1117,17 @@ peptide_data = {
 # ACTIVE PRODUCTS — Only 3 live. Others are commented out for later.
 # ----------------------------------------------------------------------
 products = [
-    {"id": 1,  "name": "BPC-157",          "desc": "**Function:** BPC-157 (Body Protection Compound-157) – a synthetic 15-amino-acid peptide that accelerates repair of tendons, ligaments, muscle, and the gut lining while promoting angiogenesis. The cornerstone recovery peptide. **Active peptide:** BPC-157 (15 amino acids).", "base_price": 39.99},
-    {"id": 2,  "name": "TB-500",           "desc": "**Function:** TB-500 (Thymosin Beta-4 fragment) – a systemically-acting repair peptide that mobilises stem cells, promotes vascular regeneration, and resolves inflammation body-wide. **Active peptide:** TB-500 (Thymosin Beta-4 analogue).", "base_price": 49.99},
-    {"id": 9,  "name": "BPC-157 & TB-500", "desc": "**Function:** BPC-157 + TB-500 – the definitive recovery blend. Combined local and systemic tissue repair for accelerated healing of tendons, ligaments, muscle, and gut. **Active peptides:** BPC-157 (15 amino acids) + TB-500 (Thymosin Beta-4 fragment).", "base_price": 69.99},
-    {"id": 3,  "name": "GHK-Cu",           "desc": "**Function:** GHK-Cu (Copper Peptide) – stimulates collagen and elastin production, accelerates wound healing, promotes skin rejuvenation and hair follicle activation. **Active peptide:** GHK-Cu (Glycyl-L-histidyl-L-lysine copper complex).", "base_price": 39.99},
-    {"id": 5,  "name": "Retatrutide",      "desc": "**Function:** Retatrutide – next-generation triple agonist (GLP-1 / GIP / Glucagon). Supports weight management, glucose control, and thermogenesis. One of the most potent metabolic peptides currently in research. **Active peptide:** Retatrutide.", "base_price": 124.99},
-    {"id": 6,  "name": "MOTS-c",           "desc": "**Function:** MOTS-c – a mitochondrial-derived peptide that activates AMPK, enhances insulin sensitivity, boosts metabolic flexibility and cellular energy (ATP) production, and supports exercise capacity and healthy ageing. **Active peptide:** MOTS-c (16 amino acids).", "base_price": 49.99},
-    {"id": 7,  "name": "CJC-1295 / Ipamorelin", "desc": "**Function:** CJC-1295 + Ipamorelin – a growth-hormone-releasing peptide (GHRH analogue) paired with a selective GH secretagogue (ghrelin-receptor agonist). Together they amplify the body's own pulsatile GH release to support recovery, deep sleep, lean-mass recomposition and fat metabolism — without overriding natural feedback. **Active peptides:** CJC-1295 (mod GRF 1-29) + Ipamorelin.", "base_price": 54.99},
-    {"id": 21, "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 159.99},
-    {"id": 22, "name": "KLOW Stack",       "desc": "**Function:** The complete four-peptide repair + anti-inflammatory protocol — KPV (10mg) + BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in one lyophilised vial. Adds KPV's potent anti-inflammatory action to the GLOW regeneration stack. **Active peptides:** KPV · BPC-157 · GHK-Cu · TB-500.", "base_price": 199.99},
-    {"id": 20, "name": "Bacteriostatic Water", "desc": "**Function:** Sterile bacteriostatic water for reconstitution of lyophilised peptides. Contains 0.9% benzyl alcohol — preserves reconstituted peptide solutions for up to 28 days when refrigerated. **Essential companion** to all freeze-dried research peptides.", "base_price": 4.99},
-    {"id": 23, "name": "Electrolyte Sachets", "desc": "**Function:** A balanced sodium / potassium / magnesium electrolyte blend in single-serve sachets. Supports hydration status, fluid balance and nerve-muscle signalling — the daily foundation that training, heat exposure, fasting and low-carb protocols all draw down. Zero sugar. **Actives:** sodium chloride, potassium citrate, magnesium malate.", "base_price": 2.49},
+    {"id": 1, "slug": "bpc-157", "name": "BPC-157",          "desc": "**Function:** BPC-157 (Body Protection Compound-157) – a synthetic 15-amino-acid peptide that accelerates repair of tendons, ligaments, muscle, and the gut lining while promoting angiogenesis. The cornerstone recovery peptide. **Active peptide:** BPC-157 (15 amino acids).", "base_price": 39.99},
+    {"id": 2, "slug": "tb-500", "name": "TB-500",           "desc": "**Function:** TB-500 (Thymosin Beta-4 fragment) – a systemically-acting repair peptide that mobilises stem cells, promotes vascular regeneration, and resolves inflammation body-wide. **Active peptide:** TB-500 (Thymosin Beta-4 analogue).", "base_price": 49.99},
+    {"id": 9, "slug": "bpc-157-tb-500", "name": "BPC-157 & TB-500", "desc": "**Function:** BPC-157 + TB-500 – the definitive recovery blend. Combined local and systemic tissue repair for accelerated healing of tendons, ligaments, muscle, and gut. **Active peptides:** BPC-157 (15 amino acids) + TB-500 (Thymosin Beta-4 fragment).", "base_price": 69.99},
+    {"id": 3, "slug": "ghk-cu", "name": "GHK-Cu",           "desc": "**Function:** GHK-Cu (Copper Peptide) – stimulates collagen and elastin production, accelerates wound healing, promotes skin rejuvenation and hair follicle activation. **Active peptide:** GHK-Cu (Glycyl-L-histidyl-L-lysine copper complex).", "base_price": 39.99},
+    {"id": 5, "slug": "retatrutide", "name": "Retatrutide",      "desc": "**Function:** Retatrutide – next-generation triple agonist (GLP-1 / GIP / Glucagon). Supports weight management, glucose control, and thermogenesis. One of the most potent metabolic peptides currently in research. **Active peptide:** Retatrutide.", "base_price": 124.99},
+    {"id": 6, "slug": "mots-c", "name": "MOTS-c",           "desc": "**Function:** MOTS-c – a mitochondrial-derived peptide that activates AMPK, enhances insulin sensitivity, boosts metabolic flexibility and cellular energy (ATP) production, and supports exercise capacity and healthy ageing. **Active peptide:** MOTS-c (16 amino acids).", "base_price": 49.99},
+    {"id": 7, "slug": "cjc-1295-ipamorelin", "name": "CJC-1295 / Ipamorelin", "desc": "**Function:** CJC-1295 + Ipamorelin – a growth-hormone-releasing peptide (GHRH analogue) paired with a selective GH secretagogue (ghrelin-receptor agonist). Together they amplify the body's own pulsatile GH release to support recovery, deep sleep, lean-mass recomposition and fat metabolism — without overriding natural feedback. **Active peptides:** CJC-1295 (mod GRF 1-29) + Ipamorelin.", "base_price": 54.99},
+    {"id": 21, "slug": "glow-stack", "name": "GLOW Stack",       "desc": "**Function:** The signature PepHub combination — BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in a single lyophilised vial. Deep tissue repair, dermal regeneration, and angiogenesis in one synergistic protocol. **Active peptides:** BPC-157 · GHK-Cu · TB-500.", "base_price": 159.99},
+    {"id": 22, "slug": "klow-stack", "name": "KLOW Stack",       "desc": "**Function:** The complete four-peptide repair + anti-inflammatory protocol — KPV (10mg) + BPC-157 (10mg) + GHK-Cu (50mg) + TB-500 (10mg) in one lyophilised vial. Adds KPV's potent anti-inflammatory action to the GLOW regeneration stack. **Active peptides:** KPV · BPC-157 · GHK-Cu · TB-500.", "base_price": 199.99},
+    {"id": 20, "slug": "bacteriostatic-water", "name": "Bacteriostatic Water", "desc": "**Function:** Sterile bacteriostatic water for reconstitution of lyophilised peptides. Contains 0.9% benzyl alcohol — preserves reconstituted peptide solutions for up to 28 days when refrigerated. **Essential companion** to all freeze-dried research peptides.", "base_price": 4.99},
+    {"id": 23, "slug": "electrolyte-sachets", "name": "Electrolyte Sachets", "desc": "**Function:** A balanced sodium / potassium / magnesium electrolyte blend in single-serve sachets. Supports hydration status, fluid balance and nerve-muscle signalling — the daily foundation that training, heat exposure, fasting and low-carb protocols all draw down. Zero sugar. **Actives:** sodium chloride, potassium citrate, magnesium malate.", "base_price": 2.49},
 ]
 
 # ----------------------------------------------------------------------
@@ -1192,6 +1192,46 @@ def get_variant(sku):
 
 def variants_for(product_id):
     return VARIANTS.get(product_id, [])
+
+# ----------------------------------------------------------------------
+# Product URLs — slug-based for SEO (/product/bpc-157, not /product/1).
+# Numeric URLs still resolve and 301 to the slug, so old links and anything
+# already indexed keep their value instead of 404ing.
+# ----------------------------------------------------------------------
+def product_by_slug(slug):
+    return next((p for p in products if p.get('slug') == slug), None)
+
+def product_by_id(pid):
+    return next((p for p in products if p['id'] == pid), None)
+
+def product_slug(pid):
+    p = product_by_id(pid)
+    return p.get('slug') if p else None
+
+def product_url(pid):
+    """Canonical path for a product. Falls back to the id if a slug is missing."""
+    s = product_slug(pid)
+    return '/product/%s' % (s if s else pid)
+
+# Absolute origin for canonical / og: tags. Set SITE_URL once the real domain is
+# live; otherwise we derive it from the request so it is never wrong-but-plausible.
+SITE_URL = os.environ.get('SITE_URL', '').rstrip('/')
+
+def _xml_escape(s):
+    return (str(s).replace('&', '&amp;').replace('<', '&lt;')
+            .replace('>', '&gt;').replace('"', '&quot;'))
+
+def absolute_url(path):
+    base = SITE_URL
+    if not base:
+        try:
+            base = request.url_root.rstrip('/')
+            # Render/Cloudflare terminate TLS upstream, so honour the proxy header.
+            if request.headers.get('X-Forwarded-Proto') == 'https':
+                base = base.replace('http://', 'https://', 1)
+        except Exception:
+            base = ''
+    return base + path
 
 def default_sku(product_id):
     v = variants_for(product_id)
@@ -1297,6 +1337,8 @@ def _inject():
         'variant_buyable': variant_buyable,
         'variant_listed': variant_listed,
         'listed_variants': listed_variants,
+        'product_url': product_url,
+        'product_slug': product_slug,
     }
 
 # ----------------------------------------------------------------------
@@ -3009,7 +3051,7 @@ button:hover{background:#fff;}
         {% for r in rows %}
         <tr data-row>
             <td>
-                <div class="pname"><a href="/product/{{ r.id }}" target="_blank">{{ r.name }}</a></div>
+                <div class="pname"><a href="{{ product_url(r.id) }}" target="_blank">{{ r.name }}</a></div>
                 <div class="muted">#{{ r.id }} · <span class="cat">{{ r.cat }}</span></div>
                 <button type="button" class="allbtn" data-all="{{ r.id }}" title="Apply this product's status to all of its sizes">↧ to all sizes</button>
             </td>
@@ -3621,11 +3663,63 @@ product_details = {
     },
 }
 
+@app.route('/robots.txt')
+def robots_txt():
+    """Keep crawlers out of cart/checkout/account/admin — those are per-session
+    pages with no search value, and crawling them wastes budget."""
+    lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin', 'Disallow: /cart', 'Disallow: /checkout',
+        'Disallow: /account', 'Disallow: /add-to-cart', 'Disallow: /success',
+        '', 'Sitemap: %s' % absolute_url('/sitemap.xml'), '',
+    ]
+    return app.response_class('\n'.join(lines), mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """Lists the canonical slug URLs so the new product paths get discovered
+    rather than waiting for the old numeric ones to be recrawled."""
+    smap = product_status_map()
+    urls = [('/', '1.0'), ('/shop', '0.9'), ('/deals', '0.8'),
+            ('/science', '0.8'), ('/coa', '0.6')]
+    for p in products:
+        if product_listed(p['id'], smap) and p.get('slug'):
+            urls.append((product_url(p['id']), '0.9'))
+    try:
+        for a in Article.query.filter_by(status='PUBLISHED').all():
+            urls.append(('/science/%s' % a.slug, '0.7'))
+    except Exception:
+        pass
+    for pg in LEGAL_PAGES:
+        urls.append(('/legal/%s' % pg, '0.3'))
+    out = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, pri in urls:
+        out.append('  <url><loc>%s</loc><priority>%s</priority></url>'
+                   % (_xml_escape(absolute_url(path)), pri))
+    out.append('</urlset>')
+    return app.response_class('\n'.join(out), mimetype='application/xml')
+
 @app.route('/product/<int:pid>')
-def product_detail(pid):
-    p = next((x for x in products if x['id'] == pid), None)
+def product_detail_by_id(pid):
+    """Legacy numeric URL. 301s to the slug so link equity transfers instead of
+    the two URLs competing as duplicate content. Query string is preserved —
+    the bulk table deep-links carry ?sku=&qty=&mode= through here."""
+    p = product_by_id(pid)
+    if not p or not p.get('slug'):
+        return "Product not found", 404
+    target = url_for('product_detail', slug=p['slug'])
+    if request.query_string:
+        target += '?' + request.query_string.decode('utf-8', 'ignore')
+    return redirect(target, code=301)
+
+@app.route('/product/<slug>')
+def product_detail(slug):
+    p = product_by_slug(slug)
     if not p:
         return "Product not found", 404
+    pid = p['id']
     smap, vmap = product_status_map(), variant_status_map()
     if not product_listed(pid, smap):          # discontinued — gone, not just unbuyable
         return "Product not found", 404
@@ -3635,7 +3729,38 @@ def product_detail(pid):
     vlist = listed_variants(pid, vmap)
     # Sold out if the product is, or if every remaining size is.
     sellable = [v for v in vlist if variant_buyable(v['sku'], vmap)]
+
+    # ---- SEO -------------------------------------------------------------
+    canonical = absolute_url(product_url(pid))
+    meta_desc = (detail.get('tagline') or '').strip()
+    if not meta_desc:
+        meta_desc = re.sub(r'\*\*|\s+', lambda m: '' if m.group(0).startswith('*') else ' ',
+                           p.get('desc', ''))[:300]
+    meta_desc = (meta_desc[:155].rsplit(' ', 1)[0] + '…') if len(meta_desc) > 155 else meta_desc
+    prices = [v['retail_eur'] for v in (vlist or variants_for(pid))]
+    ld = {
+        '@context': 'https://schema.org/', '@type': 'Product',
+        'name': p['name'], 'description': meta_desc, 'url': canonical,
+        'brand': {'@type': 'Brand', 'name': 'Pep Hub'},
+        'category': product_category(pid),
+    }
+    if detail.get('subtitle'):
+        ld['alternateName'] = detail['subtitle']
+    if prices:
+        avail = 'https://schema.org/InStock' if sellable else 'https://schema.org/OutOfStock'
+        if len(prices) > 1:
+            ld['offers'] = {'@type': 'AggregateOffer', 'priceCurrency': 'EUR',
+                            'lowPrice': '%.2f' % min(prices), 'highPrice': '%.2f' % max(prices),
+                            'offerCount': len(prices), 'availability': avail, 'url': canonical}
+        else:
+            ld['offers'] = {'@type': 'Offer', 'priceCurrency': 'EUR',
+                            'price': '%.2f' % prices[0], 'availability': avail,
+                            'url': canonical, 'sku': (vlist or variants_for(pid))[0]['sku']}
+
     return render_template('product_detail.html', product=p, detail=detail,
+                           canonical=canonical, meta_desc=meta_desc,
+                           og_image=absolute_url('/static/pephub-logo.jpg'),
+                           json_ld=json.dumps(ld, ensure_ascii=False),
                            stock_status=st,
                            buyable=bool(product_buyable(pid, smap) and sellable),
                            stock_note=(row.note if row else None),
@@ -3736,14 +3861,14 @@ def add_to_cart(pid):
     sku = request.form.get('variant_sku') or default_sku(pid)
     ref = get_variant(sku) if sku else None
     if not ref:
-        return fail('Please choose a variant.', url_for('product_detail', pid=pid))
+        return fail('Please choose a variant.', product_url(pid))
     # Stock gate — sold-out / discontinued items cannot be added, even by a
     # stale form or a hand-crafted POST.
     smap = product_status_map()
     if not product_buyable(pid, smap):
         if product_listed(pid, smap):
             return fail('That product is sold out right now — we can not add it to your cart.',
-                        url_for('product_detail', pid=pid))
+                        product_url(pid))
         return fail('That product is no longer available.', url_for('shop'))
     # ...and the specific size has to be in stock, not just the product.
     vmap = variant_status_map()
@@ -3751,8 +3876,8 @@ def add_to_cart(pid):
         label = ref['variant']['label']
         if variant_listed(sku, vmap):
             return fail('%s is sold out right now — please choose another size.' % label,
-                        url_for('product_detail', pid=pid))
-        return fail('%s is no longer available.' % label, url_for('product_detail', pid=pid))
+                        product_url(pid))
+        return fail('%s is no longer available.' % label, product_url(pid))
     # Purchase mode: 'once' (bulk packs) or 'sub' (monthly subscription)
     mode = request.form.get('mode', 'once')
     if mode == 'sub' and not subscription_allowed(pid):
